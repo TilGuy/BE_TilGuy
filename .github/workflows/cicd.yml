@@ -39,6 +39,11 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.OCI_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Verify SSH key
+        run: |
+          ls -l ~/.ssh
+          cat ~/.ssh/id_rsa | head -n 5  # SSH 키 상위 5줄만 출력 (보안 문제 방지)
+
       - name: Deploy to OCI instance
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.OCI_USER }}@${{ secrets.OCI_HOST }} << 'EOF'
