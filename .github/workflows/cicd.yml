@@ -35,7 +35,7 @@ jobs:
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.MATILDA_ACTION }}" | tr -d '\r' > ~/.ssh/id_rsa
+          echo "${{ secrets.OCI_SECRET }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.OCI_HOST }} >> ~/.ssh/known_hosts
 
