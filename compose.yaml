@@ -3,7 +3,7 @@ services:
     build: .
     image: matilda
     ports:
-      - "8080:8080"
+      - "9999:9999"
     volumes:
       - ./server-logs:/app/logs
     container_name: "matilda"

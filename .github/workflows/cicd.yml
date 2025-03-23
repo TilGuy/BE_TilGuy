@@ -35,9 +35,8 @@ jobs:
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.MATILDA_ACTION }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.MATILDA_ACTION }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          # Add OCI host to known_hosts to avoid SSH warnings
           ssh-keyscan -H ${{ secrets.OCI_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to OCI instance
