@@ -3,7 +3,7 @@ name: TilGuy Issue Template
 about: "[TilGuy] 프로젝트 이슈 템플릿 \U0001F4DD"
 title: "[Tag] 제목"
 labels: ''
-assignees: taek2222
+assignees: ''
 
 ---
 
