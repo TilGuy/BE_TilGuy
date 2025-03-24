@@ -8,8 +8,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "til")
 public class Til extends BaseEntity {
 
@@ -19,8 +25,8 @@ public class Til extends BaseEntity {
     private Long tilId;
 
     // todo : FK 연결
-    @Column(name = "user_id")
-    private Long userId;
+//    @Column(name = "user_id")
+//    private Long userId;
 
     @Column(name = "title")
     private String title;
@@ -34,4 +40,9 @@ public class Til extends BaseEntity {
 
     @Column(name = "is_deleted")
     private boolean isDeleted;
+
+    public void update(final String content, final boolean isPublic) {
+        this.content = content;
+        this.isPublic = isPublic;
+    }
 }
