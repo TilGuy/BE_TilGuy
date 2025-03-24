@@ -15,8 +15,8 @@ public class Til extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "post_id")
-    private Long postId;
+    @Column(name = "til_id")
+    private Long tilId;
 
     // todo : FK 연결
     @Column(name = "user_id")
