@@ -30,10 +30,11 @@ public class TilService {
         til.update(updateRequest.content(), updateRequest.isPublic());
     }
 
-    public void deleteTil(Long id) {
-        if (!tilRepository.existsById(id)) {
+    public void deleteTil(Long tilId) {
+        if (!tilRepository.existsById(tilId)) {
             throw new IllegalArgumentException();
         }
-        tilRepository.deleteById(id);
+        Til til = getTilByTilId(tilId);
+        til.markAsDeleted();
     }
 }
