@@ -45,4 +45,8 @@ public class Til extends BaseEntity {
         this.content = content;
         this.isPublic = isPublic;
     }
+
+    public void markAsDeleted() {
+        this.isDeleted = true;
+    }
 }
