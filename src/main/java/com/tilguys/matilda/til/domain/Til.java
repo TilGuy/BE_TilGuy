@@ -41,7 +41,7 @@ public class Til extends BaseEntity {
     @Column(name = "is_deleted")
     private boolean isDeleted;
 
-    public void update(final String content, final boolean isPublic) {
+    public void updateContentAndVisibility(final String content, final boolean isPublic) {
         this.content = content;
         this.isPublic = isPublic;
     }

@@ -27,7 +27,7 @@ public class TilService {
 
     public void updateTil(final TilUpdateRequest updateRequest) {
         Til til = getTilByTilId(updateRequest.tilId());
-        til.update(updateRequest.content(), updateRequest.isPublic());
+        til.updateContentAndVisibility(updateRequest.content(), updateRequest.isPublic());
     }
 
     public void deleteTil(Long tilId) {
