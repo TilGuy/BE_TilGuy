@@ -18,6 +18,6 @@ services:
       MYSQL_ROOT_PASSWORD: 1234
     container_name: "mysql"
     ports:
-      - '3309:3306'
+      - '3309:3309'
     volumes:
       - ./matilda-data:/var/lib/mysql
