@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -20,6 +21,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final UserRepository userRepository;
 
+    @Value("${oauth2.redirect-url}")
+    private String redirectURL;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication)
@@ -30,7 +34,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         User user = userRepository.findByIdentifier(identifier)
                 .orElseThrow(() -> new MatildaException("유저를 찾을 수 없습니다."));
 
-        String redirectUri = UriComponentsBuilder.fromUriString("http://localhost:5173/").build().toString();
+        String redirectUri = UriComponentsBuilder.fromUriString(redirectURL).build().toString();
 
         getRedirectStrategy().sendRedirect(request, response, redirectUri); // TODO 수정 필요
     }
