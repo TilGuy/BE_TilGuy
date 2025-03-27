@@ -1,0 +1,63 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  cicd:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3.1.0
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Create zip file
+        run: |
+          zip -r build/build-artifacts.zip build/libs/* Dockerfile compose.yml start-server.sh
+
+      - name: set mode for tar
+        run: chmod 775 build/build-artifacts.zip
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.OCI_SECRET }}" | tr -d '\r' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.OCI_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Verify SSH key
+        run: |
+          ls -l ~/.ssh
+          cat ~/.ssh/id_rsa | head -n 5  # SSH 키 상위 5줄만 출력 (보안 문제 방지)
+
+      - name: Deploy to OCI instance
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.OCI_USER }}@${{ secrets.OCI_HOST }} << 'EOF'
+            cd /home/matilda-backend  # 이동할 디렉토리 (프로젝트 디렉토리로 변경)
+            rm -rf build-artifacts.zip  # 기존 파일 제거
+            exit
+          EOF
+          
+          scp -i ~/.ssh/id_rsa build/build-artifacts.zip ${{ secrets.OCI_USER }}@${{ secrets.OCI_HOST }}:/home/matilda-backend/build-artifacts.zip
+          
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.OCI_USER }}@${{ secrets.OCI_HOST }} << 'EOF'
+            cd /home/matilda-backend
+            unzip -o build-artifacts.zip
+            # 배포 스크립트 실행 (예: 서버 재시작)
+            ./start-server.sh
+            exit
+          EOF
