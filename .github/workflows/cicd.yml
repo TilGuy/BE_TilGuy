@@ -23,7 +23,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v3.1.0
 
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew bootJar
 
       - name: Create zip file
         run: |
