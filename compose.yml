@@ -14,8 +14,8 @@ services:
     environment:
       MYSQL_DATABASE: matilda
       MYSQL_USERNAME: matilda
-      MYSQL_PASSWORD: 1234
-      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_PASSWORD: 3062
+      MYSQL_ROOT_PASSWORD: 3062
     container_name: "mysql"
     ports:
       - '3309:3309'
