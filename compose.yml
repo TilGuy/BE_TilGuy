@@ -13,10 +13,10 @@ services:
     image: mysql:8.2.0
     environment:
       MYSQL_DATABASE: matilda
-      MYSQL_USERNAME: matilda
+      MYSQL_USERNAME: root
       MYSQL_PASSWORD: 3062
       MYSQL_ROOT_PASSWORD: 3062
-    container_name: "mysql"
+    container_name: "matilda-mysql"
     ports:
       - '3309:3309'
     volumes:
