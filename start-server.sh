@@ -1,1 +1,1 @@
-docker build --no-cache -t matilda . && docker compose up -d &
+docker build --no-cache -t matilda . && docker compose-up &
