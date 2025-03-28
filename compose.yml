@@ -8,7 +8,6 @@ services:
       - ./server-logs:/app/logs
     container_name: "matilda"
 
-
   mysql:
     image: mysql:8.2.0
     environment:
@@ -16,8 +15,7 @@ services:
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: 3062
       MYSQL_ROOT_PASSWORD: 3062
-    container_name: "matilda-mysql"
     ports:
-      - '3309:3309'
+      - '3309:3306'
     volumes:
       - ./matilda-data:/var/lib/mysql
