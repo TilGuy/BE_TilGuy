@@ -1,5 +1,6 @@
 package com.tilguys.matilda.config.jwt;
 
+import com.tilguys.matilda.exception.InvalidJwtToken;
 import com.tilguys.matilda.exception.MatildaException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -9,6 +10,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,15 +32,15 @@ import org.springframework.stereotype.Component;
 public class JwtTokenFactory {
 
     private static final String AUTHORITIES_KEY = "Authorization";
-    private static final String BEARER_TYPE = "Bearer";
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; // 30 min
-    //    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 30; // 30 sec
-    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000L * 60 * 60 * 24 * 30; // 30 days (1 month)
+    private static final int ONE_DAY = 3600 * 24;
+    private static final String COOKIE_NAME = "jwt";
+    private static final String INVALID_TOKEN = "유효하지 않은 토큰입니다.";
+    private static final String INVALID_JWT_SIGN = "잘못된 JWT 서명입니다.";
+    private static final String NOT_SUPPORTED_JWT = "지원되지 않는 JWT 토큰입니다.";
+    private static final String INVALID_JWT_ARGUMENT = "JWT 토큰이 잘못되었습니다.";
+
     private final Key key;
-    private final String INVALID_JWT_SIGN = "잘못된 JWT 서명입니다.";
-    private final String NOT_SUPPORTED_JWT = "지원되지 않는 JWT 토큰입니다.";
-    private final String INVALID_JWT_ARGUMENT = "JWT 토큰이 잘못되었습니다.";
-    private final String INVALID_TOKEN = "유효하지 않은 토큰입니다.";
 
     public JwtTokenFactory(@Value("${jwt.secret}") String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
@@ -46,28 +49,6 @@ public class JwtTokenFactory {
 
     public String getUsernameFromToken(String token) {
         return parseClaims(token).getSubject();
-    }
-
-    public JwtTokenDto generateTokenDto(Authentication authentication) {
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-
-        long now = (new Date()).getTime();
-
-        Date tokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
-        Date refreshTokenExpiresIn = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
-
-        String accessToken = createJwt(authentication, authorities, tokenExpiresIn);
-        String refreshToken = createJwt(authentication, authorities, refreshTokenExpiresIn);
-
-        return JwtTokenDto.builder()
-                .grantType(BEARER_TYPE)
-                .accessToken(accessToken)
-                .tokenExpiresIn(tokenExpiresIn.getTime())
-                .refreshToken(refreshToken)
-                .refreshTokenExpiresIn(refreshTokenExpiresIn.getTime())
-                .build();
     }
 
     private String createJwt(Authentication authentication, String authorities, Date tokenExpiresIn) {
@@ -124,7 +105,7 @@ public class JwtTokenFactory {
         Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
                         .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
+                        .toList();
         return authorities.toString();
     }
 
@@ -137,6 +118,33 @@ public class JwtTokenFactory {
         Date tokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
 
         return createJwt(authentication, authorities, tokenExpiresIn);
+    }
+
+    public void createResponseJwtToken(HttpServletResponse response, Authentication authentication) {
+        String jwtToken = generateAccessToken(authentication);
+        setJwtCookie(response, jwtToken);
+    }
+
+    private void setJwtCookie(HttpServletResponse response, String jwtToken) {
+        Cookie cookie = new Cookie(COOKIE_NAME, jwtToken);
+        cookie.setHttpOnly(true);  // JavaScript로 접근 불가
+        cookie.setSecure(false);    // HTTPS에서만 전송
+        cookie.setPath("/");       // 해당 경로에만 유효
+        cookie.setMaxAge(ONE_DAY);    // 만료 시간 (초 단위)
+
+        response.addCookie(cookie);
+    }
+
+    public String resolveJwtToken(Cookie[] cookies) {
+        for (Cookie cookie : cookies) {
+            String name = cookie.getName();
+            if (name.equals(COOKIE_NAME)) {
+                String token = cookie.getAttribute(COOKIE_NAME);
+                Claims claims = parseClaims(token);
+                String subject = claims.getSubject();
+            }
+        }
+        throw new InvalidJwtToken(INVALID_TOKEN);
     }
 }
 
