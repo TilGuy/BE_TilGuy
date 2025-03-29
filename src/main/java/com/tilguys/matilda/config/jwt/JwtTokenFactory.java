@@ -139,9 +139,7 @@ public class JwtTokenFactory {
         for (Cookie cookie : cookies) {
             String name = cookie.getName();
             if (name.equals(COOKIE_NAME)) {
-                String token = cookie.getAttribute(COOKIE_NAME);
-                Claims claims = parseClaims(token);
-                String subject = claims.getSubject();
+                return cookie.getAttribute(COOKIE_NAME);
             }
         }
         throw new InvalidJwtToken(INVALID_TOKEN);

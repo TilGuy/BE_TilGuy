@@ -3,6 +3,7 @@ package com.tilguys.matilda.security.config;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -12,9 +13,12 @@ public class CustomCorsConfigurationSource implements CorsConfigurationSource {
 
     private final String ALLOWED_ORIGIN;
     private final List<String> ALLOWED_METHODS = List.of("POST", "GET", "PATCH", "OPTIONS", "DELETE");
+    @Value("${frontend.url}")
+    private String frontendUrl;
+
 
     public CustomCorsConfigurationSource() {
-        this.ALLOWED_ORIGIN = "http://localhost:5173"; // TODO 추후 수정
+        this.ALLOWED_ORIGIN = frontendUrl; // TODO 추후 수정
     }
 
     @Override
