@@ -21,6 +21,6 @@ public class PrevOnceLoginHandler extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String userIdentifier = jwtTokenFactory.resolveJwtToken(request.getCookies());
-        System.out.println(userIdentifier);
+        
     }
 }
