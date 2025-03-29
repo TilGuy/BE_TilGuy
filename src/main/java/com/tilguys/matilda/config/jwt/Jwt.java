@@ -28,13 +28,13 @@ public class Jwt {
         return Long.parseLong(authentication.getName());
     }
 
-    public String getUsernameFromRequest(HttpServletRequest request){
+    public String getUsernameFromRequest(HttpServletRequest request) {
         String token = resolveToken(request);
 //        String token = getTokenFromCookie(request);
         return jwtTokenFactory.getUsernameFromToken(token);
     }
 
-    private String getTokenFromCookie(HttpServletRequest request){
+    private String getTokenFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             return findValidToken(cookies);
@@ -51,12 +51,12 @@ public class Jwt {
         return "";
     }
 
-    public String getPrincipleFromToken(HttpServletRequest request){
+    public String getPrincipleFromToken(HttpServletRequest request) {
         String token = resolveToken(request);
         return jwtTokenFactory.getPrincipleFromToken(token);
     }
 
-    public String getPrincipleFromToken(String token){
+    public String getPrincipleFromToken(String token) {
         return jwtTokenFactory.getPrincipleFromToken(token);
     }
 

@@ -30,8 +30,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(corsCustomizer -> corsCustomizer
-                        .configurationSource(customCorsConfigurationSource))
+//                .cors(corsCustomizer -> corsCustomizer
+//                        .configurationSource(customCorsConfigurationSource))
                 .csrf(CsrfConfigurer::disable)
                 .httpBasic(HttpBasicConfigurer::disable)
                 // Oauth 사용으로 인해 기본 로그인 비활성화
