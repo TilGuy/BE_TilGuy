@@ -2,8 +2,10 @@ package com.tilguys.matilda.service;
 
 import com.tilguys.matilda.config.jwt.JwtTokenFactory;
 import com.tilguys.matilda.exception.MatildaException;
+import com.tilguys.matilda.user.entity.User;
 import com.tilguys.matilda.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,5 +20,10 @@ public class UserService {
     public void validateExistUser(String identifier) {
         userRepository.findByIdentifier(identifier)
                 .orElseThrow(() -> new MatildaException(USER_DOESNT_EXIST));
+    }
+
+    public User findUserByIdentifier(String userIdentifier) {
+        return userRepository.findByIdentifier(userIdentifier)
+                .orElseThrow(() -> new UsernameNotFoundException(USER_DOESNT_EXIST));
     }
 }
