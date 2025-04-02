@@ -17,6 +17,7 @@ public class Jwt {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String BEARER_PREFIX = "Bearer ";
     public static final String REFRESH_COOKIE_HEADER = "refreshToken";
+    private static final String COOKIE_NAME = "jwt";
 
     private final JwtTokenFactory jwtTokenFactory;
 
@@ -31,7 +32,7 @@ public class Jwt {
     public String getUsernameFromRequest(HttpServletRequest request) {
         String token = resolveToken(request);
 //        String token = getTokenFromCookie(request);
-        return jwtTokenFactory.getUsernameFromToken(token);
+        return jwtTokenFactory.resolveUsernameFromToken(token);
     }
 
     public String getTokenFromCookie(HttpServletRequest request) {
@@ -81,6 +82,10 @@ public class Jwt {
             }
         }
         return null;
+    }
+
+    public static String getCookieName() {
+        return COOKIE_NAME;
     }
 //
 //    public String getNewAccessCode(HttpServletRequest request)

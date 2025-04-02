@@ -35,12 +35,12 @@ public class JwtTokenFactory {
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; // 30 min
     private static final int ONE_DAY = 3600 * 24;
     private static final int ONE_MIN = 60;
-    private static final String COOKIE_NAME = "jwt";
+
     private static final String INVALID_TOKEN = "유효하지 않은 토큰입니다.";
+
     private static final String INVALID_JWT_SIGN = "잘못된 JWT 서명입니다.";
     private static final String NOT_SUPPORTED_JWT = "지원되지 않는 JWT 토큰입니다.";
     private static final String INVALID_JWT_ARGUMENT = "JWT 토큰이 잘못되었습니다.";
-
     private final Key key;
 
     public JwtTokenFactory(@Value("${jwt.secret}") String secretKey) {
@@ -48,7 +48,7 @@ public class JwtTokenFactory {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String getUsernameFromToken(String token) {
+    public String resolveUsernameFromToken(String token) {
         return parseClaims(token).getSubject();
     }
 
@@ -118,7 +118,7 @@ public class JwtTokenFactory {
     }
 
     private Cookie createJwtCookie(HttpServletResponse response, String jwtToken) {
-        Cookie cookie = new Cookie(COOKIE_NAME, jwtToken);
+        Cookie cookie = new Cookie(Jwt.getCookieName(), jwtToken);
         cookie.setHttpOnly(true);  // JavaScript로 접근 불가
         cookie.setSecure(false);    // HTTPS에서만 전송
         cookie.setPath("/");       // 해당 경로에만 유효
@@ -129,8 +129,8 @@ public class JwtTokenFactory {
     public String resolveJwtToken(Cookie[] cookies) {
         for (Cookie cookie : cookies) {
             String name = cookie.getName();
-            if (name.equals(COOKIE_NAME)) {
-                return cookie.getAttribute(COOKIE_NAME);
+            if (name.equals(Jwt.getCookieName())) {
+                return cookie.getAttribute(Jwt.getCookieName());
             }
         }
         throw new InvalidJwtToken(INVALID_TOKEN);
