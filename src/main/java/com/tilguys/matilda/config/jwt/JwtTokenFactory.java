@@ -34,6 +34,7 @@ public class JwtTokenFactory {
     private static final String AUTHORITIES_KEY = "Authorization";
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; // 30 min
     private static final int ONE_DAY = 3600 * 24;
+    private static final int ONE_MIN = 60;
     private static final String COOKIE_NAME = "jwt";
     private static final String INVALID_TOKEN = "유효하지 않은 토큰입니다.";
     private static final String INVALID_JWT_SIGN = "잘못된 JWT 서명입니다.";
@@ -92,21 +93,12 @@ public class JwtTokenFactory {
     }
 
     private Claims parseClaims(String accessToken) {
-        try {
-            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
-        } catch (ExpiredJwtException e) {
-            return e.getClaims();
-        }
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
     }
 
-    public String getPrincipleFromToken(String accessToken) {
+    public String getSubjectFromToken(String accessToken) {
         Claims claims = parseClaims(accessToken);
-
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .toList();
-        return authorities.toString();
+        return claims.getSubject();
     }
 
     public String generateAccessToken(Authentication authentication) {
@@ -120,19 +112,18 @@ public class JwtTokenFactory {
         return createJwt(authentication, authorities, tokenExpiresIn);
     }
 
-    public void createResponseJwtToken(HttpServletResponse response, Authentication authentication) {
+    public Cookie createJwtCookie(HttpServletResponse response, Authentication authentication) {
         String jwtToken = generateAccessToken(authentication);
-        setJwtCookie(response, jwtToken);
+        return createJwtCookie(response, jwtToken);
     }
 
-    private void setJwtCookie(HttpServletResponse response, String jwtToken) {
+    private Cookie createJwtCookie(HttpServletResponse response, String jwtToken) {
         Cookie cookie = new Cookie(COOKIE_NAME, jwtToken);
         cookie.setHttpOnly(true);  // JavaScript로 접근 불가
         cookie.setSecure(false);    // HTTPS에서만 전송
         cookie.setPath("/");       // 해당 경로에만 유효
         cookie.setMaxAge(ONE_DAY);    // 만료 시간 (초 단위)
-
-        response.addCookie(cookie);
+        return cookie;
     }
 
     public String resolveJwtToken(Cookie[] cookies) {

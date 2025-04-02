@@ -6,12 +6,15 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
@@ -28,12 +31,4 @@ public class User {
     private Role role;
 
     private String nickname;
-
-    @Builder
-    public User(ProviderInfo providerInfo, String identifier, Role role, String nickname) {
-        this.providerInfo = providerInfo;
-        this.identifier = identifier;
-        this.role = role;
-        this.nickname = nickname;
-    }
 }
