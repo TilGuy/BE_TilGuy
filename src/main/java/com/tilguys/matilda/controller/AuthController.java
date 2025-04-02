@@ -1,5 +1,6 @@
 package com.tilguys.matilda.controller;
 
+import com.tilguys.matilda.config.jwt.Jwt;
 import com.tilguys.matilda.config.jwt.JwtTokenFactory;
 import com.tilguys.matilda.security.GithubUserInfo;
 import com.tilguys.matilda.security.service.GithubAuthService;
@@ -26,15 +27,16 @@ public class AuthController {
     private final GithubAuthService githubAuthService;
     private final JwtTokenFactory jwtTokenFactory;
 
-    @GetMapping("/hi")
-    public ResponseEntity<?> hi() {
-        System.out.println("hi");
-        return ResponseEntity.ok("hi");
+    @GetMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        Cookie jwt = new Cookie(Jwt.getCookieName(), null);
+        jwt.setMaxAge(0); // 쿠키의 expiration 타임을 0으로 하여 없앤다.
+        jwt.setPath("/"); // 모든 경로에서 삭제 됬음을 알린다.
+        return ResponseEntity.ok(ResponseEntity.accepted());
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> getUserInfo(@RequestParam(value = "code") String code, HttpServletResponse response) {
-        System.out.println(code);
         String accessToken = githubAuthService.getAccessToken(code);
         if (accessToken == null) {
             throw new OAuth2AuthenticationException("로그인에 실패하였습니다");
