@@ -34,7 +34,7 @@ public class Jwt {
         return jwtTokenFactory.getUsernameFromToken(token);
     }
 
-    private String getTokenFromCookie(HttpServletRequest request) {
+    public String getTokenFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             return findValidToken(cookies);
@@ -44,7 +44,7 @@ public class Jwt {
 
     private static String findValidToken(Cookie[] cookies) {
         for (Cookie cookie : cookies) {
-            if ("token".equals(cookie.getName())) {
+            if ("jwt".equals(cookie.getName())) {
                 return cookie.getValue();
             }
         }
@@ -53,11 +53,11 @@ public class Jwt {
 
     public String getPrincipleFromToken(HttpServletRequest request) {
         String token = resolveToken(request);
-        return jwtTokenFactory.getPrincipleFromToken(token);
+        return jwtTokenFactory.getSubjectFromToken(token);
     }
 
     public String getPrincipleFromToken(String token) {
-        return jwtTokenFactory.getPrincipleFromToken(token);
+        return jwtTokenFactory.getSubjectFromToken(token);
     }
 
     public String resolveToken(HttpServletRequest request) {

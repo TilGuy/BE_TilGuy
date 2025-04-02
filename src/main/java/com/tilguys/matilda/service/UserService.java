@@ -2,10 +2,12 @@ package com.tilguys.matilda.service;
 
 import com.tilguys.matilda.config.jwt.JwtTokenFactory;
 import com.tilguys.matilda.exception.MatildaException;
+import com.tilguys.matilda.user.entity.ProviderInfo;
+import com.tilguys.matilda.user.entity.Role;
 import com.tilguys.matilda.user.entity.User;
 import com.tilguys.matilda.user.repository.UserRepository;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,8 +24,16 @@ public class UserService {
                 .orElseThrow(() -> new MatildaException(USER_DOESNT_EXIST));
     }
 
-    public User findUserByIdentifier(String userIdentifier) {
-        return userRepository.findByIdentifier(userIdentifier)
-                .orElseThrow(() -> new UsernameNotFoundException(USER_DOESNT_EXIST));
+    public Optional<User> findUserByIdentifier(String userIdentifier) {
+        return userRepository.findByIdentifier(userIdentifier);
+    }
+
+    public void signup(String identifier) {
+        User user = User.builder()
+                .identifier(identifier)
+                .providerInfo(ProviderInfo.GITHUB)
+                .role(Role.USER)
+                .build();
+        userRepository.save(user);
     }
 }
