@@ -58,6 +58,6 @@ jobs:
             cd /home/matilda-backend
             unzip -o build-artifacts.zip
             # 배포 스크립트 실행 (예: 서버 재시작)
-            ./start-server.sh
+            ./start-server.sh &
             exit
           EOF

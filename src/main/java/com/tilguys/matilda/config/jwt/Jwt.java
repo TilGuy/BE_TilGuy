@@ -17,6 +17,7 @@ public class Jwt {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String BEARER_PREFIX = "Bearer ";
     public static final String REFRESH_COOKIE_HEADER = "refreshToken";
+    private static final String COOKIE_NAME = "jwt";
 
     private final JwtTokenFactory jwtTokenFactory;
 
@@ -28,13 +29,13 @@ public class Jwt {
         return Long.parseLong(authentication.getName());
     }
 
-    public String getUsernameFromRequest(HttpServletRequest request){
+    public String getUsernameFromRequest(HttpServletRequest request) {
         String token = resolveToken(request);
 //        String token = getTokenFromCookie(request);
-        return jwtTokenFactory.getUsernameFromToken(token);
+        return jwtTokenFactory.resolveUsernameFromToken(token);
     }
 
-    private String getTokenFromCookie(HttpServletRequest request){
+    public String getTokenFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             return findValidToken(cookies);
@@ -44,20 +45,20 @@ public class Jwt {
 
     private static String findValidToken(Cookie[] cookies) {
         for (Cookie cookie : cookies) {
-            if ("token".equals(cookie.getName())) {
+            if ("jwt".equals(cookie.getName())) {
                 return cookie.getValue();
             }
         }
         return "";
     }
 
-    public String getPrincipleFromToken(HttpServletRequest request){
+    public String getPrincipleFromToken(HttpServletRequest request) {
         String token = resolveToken(request);
-        return jwtTokenFactory.getPrincipleFromToken(token);
+        return jwtTokenFactory.getSubjectFromToken(token);
     }
 
-    public String getPrincipleFromToken(String token){
-        return jwtTokenFactory.getPrincipleFromToken(token);
+    public String getPrincipleFromToken(String token) {
+        return jwtTokenFactory.getSubjectFromToken(token);
     }
 
     public String resolveToken(HttpServletRequest request) {
@@ -81,6 +82,10 @@ public class Jwt {
             }
         }
         return null;
+    }
+
+    public static String getCookieName() {
+        return COOKIE_NAME;
     }
 //
 //    public String getNewAccessCode(HttpServletRequest request)
