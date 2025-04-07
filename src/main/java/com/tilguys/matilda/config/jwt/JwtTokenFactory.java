@@ -11,7 +11,6 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
@@ -112,12 +111,12 @@ public class JwtTokenFactory {
         return createJwt(authentication, authorities, tokenExpiresIn);
     }
 
-    public Cookie createJwtCookie(HttpServletResponse response, Authentication authentication) {
+    public Cookie createJwtCookie(Authentication authentication) {
         String jwtToken = generateAccessToken(authentication);
-        return createJwtCookie(response, jwtToken);
+        return createJwtCookie(jwtToken);
     }
 
-    private Cookie createJwtCookie(HttpServletResponse response, String jwtToken) {
+    private Cookie createJwtCookie(String jwtToken) {
         Cookie cookie = new Cookie(Jwt.getCookieName(), jwtToken);
         cookie.setHttpOnly(true);  // JavaScript로 접근 불가
         cookie.setSecure(false);    // HTTPS에서만 전송

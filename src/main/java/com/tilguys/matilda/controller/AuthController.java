@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
-@RequestMapping("/api/oauth")
+@RequestMapping("/api/oauth"
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
@@ -45,7 +45,7 @@ public class AuthController {
         GithubUserInfo gitHubUserInfo = githubAuthService.getGitHubUserInfo(accessToken);
 
         Authentication authentication = authService.createAuthenticationFromName(gitHubUserInfo.identifier());
-        Cookie jwtCookie = jwtTokenFactory.createJwtCookie(response, authentication);
+        Cookie jwtCookie = jwtTokenFactory.createJwtCookie(authentication);
         response.addCookie(jwtCookie);
         return ResponseEntity.ok(gitHubUserInfo);
     }
