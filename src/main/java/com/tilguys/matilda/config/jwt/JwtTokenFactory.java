@@ -53,9 +53,9 @@ public class JwtTokenFactory {
         return parseClaims(token).getSubject();
     }
 
-    private String createJwt(String identifier, String authorities, Date tokenExpiresIn) {
+    private String createJwt(Authentication authentication, String authorities, Date tokenExpiresIn) {
         return Jwts.builder()
-                .setSubject(identifier)
+                .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
                 .setExpiration(tokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS512)
@@ -102,7 +102,7 @@ public class JwtTokenFactory {
         return claims.getSubject();
     }
 
-    private String generateAccessToken(Authentication authentication, String identifier) {
+    private String generateAccessToken(Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
@@ -110,13 +110,13 @@ public class JwtTokenFactory {
         long now = (new Date()).getTime();
         Date tokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
 
-        return createJwt(identifier, authorities, tokenExpiresIn);
+        return createJwt(authentication, authorities, tokenExpiresIn);
     }
 
-    public Cookie createJwtCookieWithIdentifier(String identifier) {
+    public Cookie createJwtCookie() {
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication authentication = context.getAuthentication();
-        String jwtToken = generateAccessToken(authentication, identifier);
+        String jwtToken = generateAccessToken(authentication);
         return createJwtCookie(jwtToken);
     }
 
