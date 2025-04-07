@@ -35,7 +35,7 @@ public class AuthService {
             UserDetails principal = new User(userByIdentifier.get().getIdentifier(), "", authorities);
             return new UsernamePasswordAuthenticationToken(principal, "", authorities);
         } catch (RuntimeException e) {
-            e.printStackTrace();
+
         }
         return null;
     }

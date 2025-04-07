@@ -1,11 +1,11 @@
 package com.tilguys.matilda.security.config;
 
 import com.tilguys.matilda.config.jwt.Jwt;
-import com.tilguys.matilda.config.jwt.JwtTokenFactory;
 import com.tilguys.matilda.service.UserService;
 import com.tilguys.matilda.user.entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -25,14 +25,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class PrevLoginFilter extends OncePerRequestFilter {
 
-    private final JwtTokenFactory jwtTokenFactory;
     private final Jwt jwt;
     private final UserService userService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String token = jwt.getTokenFromCookie(request);
+        Cookie[] cookies = request.getCookies();
+        String token = jwt.getTokenFromCookie(cookies);
+
         try {
             String identifier = jwt.getPrincipleFromToken(token);
             Optional<User> userByIdentifier = userService.findUserByIdentifier(identifier);
