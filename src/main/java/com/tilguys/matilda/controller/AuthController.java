@@ -43,9 +43,9 @@ public class AuthController {
         if (accessToken == null) {
             throw new OAuth2AuthenticationException("로그인에 실패하였습니다");
         }
-        System.out.println(accessToken);
         GithubUserInfo gitHubUserInfo = githubAuthService.getGitHubUserInfo(accessToken);
-        Cookie jwtCookie = jwtTokenFactory.createJwtCookie();
+        String identifier = gitHubUserInfo.identifier();
+        Cookie jwtCookie = jwtTokenFactory.createJwtCookieWithIdentifier(identifier);
         response.addCookie(jwtCookie);
         return ResponseEntity.ok(gitHubUserInfo);
     }
