@@ -1,42 +1,57 @@
 package com.tilguys.matilda.config.jwt;
 
 
+import com.tilguys.matilda.exception.MatildaException;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import java.security.Key;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class Jwt {
 
     private static final String INVALID_AUTH_TOKEN = "유효하지 않은 인증 토큰입니다.";
-    public static final String AUTHORIZATION_HEADER = "Authorization";
-    public static final String BEARER_PREFIX = "Bearer ";
-    public static final String REFRESH_COOKIE_HEADER = "refreshToken";
+    private static final String REFRESH_COOKIE_HEADER = "refreshToken";
     private static final String COOKIE_NAME = "jwt";
+    private static final String AUTHORITIES_KEY = "Authorization";
+    private static final String INVALID_JWT_SIGN = "잘못된 JWT 서명입니다.";
+    private static final String NOT_SUPPORTED_JWT = "지원되지 않는 JWT 토큰입니다.";
+    private static final String INVALID_JWT_ARGUMENT = "JWT 토큰이 잘못되었습니다.";
 
+    private final Key key;
     private final JwtTokenFactory jwtTokenFactory;
 
-    public static Long getCurrentUserId() {
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getName() == null) {
-            throw new RuntimeException("Security Context에 인증 정보가 없습니다.");
-        }
-        return Long.parseLong(authentication.getName());
+    public Jwt(String secretKey, JwtTokenFactory jwtTokenFactory) {
+        this.jwtTokenFactory = jwtTokenFactory;
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String getUsernameFromRequest(HttpServletRequest request) {
-        String token = resolveToken(request);
-//        String token = getTokenFromCookie(request);
-        return jwtTokenFactory.resolveUsernameFromToken(token);
+    public Cookie createJwtCookie() {
+        return jwtTokenFactory.createJwtCookieWithKey(key);
     }
 
-    public String getTokenFromCookie(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
+    public String getTokenFromCookie(Cookie[] cookies) {
         if (cookies != null) {
             return findValidToken(cookies);
         }
@@ -45,29 +60,40 @@ public class Jwt {
 
     private static String findValidToken(Cookie[] cookies) {
         for (Cookie cookie : cookies) {
-            if ("jwt".equals(cookie.getName())) {
+            if (COOKIE_NAME.equals(cookie.getName())) {
                 return cookie.getValue();
             }
         }
         return "";
     }
 
-    public String getPrincipleFromToken(HttpServletRequest request) {
-        String token = resolveToken(request);
-        return jwtTokenFactory.getSubjectFromToken(token);
+    public boolean validateToken(String token) throws ExpiredJwtException {
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return true;
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            log.info(INVALID_JWT_SIGN);
+        } catch (UnsupportedJwtException e) {
+            log.info(NOT_SUPPORTED_JWT);
+        } catch (IllegalArgumentException e) {
+            log.info(INVALID_JWT_ARGUMENT);
+        }
+        log.info("token : " + token);
+        return false;
+    }
+
+
+    private Claims parseClaims(String accessToken) {
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
+    }
+
+    public String getSubjectFromToken(String accessToken) {
+        Claims claims = parseClaims(accessToken);
+        return claims.getSubject();
     }
 
     public String getPrincipleFromToken(String token) {
-        return jwtTokenFactory.getSubjectFromToken(token);
-    }
-
-    public String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
-            return bearerToken.substring(7);
-        }
-        return bearerToken;
+        return getSubjectFromToken(token);
     }
 
     public String resolveRefreshToken(HttpServletRequest request) {
@@ -75,9 +101,7 @@ public class Jwt {
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if (REFRESH_COOKIE_HEADER.equals(cookie.getName())) {
-                    String token = cookie.getValue();
-                    // 쿠키값을 확인하고 필요한 작업 수행
-                    return token;
+                    return cookie.getValue();
                 }
             }
         }
@@ -87,6 +111,23 @@ public class Jwt {
     public static String getCookieName() {
         return COOKIE_NAME;
     }
+
+    public Authentication getAuthentication(String accessToken) {
+        Claims claims = parseClaims(accessToken);
+
+        if (claims.get(AUTHORITIES_KEY) == null) {
+            throw new MatildaException(INVALID_AUTH_TOKEN);
+        }
+
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
+
+        UserDetails principal = new User(claims.getSubject(), "", authorities);
+        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+    }
+
 //
 //    public String getNewAccessCode(HttpServletRequest request)
 //    {
