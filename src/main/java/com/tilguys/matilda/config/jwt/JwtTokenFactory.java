@@ -22,6 +22,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -100,7 +102,7 @@ public class JwtTokenFactory {
         return claims.getSubject();
     }
 
-    public String generateAccessToken(Authentication authentication) {
+    private String generateAccessToken(Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
@@ -111,7 +113,9 @@ public class JwtTokenFactory {
         return createJwt(authentication, authorities, tokenExpiresIn);
     }
 
-    public Cookie createJwtCookie(Authentication authentication) {
+    public Cookie createJwtCookie() {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
         String jwtToken = generateAccessToken(authentication);
         return createJwtCookie(jwtToken);
     }

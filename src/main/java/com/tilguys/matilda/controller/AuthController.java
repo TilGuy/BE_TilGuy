@@ -7,9 +7,11 @@ import com.tilguys.matilda.security.service.GithubAuthService;
 import com.tilguys.matilda.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Collection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,9 +45,7 @@ public class AuthController {
         }
         System.out.println(accessToken);
         GithubUserInfo gitHubUserInfo = githubAuthService.getGitHubUserInfo(accessToken);
-
-        Authentication authentication = authService.createAuthenticationFromName(gitHubUserInfo.identifier());
-        Cookie jwtCookie = jwtTokenFactory.createJwtCookie(authentication);
+        Cookie jwtCookie = jwtTokenFactory.createJwtCookie();
         response.addCookie(jwtCookie);
         return ResponseEntity.ok(gitHubUserInfo);
     }
