@@ -2,13 +2,13 @@ package com.tilguys.matilda.common.auth;
 
 
 import com.tilguys.matilda.common.auth.exception.MatildaException;
+import com.tilguys.matilda.common.auth.strategy.JwtCookieCreateStrategy;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import java.security.Key;
@@ -21,6 +21,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -29,7 +30,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Slf4j
 public class Jwt {
-
     private static final String INVALID_AUTH_TOKEN = "유효하지 않은 인증 토큰입니다.";
     private static final String REFRESH_COOKIE_HEADER = "refreshToken";
     private static final String COOKIE_NAME = "jwt";
@@ -38,17 +38,12 @@ public class Jwt {
     private static final String NOT_SUPPORTED_JWT = "지원되지 않는 JWT 토큰입니다.";
     private static final String INVALID_JWT_ARGUMENT = "JWT 토큰이 잘못되었습니다.";
 
+    private final JwtCookieCreateStrategy jwtCookieCreateStrategy;
     private final Key key;
-    private final JwtTokenFactory jwtTokenFactory;
-
-    public Jwt(String secretKey, JwtTokenFactory jwtTokenFactory) {
-        this.jwtTokenFactory = jwtTokenFactory;
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        this.key = Keys.hmacShaKeyFor(keyBytes);
-    }
 
     public Cookie createJwtCookie() {
-        return jwtTokenFactory.createJwtCookieWithKey(key);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return jwtCookieCreateStrategy.createCookie(authentication);
     }
 
     public String getTokenFromCookie(Cookie[] cookies) {
@@ -71,7 +66,7 @@ public class Jwt {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
-        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+        } catch (SecurityException | MalformedJwtException e) {
             log.info(INVALID_JWT_SIGN);
         } catch (UnsupportedJwtException e) {
             log.info(NOT_SUPPORTED_JWT);

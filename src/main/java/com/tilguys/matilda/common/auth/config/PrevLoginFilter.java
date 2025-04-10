@@ -35,6 +35,7 @@ public class PrevLoginFilter extends OncePerRequestFilter {
         String token = jwt.getTokenFromCookie(cookies);
 
         try {
+            jwt.validateToken(token);
             String identifier = jwt.getPrincipleFromToken(token);
             Optional<TilUser> userByIdentifier = userService.findUserByIdentifier(identifier);
             if (userByIdentifier.isEmpty()) {

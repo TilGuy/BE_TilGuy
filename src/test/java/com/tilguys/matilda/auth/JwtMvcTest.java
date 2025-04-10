@@ -1,13 +1,16 @@
-package com.tilguys.matilda;
+package com.tilguys.matilda.auth;
 
-import com.tilguys.matilda.auth.WithMockCustomUser;
+import com.tilguys.matilda.auth.strategy.TestJwtTokenCookieCreateStrategy;
+import com.tilguys.matilda.auth.user.WithMockCustomUser;
 import com.tilguys.matilda.common.auth.Jwt;
 import com.tilguys.matilda.user.ProviderInfo;
 import com.tilguys.matilda.user.Role;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
+import java.security.Key;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -27,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class JwtTest {
+public class JwtMvcTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -38,6 +41,15 @@ public class JwtTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private Key jwtKey;
+
+    private Jwt expireCreateJwt;
+
+    @BeforeEach
+    void setup() {
+        this.expireCreateJwt = new Jwt(new TestJwtTokenCookieCreateStrategy(jwtKey), jwtKey);
+    }
 
     @Test
     @WithMockCustomUser(identifier = "praisebak")
@@ -62,6 +74,22 @@ public class JwtTest {
     void 유효한_JWT_토큰이_없으면_로그인_제외_권한_부족() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/oauth/logout"))
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
+
+    @Test
+    void 만료된_JWT_토큰일시_로그인_제외_권한_부족() throws Exception {
+        Cookie jwtCookie = expireCreateJwt.createJwtCookie();
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/oauth/logout")
+                        .cookie(jwtCookie))
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
+
+    @Test
+    void 만료된_JWT_토큰일시_로그인은_가능() throws Exception {
+        Cookie jwtCookie = expireCreateJwt.createJwtCookie();
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/oauth/login")
+                        .cookie(jwtCookie))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test

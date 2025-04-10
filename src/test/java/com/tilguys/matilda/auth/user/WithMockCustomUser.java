@@ -1,4 +1,4 @@
-package com.tilguys.matilda.auth;
+package com.tilguys.matilda.auth.user;
 
 import com.tilguys.matilda.user.Role;
 import java.lang.annotation.Retention;
