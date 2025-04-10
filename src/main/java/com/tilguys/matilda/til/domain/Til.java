@@ -10,10 +10,12 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "til")
@@ -24,9 +26,8 @@ public class Til extends BaseEntity {
     @Column(name = "til_id")
     private Long tilId;
 
-    // todo : FK 연결
-//    @Column(name = "user_id")
-//    private Long userId;
+    @Column(name = "user_id")
+    private Long userId;
 
     @Column(name = "title")
     private String title;

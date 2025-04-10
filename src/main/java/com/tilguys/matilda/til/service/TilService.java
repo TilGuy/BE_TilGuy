@@ -2,6 +2,7 @@ package com.tilguys.matilda.til.service;
 
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilCreateRequest;
+import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilUpdateRequest;
 import com.tilguys.matilda.til.repository.TilRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,20 @@ public class TilService {
     public Til getTilByTilId(final Long tilId) {
         return tilRepository.findById(tilId)
                 .orElseThrow(IllegalArgumentException::new);
+    }
+
+    public TilDetailResponse getTodayTil(final Long userId) {
+        Til today = tilRepository.findByUserId(userId)
+                .stream()
+                .filter(Til::isToday)
+                .findFirst()
+                .orElse(null);
+
+        if (today == null) {
+            return null;
+        }
+
+        return TilDetailResponse.fromEntity(today);
     }
 
     public void updateTil(final TilUpdateRequest updateRequest) {
