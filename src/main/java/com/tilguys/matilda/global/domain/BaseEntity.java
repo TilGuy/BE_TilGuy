@@ -16,4 +16,8 @@ public class BaseEntity {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public boolean isToday() {
+        return this.createdAt.toLocalDate().equals(LocalDateTime.now().toLocalDate());
+    }
 }
