@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping("/api/til")
@@ -22,5 +23,16 @@ public class TilController {
     @GetMapping("/dates")
     public ResponseEntity<?> getAllTilDates() {
         return ResponseEntity.ok(tilService.getAllTilDatesByUserId(1L)); // todo : 유저 정보 반환으로 변경
+    }
+
+    @GetMapping("/recent")
+    public ResponseEntity<?> getRecentTilById() {
+        return ResponseEntity.ok(tilService.getRecentTilById(1L)); // todo : 유저 정보 반환으로 변경
+    }
+
+    @GetMapping("/main")
+    public ResponseEntity<?> getMainTil(@RequestParam(defaultValue = "0") final int page,
+                                        @RequestParam(defaultValue = "10") final int size) {
+        return ResponseEntity.ok(tilService.getMainTilByPagination(page, size));
     }
 }
