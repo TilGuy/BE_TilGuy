@@ -1,6 +1,7 @@
 package com.tilguys.matilda.til.controller;
 
 import com.tilguys.matilda.til.service.TilService;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,5 +35,11 @@ public class TilController {
     public ResponseEntity<?> getMainTil(@RequestParam(defaultValue = "0") final int page,
                                         @RequestParam(defaultValue = "10") final int size) {
         return ResponseEntity.ok(tilService.getMainTilByPagination(page, size));
+    }
+
+    @GetMapping("/range")
+    public ResponseEntity<?> getTilByDateRange(@RequestParam final LocalDate from,
+                                               @RequestParam final LocalDate to) {
+        return ResponseEntity.ok(tilService.getTilByDateRange(from, to));
     }
 }
