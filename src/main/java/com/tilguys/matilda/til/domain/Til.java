@@ -1,6 +1,6 @@
 package com.tilguys.matilda.til.domain;
 
-import com.tilguys.matilda.global.domain.BaseEntity;
+import com.tilguys.matilda.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
