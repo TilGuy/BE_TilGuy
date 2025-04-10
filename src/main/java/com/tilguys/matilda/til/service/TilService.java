@@ -103,7 +103,7 @@ public class TilService {
                 .toList();
 
         if (finds.isEmpty()) {
-            return null;
+            return new TilDetailsResponse(List.of());
         }
 
         return new TilDetailsResponse(finds);
