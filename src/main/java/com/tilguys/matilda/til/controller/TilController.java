@@ -1,10 +1,13 @@
 package com.tilguys.matilda.til.controller;
 
+import com.tilguys.matilda.til.dto.TilCreateRequest;
 import com.tilguys.matilda.til.service.TilService;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class TilController {
 
     private final TilService tilService;
+
+    @PostMapping("")
+    public ResponseEntity<?> saveTil(@RequestBody final TilCreateRequest createRequest) {
+        return ResponseEntity.ok(tilService.createTil(createRequest));
+    }
 
     @GetMapping("/today")
     public ResponseEntity<?> getTodayTil() {
