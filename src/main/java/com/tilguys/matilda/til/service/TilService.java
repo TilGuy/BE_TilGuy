@@ -2,9 +2,19 @@ package com.tilguys.matilda.til.service;
 
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilCreateRequest;
+import com.tilguys.matilda.til.dto.TilDatesResponse;
+import com.tilguys.matilda.til.dto.TilDetailResponse;
+import com.tilguys.matilda.til.dto.TilDetailsResponse;
 import com.tilguys.matilda.til.dto.TilUpdateRequest;
 import com.tilguys.matilda.til.repository.TilRepository;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +35,51 @@ public class TilService {
                 .orElseThrow(IllegalArgumentException::new);
     }
 
+    public TilDetailResponse getTodayTilByUserId(final Long userId) {
+        Til today = tilRepository.findByUserId(userId)
+                .stream()
+                .filter(Til::isToday)
+                .findFirst()
+                .orElse(null);
+
+        if (today == null) {
+            return null;
+        }
+
+        return TilDetailResponse.fromEntity(today);
+    }
+
+    public List<TilDetailResponse> getRecentTilById(final Long userId) {
+        List<TilDetailResponse> recentTil = tilRepository.findByUserId(userId)
+                .stream()
+                .limit(4)
+                .map(TilDetailResponse::fromEntity)
+                .toList();
+
+        if (recentTil.isEmpty()) {
+            return null;
+        }
+
+        return recentTil;
+    }
+
+    public Page<TilDetailResponse> getMainTilByPagination(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Til> tilPage = tilRepository.findAll(pageable);
+
+        return tilPage.map(TilDetailResponse::fromEntity);
+    }
+
+    public TilDatesResponse getAllTilDatesByUserId(final Long userId) {
+        List<LocalDate> all = tilRepository.findByUserId(userId)
+                .stream()
+                .map(til -> til.getCreatedAt().toLocalDate())
+                .toList();
+
+        return new TilDatesResponse(all);
+    }
+
     public void updateTil(final TilUpdateRequest updateRequest) {
         Til til = getTilByTilId(updateRequest.tilId());
         til.updateContentAndVisibility(updateRequest.content(), updateRequest.isPublic());
@@ -36,5 +91,21 @@ public class TilService {
         }
         Til til = getTilByTilId(tilId);
         til.markAsDeleted();
+    }
+
+    public TilDetailsResponse getTilByDateRange(final LocalDate from, final LocalDate to) {
+        LocalDateTime startOfDay = from.atStartOfDay();
+        LocalDateTime endOfDay = to.atTime(23, 59, 59);
+
+        List<TilDetailResponse> finds = tilRepository.findByCreatedAtBetween(startOfDay, endOfDay)
+                .stream()
+                .map(TilDetailResponse::fromEntity)
+                .toList();
+
+        if (finds.isEmpty()) {
+            return new TilDetailsResponse(List.of());
+        }
+
+        return new TilDetailsResponse(finds);
     }
 }
