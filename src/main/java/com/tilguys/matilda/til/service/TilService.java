@@ -4,9 +4,11 @@ import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilCreateRequest;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
 import com.tilguys.matilda.til.dto.TilDetailResponse;
+import com.tilguys.matilda.til.dto.TilDetailsResponse;
 import com.tilguys.matilda.til.dto.TilUpdateRequest;
 import com.tilguys.matilda.til.repository.TilRepository;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -89,5 +91,21 @@ public class TilService {
         }
         Til til = getTilByTilId(tilId);
         til.markAsDeleted();
+    }
+
+    public TilDetailsResponse getTilByDateRange(final LocalDate from, final LocalDate to) {
+        LocalDateTime startOfDay = from.atStartOfDay();
+        LocalDateTime endOfDay = to.atTime(23, 59, 59);
+
+        List<TilDetailResponse> finds = tilRepository.findByCreatedAtBetween(startOfDay, endOfDay)
+                .stream()
+                .map(TilDetailResponse::fromEntity)
+                .toList();
+
+        if (finds.isEmpty()) {
+            return null;
+        }
+
+        return new TilDetailsResponse(finds);
     }
 }
