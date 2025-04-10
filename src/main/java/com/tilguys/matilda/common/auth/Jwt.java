@@ -1,7 +1,7 @@
-package com.tilguys.matilda.config.jwt;
+package com.tilguys.matilda.common.auth;
 
 
-import com.tilguys.matilda.exception.MatildaException;
+import com.tilguys.matilda.common.auth.exception.MatildaException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;

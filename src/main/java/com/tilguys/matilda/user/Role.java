@@ -1,4 +1,4 @@
-package com.tilguys.matilda.user.entity;
+package com.tilguys.matilda.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

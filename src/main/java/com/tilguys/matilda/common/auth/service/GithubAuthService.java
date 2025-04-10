@@ -1,6 +1,6 @@
-package com.tilguys.matilda.security.service;
+package com.tilguys.matilda.common.auth.service;
 
-import com.tilguys.matilda.security.GithubUserInfo;
+import com.tilguys.matilda.common.auth.GithubUserInfo;
 import java.util.Collections;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;

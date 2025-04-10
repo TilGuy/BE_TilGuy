@@ -1,9 +1,11 @@
 package com.tilguys.matilda;
 
 import com.tilguys.matilda.auth.WithMockCustomUser;
-import com.tilguys.matilda.config.jwt.Jwt;
-import com.tilguys.matilda.config.jwt.JwtFilter;
-import com.tilguys.matilda.service.UserService;
+import com.tilguys.matilda.common.auth.Jwt;
+import com.tilguys.matilda.user.ProviderInfo;
+import com.tilguys.matilda.user.Role;
+import com.tilguys.matilda.user.TilUser;
+import com.tilguys.matilda.user.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -13,14 +15,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.transaction.annotation.Transactional;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @SpringBootTest
+@Transactional
 @AutoConfigureMockMvc
-class JwtTest {
+@ActiveProfiles("test")
+public class JwtTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -29,10 +36,8 @@ class JwtTest {
     private Jwt jwt;
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
 
-    @Autowired
-    private JwtFilter jwtFilter;
 
     @Test
     @WithMockCustomUser(identifier = "praisebak")
@@ -48,27 +53,30 @@ class JwtTest {
         String token = jwtCookie.getValue();
         Authentication authentication = jwt.getAuthentication(token);
 
-        Assertions.assertThat(authentication.getPrincipal()).isEqualTo("praisebak");
+        User principal = (User) authentication.getPrincipal();
+        Assertions.assertThat(principal.getUsername()).isEqualTo("praisebak");
     }
 
 
     @Test
-    void 유효한_JWT_토큰이_없으면_로그인_제외_권한_부족() {
-        Assertions.assertThatThrownBy(
-                        () -> mockMvc.perform(MockMvcRequestBuilders.get("/api/oauth/logout")
-                                        .cookie(jwtCookie))
-                                .andExpect(MockMvcResultMatchers.status().isUnauthorized()))
-                .doesNotThrowAnyException();
+    void 유효한_JWT_토큰이_없으면_로그인_제외_권한_부족() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/oauth/logout"))
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 
     @Test
-    void 유효한_JWT_토큰이_있으면_유저_권한으로_요청가능() {
+    @WithMockCustomUser(identifier = "praisebak")
+    void 유효한_JWT_토큰이_있으면_유저_권한으로_요청가능() throws Exception {
+        TilUser tilUser = TilUser.builder()
+                .identifier("praisebak")
+                .providerInfo(ProviderInfo.GITHUB)
+                .role(Role.USER)
+                .build();
+        userRepository.save(tilUser);
+
         Cookie jwtCookie = jwt.createJwtCookie();
-        Assertions.assertThatThrownBy(
-                        () -> mockMvc.perform(MockMvcRequestBuilders.get("/api/oauth/logout")
-                                        .cookie(jwtCookie))
-                                .andExpect(MockMvcResultMatchers.status().isOk()))
-                .doesNotThrowAnyException();
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/oauth/logout")
+                        .cookie(jwtCookie))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
-
 }

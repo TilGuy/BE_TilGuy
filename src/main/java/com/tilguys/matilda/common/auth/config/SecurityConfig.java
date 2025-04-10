@@ -1,10 +1,10 @@
-package com.tilguys.matilda.security.config;
+package com.tilguys.matilda.common.auth.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-import com.tilguys.matilda.config.jwt.Jwt;
-import com.tilguys.matilda.config.jwt.JwtTokenFactory;
-import com.tilguys.matilda.service.UserService;
+import com.tilguys.matilda.common.auth.Jwt;
+import com.tilguys.matilda.common.auth.JwtTokenFactory;
+import com.tilguys.matilda.common.auth.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

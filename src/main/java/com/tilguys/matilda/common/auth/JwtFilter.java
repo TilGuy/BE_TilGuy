@@ -1,6 +1,6 @@
-package com.tilguys.matilda.config.jwt;
+package com.tilguys.matilda.common.auth;
 
-import com.tilguys.matilda.service.UserService;
+import com.tilguys.matilda.common.auth.service.UserService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -32,7 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
         Cookie[] cookies = request.getCookies();
         String token = jwt.getTokenFromCookie(cookies);
         setAuthentication(response, token);
-        
+
         filterChain.doFilter(request, response);
     }
 

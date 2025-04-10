@@ -1,14 +1,16 @@
-package com.tilguys.matilda.controller;
+package com.tilguys.matilda.user.controller;
 
-import com.tilguys.matilda.config.jwt.Jwt;
-import com.tilguys.matilda.config.jwt.JwtTokenFactory;
-import com.tilguys.matilda.security.GithubUserInfo;
-import com.tilguys.matilda.security.service.GithubAuthService;
-import com.tilguys.matilda.service.AuthService;
+import com.tilguys.matilda.common.auth.GithubUserInfo;
+import com.tilguys.matilda.common.auth.Jwt;
+import com.tilguys.matilda.common.auth.JwtTokenFactory;
+import com.tilguys.matilda.common.auth.service.AuthService;
+import com.tilguys.matilda.common.auth.service.GithubAuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,16 +34,21 @@ public class AuthController {
         Cookie jwt = new Cookie(Jwt.getCookieName(), null);
         jwt.setMaxAge(0); // 쿠키의 expiration 타임을 0으로 하여 없앤다.
         jwt.setPath("/"); // 모든 경로에서 삭제 됬음을 알린다.
-        return ResponseEntity.ok(ResponseEntity.accepted());
+        return ResponseEntity.ok(ResponseEntity.accepted().build());
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> getUserInfo(@RequestParam(value = "code") String code, HttpServletResponse response) {
+    public ResponseEntity<?> getUserInfo(@RequestParam(value = "code") String code,
+                                         HttpServletResponse response) {
         String accessToken = githubAuthService.getAccessToken(code);
         if (accessToken == null) {
             throw new OAuth2AuthenticationException("로그인에 실패하였습니다");
         }
-        GithubUserInfo gitHubUserInfo = githubAuthService.getGitHubUserInfo(accessToken);
+        GithubUserInfo gitHubUserInfo;
+        gitHubUserInfo = githubAuthService.getGitHubUserInfo(accessToken);
+        Authentication authentication = authService.createAuthenticationFromName(gitHubUserInfo.identifier());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         Cookie jwtCookie = jwt.createJwtCookie();
         response.addCookie(jwtCookie);
         return ResponseEntity.ok(gitHubUserInfo);

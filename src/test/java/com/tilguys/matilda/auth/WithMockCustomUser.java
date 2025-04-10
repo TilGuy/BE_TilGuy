@@ -1,6 +1,6 @@
 package com.tilguys.matilda.auth;
 
-import com.tilguys.matilda.user.entity.Role;
+import com.tilguys.matilda.user.Role;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import org.springframework.security.test.context.support.WithSecurityContext;
