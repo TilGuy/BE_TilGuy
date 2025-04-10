@@ -1,6 +1,6 @@
-package com.tilguys.matilda.security.service;
+package com.tilguys.matilda.common.auth.service;
 
-import com.tilguys.matilda.user.entity.User;
+import com.tilguys.matilda.user.TilUser;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -13,19 +13,19 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 @Getter
 public class UserPrincipal implements UserDetails, OAuth2User {
 
-    private User user;
+    private TilUser tilUser;
     private String nameAttributeKey;
     private Map<String, Object> attributes;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(User user) {
-        this.user = user;
-        this.authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getKey()));
+    public UserPrincipal(TilUser tilUser) {
+        this.tilUser = tilUser;
+        this.authorities = Collections.singletonList(new SimpleGrantedAuthority(tilUser.getRole().getKey()));
     }
 
-    public UserPrincipal(User user, Map<String, Object> attributes, String nameAttributeKey) {
-        this.user = user;
-        this.authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getKey()));
+    public UserPrincipal(TilUser tilUser, Map<String, Object> attributes, String nameAttributeKey) {
+        this.tilUser = tilUser;
+        this.authorities = Collections.singletonList(new SimpleGrantedAuthority(tilUser.getRole().getKey()));
         this.attributes = attributes;
         this.nameAttributeKey = nameAttributeKey;
     }
@@ -35,7 +35,7 @@ public class UserPrincipal implements UserDetails, OAuth2User {
      */
     @Override
     public String getName() {
-        return user.getIdentifier();
+        return tilUser.getIdentifier();
     }
 
     /**
@@ -48,7 +48,7 @@ public class UserPrincipal implements UserDetails, OAuth2User {
 
     @Override
     public String getUsername() {
-        return user.getIdentifier();
+        return tilUser.getIdentifier();
     }
 
     @Override

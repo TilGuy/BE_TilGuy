@@ -1,4 +1,4 @@
-package com.tilguys.matilda.exception;
+package com.tilguys.matilda.common.auth.exception;
 
 public class MatildaException extends IllegalArgumentException {
 

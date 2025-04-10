@@ -1,11 +1,11 @@
-package com.tilguys.matilda.security.config;
+package com.tilguys.matilda.common.auth.config;
 
-import com.tilguys.matilda.config.jwt.Jwt;
-import com.tilguys.matilda.config.jwt.JwtTokenFactory;
-import com.tilguys.matilda.service.UserService;
-import com.tilguys.matilda.user.entity.User;
+import com.tilguys.matilda.common.auth.Jwt;
+import com.tilguys.matilda.common.auth.service.UserService;
+import com.tilguys.matilda.user.TilUser;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -25,17 +25,19 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class PrevLoginFilter extends OncePerRequestFilter {
 
-    private final JwtTokenFactory jwtTokenFactory;
     private final Jwt jwt;
     private final UserService userService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String token = jwt.getTokenFromCookie(request);
+        Cookie[] cookies = request.getCookies();
+        String token = jwt.getTokenFromCookie(cookies);
+
         try {
+            jwt.validateToken(token);
             String identifier = jwt.getPrincipleFromToken(token);
-            Optional<User> userByIdentifier = userService.findUserByIdentifier(identifier);
+            Optional<TilUser> userByIdentifier = userService.findUserByIdentifier(identifier);
             if (userByIdentifier.isEmpty()) {
                 filterChain.doFilter(request, response);
                 return;
@@ -43,14 +45,14 @@ public class PrevLoginFilter extends OncePerRequestFilter {
 
             Authentication authentication = createAuthentication(userByIdentifier.get());
             SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (IllegalArgumentException ignored) {
+        } catch (RuntimeException ignore) {
         }
         filterChain.doFilter(request, response);
     }
 
-    private Authentication createAuthentication(User user) {
+    private Authentication createAuthentication(TilUser tilUser) {
         Collection<? extends GrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority(user.getRole().getKey()));
-        return new UsernamePasswordAuthenticationToken(user.getIdentifier(), "", authorities);
+                new SimpleGrantedAuthority(tilUser.getRole().getKey()));
+        return new UsernamePasswordAuthenticationToken(tilUser.getIdentifier(), "", authorities);
     }
 }
