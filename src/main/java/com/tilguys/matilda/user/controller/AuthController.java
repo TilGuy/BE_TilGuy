@@ -2,7 +2,6 @@ package com.tilguys.matilda.user.controller;
 
 import com.tilguys.matilda.common.auth.GithubUserInfo;
 import com.tilguys.matilda.common.auth.Jwt;
-import com.tilguys.matilda.common.auth.JwtTokenFactory;
 import com.tilguys.matilda.common.auth.service.AuthService;
 import com.tilguys.matilda.common.auth.service.GithubAuthService;
 import jakarta.servlet.http.Cookie;
@@ -26,7 +25,6 @@ public class AuthController {
 
     private final AuthService authService;
     private final GithubAuthService githubAuthService;
-    private final JwtTokenFactory jwtTokenFactory;
     private final Jwt jwt;
 
     @GetMapping("/logout")

@@ -3,8 +3,12 @@ package com.tilguys.matilda.common.auth.config;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 import com.tilguys.matilda.common.auth.Jwt;
-import com.tilguys.matilda.common.auth.JwtTokenFactory;
 import com.tilguys.matilda.common.auth.service.UserService;
+import com.tilguys.matilda.common.auth.strategy.AccessJwtTokenCookieCreateStrategy;
+import com.tilguys.matilda.common.auth.strategy.JwtCookieCreateStrategy;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import java.security.Key;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -35,13 +39,19 @@ public class SecurityConfig implements WebMvcConfigurer {
     private final UserService userService;
 
     @Bean
-    public Jwt jwt() {
-        return new Jwt(secret, jwtTokenFactory());
+    public Key jwtKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     @Bean
-    public JwtTokenFactory jwtTokenFactory() {
-        return new JwtTokenFactory();
+    public JwtCookieCreateStrategy jwtCookieCreateStrategy() {
+        return new AccessJwtTokenCookieCreateStrategy(jwtKey());
+    }
+
+    @Bean
+    public Jwt jwt() {
+        return new Jwt(jwtCookieCreateStrategy(), jwtKey());
     }
 
     @Bean

@@ -1,4 +1,4 @@
-package com.tilguys.matilda.auth;
+package com.tilguys.matilda.auth.user;
 
 import java.util.List;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
