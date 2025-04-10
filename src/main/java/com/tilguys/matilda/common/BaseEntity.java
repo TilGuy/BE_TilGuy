@@ -1,4 +1,4 @@
-package com.tilguys.matilda.global.domain;
+package com.tilguys.matilda.common;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

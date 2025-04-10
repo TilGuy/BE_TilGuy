@@ -1,4 +1,4 @@
-package com.tilguys.matilda.config.jwt;
+package com.tilguys.matilda.common.auth;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,11 +20,11 @@ public class JwtTokenFactory {
 
     private static final String AUTHORITIES_KEY = "Authorization";
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; // 30 min
-    private static final int ONE_DAY = 3600 * 24;
 
     private String createJwt(Authentication authentication, String authorities, Date tokenExpiresIn, Key key) {
+        User user = (User) authentication.getPrincipal();
         return Jwts.builder()
-                .setSubject(authentication.getName())
+                .setSubject(user.getUsername())
                 .claim(AUTHORITIES_KEY, authorities)
                 .setExpiration(tokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS512)
@@ -53,7 +54,7 @@ public class JwtTokenFactory {
         cookie.setHttpOnly(true);  // JavaScript로 접근 불가
         cookie.setSecure(false);    // HTTPS에서만 전송
         cookie.setPath("/");       // 해당 경로에만 유효
-        cookie.setMaxAge(ONE_DAY);    // 만료 시간 (초 단위)
+        cookie.setMaxAge((int) ACCESS_TOKEN_EXPIRE_TIME);    // 만료 시간 (초 단위)
         return cookie;
     }
 }

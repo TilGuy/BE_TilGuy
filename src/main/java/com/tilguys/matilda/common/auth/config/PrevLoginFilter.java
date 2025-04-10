@@ -1,8 +1,8 @@
-package com.tilguys.matilda.security.config;
+package com.tilguys.matilda.common.auth.config;
 
-import com.tilguys.matilda.config.jwt.Jwt;
-import com.tilguys.matilda.service.UserService;
-import com.tilguys.matilda.user.entity.User;
+import com.tilguys.matilda.common.auth.Jwt;
+import com.tilguys.matilda.common.auth.service.UserService;
+import com.tilguys.matilda.user.TilUser;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -36,7 +36,7 @@ public class PrevLoginFilter extends OncePerRequestFilter {
 
         try {
             String identifier = jwt.getPrincipleFromToken(token);
-            Optional<User> userByIdentifier = userService.findUserByIdentifier(identifier);
+            Optional<TilUser> userByIdentifier = userService.findUserByIdentifier(identifier);
             if (userByIdentifier.isEmpty()) {
                 filterChain.doFilter(request, response);
                 return;
@@ -49,9 +49,9 @@ public class PrevLoginFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private Authentication createAuthentication(User user) {
+    private Authentication createAuthentication(TilUser tilUser) {
         Collection<? extends GrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority(user.getRole().getKey()));
-        return new UsernamePasswordAuthenticationToken(user.getIdentifier(), "", authorities);
+                new SimpleGrantedAuthority(tilUser.getRole().getKey()));
+        return new UsernamePasswordAuthenticationToken(tilUser.getIdentifier(), "", authorities);
     }
 }

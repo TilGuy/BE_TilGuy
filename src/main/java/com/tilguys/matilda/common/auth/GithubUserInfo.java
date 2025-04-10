@@ -1,4 +1,4 @@
-package com.tilguys.matilda.security;
+package com.tilguys.matilda.common.auth;
 
 public record GithubUserInfo(String identifier, String avatarUrl) {
 }

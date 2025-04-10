@@ -1,14 +1,13 @@
 package com.tilguys.matilda.auth;
 
-import com.tilguys.matilda.user.entity.User;
-import java.util.Collection;
 import java.util.List;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
 
 public class WithMockCustomUserSecurityContextFactory implements WithSecurityContextFactory<WithMockCustomUser> {
@@ -17,14 +16,13 @@ public class WithMockCustomUserSecurityContextFactory implements WithSecurityCon
     public SecurityContext createSecurityContext(WithMockCustomUser customUser) {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
 
-        User user = User.builder()
-                .role(customUser.role())
-                .identifier(customUser.identifier())
-                .nickname(null)
+        UserDetails user = User.builder()
+                .username(customUser.identifier())
+                .password("")
+                .authorities(List.of(new SimpleGrantedAuthority(customUser.role().getKey())))
                 .build();
-        Collection<? extends GrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority(user.getRole().getKey()));
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null,
+                List.of(new SimpleGrantedAuthority(customUser.role().getKey())));
         context.setAuthentication(authentication);
         return context;
     }

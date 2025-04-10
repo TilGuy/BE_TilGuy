@@ -1,5 +1,6 @@
-package com.tilguys.matilda.service;
+package com.tilguys.matilda.common.auth.service;
 
+import com.tilguys.matilda.user.TilUser;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
@@ -20,7 +21,7 @@ public class AuthService {
 
     public Authentication createAuthenticationFromName(String identifier) {
         try {
-            Optional<com.tilguys.matilda.user.entity.User> userByIdentifier = userService.findUserByIdentifier(
+            Optional<TilUser> userByIdentifier = userService.findUserByIdentifier(
                     identifier);
             if (userByIdentifier.isEmpty()) {
                 userService.signup(identifier);

@@ -1,4 +1,4 @@
-package com.tilguys.matilda.config.jwt;
+package com.tilguys.matilda.common.auth;
 
 import lombok.Builder;
 
