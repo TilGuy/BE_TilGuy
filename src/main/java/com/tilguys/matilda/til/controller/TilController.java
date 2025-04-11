@@ -24,11 +24,6 @@ public class TilController {
         return ResponseEntity.ok(tilService.createTil(createRequest));
     }
 
-    @GetMapping("/today")
-    public ResponseEntity<?> getTodayTil() {
-        return ResponseEntity.ok(tilService.getTodayTilByUserId(1L)); // todo : 유저 정보 반환으로 변경
-    }
-
     @GetMapping("/dates")
     public ResponseEntity<?> getAllTilDates() {
         return ResponseEntity.ok(tilService.getAllTilDatesByUserId(1L)); // todo : 유저 정보 반환으로 변경
