@@ -70,11 +70,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/api/oauth/login")
                         .permitAll()
-                        .requestMatchers("/api/slack/alarm/hi")
-                        .permitAll()
                         .anyRequest()
-                        .hasAnyRole(PERMITTED_ROLES)
-                );
+                        .hasAnyRole(PERMITTED_ROLES));
         return http.build();
     }
 

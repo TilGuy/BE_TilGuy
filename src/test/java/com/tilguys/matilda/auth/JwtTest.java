@@ -36,6 +36,6 @@ public class JwtTest {
         Authentication authentication = jwt.getAuthentication(token);
 
         User principal = (User) authentication.getPrincipal();
-        Assertions.assertThat(principal.getUsername()).isEqualTo("1");
+        Assertions.assertThat(principal.getUsername()).isEqualTo("praisebak");
     }
 }
