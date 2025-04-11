@@ -36,8 +36,8 @@ public class PrevLoginFilter extends OncePerRequestFilter {
 
         try {
             jwt.validateToken(token);
-            String identifier = jwt.getPrincipleFromToken(token);
-            Optional<TilUser> userByIdentifier = userService.findUserByIdentifier(identifier);
+            String id = jwt.getPrincipleFromToken(token);
+            Optional<TilUser> userByIdentifier = userService.findById(Long.parseLong(id));
             if (userByIdentifier.isEmpty()) {
                 filterChain.doFilter(request, response);
                 return;
@@ -54,6 +54,6 @@ public class PrevLoginFilter extends OncePerRequestFilter {
     private Authentication createAuthentication(TilUser tilUser) {
         Collection<? extends GrantedAuthority> authorities = List.of(
                 new SimpleGrantedAuthority(tilUser.getRole().getKey()));
-        return new UsernamePasswordAuthenticationToken(tilUser.getIdentifier(), "", authorities);
+        return new UsernamePasswordAuthenticationToken(tilUser.getId() + "", "", authorities);
     }
 }
