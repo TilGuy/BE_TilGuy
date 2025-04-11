@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +29,8 @@ public class AuthController {
     private final Jwt jwt;
 
     @GetMapping("/logout")
-    public ResponseEntity<?> logout() {
+    public ResponseEntity<?> logout(@AuthenticationPrincipal String id) {
+        System.out.println(id);
         Cookie jwt = new Cookie(Jwt.getCookieName(), null);
         jwt.setMaxAge(0); // 쿠키의 expiration 타임을 0으로 하여 없앤다.
         jwt.setPath("/"); // 모든 경로에서 삭제 됬음을 알린다.

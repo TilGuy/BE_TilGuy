@@ -33,7 +33,7 @@ public class AuthService {
                             .map(SimpleGrantedAuthority::new)
                             .toList();
 
-            UserDetails principal = new User(userByIdentifier.get().getIdentifier(), "", authorities);
+            UserDetails principal = new User(userByIdentifier.get().getId() + "", "", authorities);
             return new UsernamePasswordAuthenticationToken(principal, "", authorities);
         } catch (RuntimeException e) {
 
