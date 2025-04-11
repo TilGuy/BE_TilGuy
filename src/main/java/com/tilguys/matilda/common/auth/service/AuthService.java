@@ -9,8 +9,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -33,9 +31,8 @@ public class AuthService {
                             .map(SimpleGrantedAuthority::new)
                             .toList();
 
-            UserDetails principal = new User(userByIdentifier.get().getId() + "", "", authorities);
-            return new UsernamePasswordAuthenticationToken(principal, "", authorities);
-        } catch (RuntimeException e) {
+            return new UsernamePasswordAuthenticationToken(userByIdentifier.get().getId(), "", authorities);
+        } catch (RuntimeException ignore) {
 
         }
         return null;

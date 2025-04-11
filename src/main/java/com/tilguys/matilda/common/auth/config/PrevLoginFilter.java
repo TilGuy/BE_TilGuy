@@ -54,6 +54,6 @@ public class PrevLoginFilter extends OncePerRequestFilter {
     private Authentication createAuthentication(TilUser tilUser) {
         Collection<? extends GrantedAuthority> authorities = List.of(
                 new SimpleGrantedAuthority(tilUser.getRole().getKey()));
-        return new UsernamePasswordAuthenticationToken(tilUser.getId() + "", "", authorities);
+        return new UsernamePasswordAuthenticationToken(tilUser.getId(), "", authorities);
     }
 }
