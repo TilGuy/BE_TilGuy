@@ -46,6 +46,7 @@ public class PrevLoginFilter extends OncePerRequestFilter {
             Authentication authentication = createAuthentication(userByIdentifier.get());
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (RuntimeException ignore) {
+            SecurityContextHolder.getContext().setAuthentication(null);
         }
         filterChain.doFilter(request, response);
     }
