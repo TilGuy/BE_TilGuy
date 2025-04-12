@@ -11,6 +11,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,15 +33,15 @@ public class TilController {
     }
 
     @GetMapping("/dates")
-    public ResponseEntity<?> getAllTilDates() {
-        TilDatesResponse datesForUser = tilService.getAllTilDatesByUserId(1L);
-        return ResponseEntity.ok(datesForUser); // todo : 유저 정보 반환으로 변경
+    public ResponseEntity<?> getAllTilDates(@AuthenticationPrincipal final Long userId) {
+        TilDatesResponse datesForUser = tilService.getAllTilDatesByUserId(userId);
+        return ResponseEntity.ok(datesForUser);
     }
 
     @GetMapping("/recent")
-    public ResponseEntity<?> getRecentTilById() {
-        List<TilDetailResponse> recentTils = tilService.getRecentTilById(1L);
-        return ResponseEntity.ok(recentTils); // todo : 유저 정보 반환으로 변경
+    public ResponseEntity<?> getRecentTilById(@AuthenticationPrincipal final Long userId) {
+        List<TilDetailResponse> recentTils = tilService.getRecentTilById(userId);
+        return ResponseEntity.ok(recentTils);
     }
 
     @GetMapping("/main")
@@ -51,9 +52,10 @@ public class TilController {
     }
 
     @GetMapping("/range")
-    public ResponseEntity<?> getTilByDateRange(@RequestParam final LocalDate from,
+    public ResponseEntity<?> getTilByDateRange(@AuthenticationPrincipal final Long userId,
+                                               @RequestParam final LocalDate from,
                                                @RequestParam final LocalDate to) {
-        TilDetailsResponse tilsInRange = tilService.getTilByDateRange(from, to);
+        TilDetailsResponse tilsInRange = tilService.getTilByDateRange(userId, from, to);
         return ResponseEntity.ok(tilsInRange);
     }
 }

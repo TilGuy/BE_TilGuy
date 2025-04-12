@@ -8,7 +8,6 @@ import com.tilguys.matilda.til.dto.TilDetailsResponse;
 import com.tilguys.matilda.til.dto.TilUpdateRequest;
 import com.tilguys.matilda.til.repository.TilRepository;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,11 +29,6 @@ public class TilService {
     public Til createTil(final TilCreateRequest createRequest) {
         Til newTil = createRequest.toEntity();
         return tilRepository.save(newTil);
-    }
-
-    public Til getTilByTilId(final Long tilId) {
-        return tilRepository.findById(tilId)
-                .orElseThrow(IllegalArgumentException::new);
     }
 
     public Page<TilDetailResponse> getRecentTilById(final Long userId) {
@@ -79,15 +73,19 @@ public class TilService {
         til.markAsDeleted();
     }
 
-    public TilDetailsResponse getTilByDateRange(final LocalDate from, final LocalDate to) {
-        LocalDateTime startOfDay = from.atStartOfDay();
-        LocalDateTime endOfDay = to.atTime(23, 59, 59);
+    public TilDetailsResponse getTilByDateRange(final Long userId, final LocalDate from, final LocalDate to) {
+        List<Til> tils = tilRepository.findByUserId(userId);
 
-        List<TilDetailResponse> finds = tilRepository.findByCreatedAtBetween(startOfDay, endOfDay)
-                .stream()
+        List<TilDetailResponse> responseList = tils.stream()
+                .filter(til -> til.isWithinDateRange(from, to))
                 .map(TilDetailResponse::fromEntity)
                 .toList();
 
-        return new TilDetailsResponse(finds);
+        return new TilDetailsResponse(responseList);
+    }
+
+    private Til getTilByTilId(final Long tilId) {
+        return tilRepository.findById(tilId)
+                .orElseThrow(IllegalArgumentException::new);
     }
 }
