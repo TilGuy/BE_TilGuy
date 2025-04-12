@@ -85,7 +85,7 @@ public class TilService {
         til.updateContentAndVisibility(updateRequest.content(), updateRequest.isPublic());
     }
 
-    public void deleteTil(Long tilId) {
+    public void deleteTil(final Long tilId) {
         if (!tilRepository.existsById(tilId)) {
             throw new IllegalArgumentException();
         }
