@@ -8,7 +8,6 @@ import com.tilguys.matilda.til.dto.TilDetailsResponse;
 import com.tilguys.matilda.til.dto.TilUpdateRequest;
 import com.tilguys.matilda.til.repository.TilRepository;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TilService {
 
+    private static final int RECENT_TIL_SIZE = 4;
+
     private final TilRepository tilRepository;
 
     public Til createTil(final TilCreateRequest createRequest) {
@@ -30,43 +31,22 @@ public class TilService {
         return tilRepository.save(newTil);
     }
 
-    public Til getTilByTilId(final Long tilId) {
-        return tilRepository.findById(tilId)
-                .orElseThrow(IllegalArgumentException::new);
+    public Page<TilDetailResponse> getRecentTilById(final Long userId) {
+        return getUserTilByPagination(0, RECENT_TIL_SIZE, userId);
     }
 
-    public TilDetailResponse getTodayTilByUserId(final Long userId) {
-        Til today = tilRepository.findByUserId(userId)
-                .stream()
-                .filter(Til::isToday)
-                .findFirst()
-                .orElse(null);
-
-        if (today == null) {
-            return null;
-        }
-
-        return TilDetailResponse.fromEntity(today);
-    }
-
-    public List<TilDetailResponse> getRecentTilById(final Long userId) {
-        List<TilDetailResponse> recentTil = tilRepository.findByUserId(userId)
-                .stream()
-                .limit(4)
-                .map(TilDetailResponse::fromEntity)
-                .toList();
-
-        if (recentTil.isEmpty()) {
-            return null;
-        }
-
-        return recentTil;
-    }
-
-    public Page<TilDetailResponse> getMainTilByPagination(int page, int size) {
+    public Page<TilDetailResponse> getTilByPagination(final int page, final int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<Til> tilPage = tilRepository.findAll(pageable);
+
+        return tilPage.map(TilDetailResponse::fromEntity);
+    }
+
+    public Page<TilDetailResponse> getUserTilByPagination(final int page, final int size, final Long userId) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Til> tilPage = tilRepository.findAllByUserId(pageable, userId);
 
         return tilPage.map(TilDetailResponse::fromEntity);
     }
@@ -85,7 +65,7 @@ public class TilService {
         til.updateContentAndVisibility(updateRequest.content(), updateRequest.isPublic());
     }
 
-    public void deleteTil(Long tilId) {
+    public void deleteTil(final Long tilId) {
         if (!tilRepository.existsById(tilId)) {
             throw new IllegalArgumentException();
         }
@@ -93,19 +73,19 @@ public class TilService {
         til.markAsDeleted();
     }
 
-    public TilDetailsResponse getTilByDateRange(final LocalDate from, final LocalDate to) {
-        LocalDateTime startOfDay = from.atStartOfDay();
-        LocalDateTime endOfDay = to.atTime(23, 59, 59);
+    public TilDetailsResponse getTilByDateRange(final Long userId, final LocalDate from, final LocalDate to) {
+        List<Til> tils = tilRepository.findByUserId(userId);
 
-        List<TilDetailResponse> finds = tilRepository.findByCreatedAtBetween(startOfDay, endOfDay)
-                .stream()
+        List<TilDetailResponse> responseList = tils.stream()
+                .filter(til -> til.isWithinDateRange(from, to))
                 .map(TilDetailResponse::fromEntity)
                 .toList();
 
-        if (finds.isEmpty()) {
-            return new TilDetailsResponse(List.of());
-        }
+        return new TilDetailsResponse(responseList);
+    }
 
-        return new TilDetailsResponse(finds);
+    private Til getTilByTilId(final Long tilId) {
+        return tilRepository.findById(tilId)
+                .orElseThrow(IllegalArgumentException::new);
     }
 }
