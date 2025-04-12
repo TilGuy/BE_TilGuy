@@ -23,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TilService {
 
+    private static final int RECENT_TIL_SIZE = 4;
+
     private final TilRepository tilRepository;
 
     public Til createTil(final TilCreateRequest createRequest) {
@@ -35,24 +37,22 @@ public class TilService {
                 .orElseThrow(IllegalArgumentException::new);
     }
 
-    public List<TilDetailResponse> getRecentTilById(final Long userId) {
-        List<TilDetailResponse> recentTil = tilRepository.findByUserId(userId)
-                .stream()
-                .limit(4)
-                .map(TilDetailResponse::fromEntity)
-                .toList();
-
-        if (recentTil.isEmpty()) {
-            return null;
-        }
-
-        return recentTil;
+    public Page<TilDetailResponse> getRecentTilById(final Long userId) {
+        return getUserTilByPagination(0, RECENT_TIL_SIZE, userId);
     }
 
-    public Page<TilDetailResponse> getMainTilByPagination(int page, int size) {
+    public Page<TilDetailResponse> getTilByPagination(final int page, final int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<Til> tilPage = tilRepository.findAll(pageable);
+
+        return tilPage.map(TilDetailResponse::fromEntity);
+    }
+
+    public Page<TilDetailResponse> getUserTilByPagination(final int page, final int size, final Long userId) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Til> tilPage = tilRepository.findAllByUserId(pageable, userId);
 
         return tilPage.map(TilDetailResponse::fromEntity);
     }
@@ -71,7 +71,7 @@ public class TilService {
         til.updateContentAndVisibility(updateRequest.content(), updateRequest.isPublic());
     }
 
-    public void deleteTil(Long tilId) {
+    public void deleteTil(final Long tilId) {
         if (!tilRepository.existsById(tilId)) {
             throw new IllegalArgumentException();
         }
@@ -87,10 +87,6 @@ public class TilService {
                 .stream()
                 .map(TilDetailResponse::fromEntity)
                 .toList();
-
-        if (finds.isEmpty()) {
-            return new TilDetailsResponse(List.of());
-        }
 
         return new TilDetailsResponse(finds);
     }
