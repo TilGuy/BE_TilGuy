@@ -30,6 +30,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Slf4j
 public class Jwt {
+
     private static final String INVALID_AUTH_TOKEN = "유효하지 않은 인증 토큰입니다.";
     private static final String REFRESH_COOKIE_HEADER = "refreshToken";
     private static final String COOKIE_NAME = "jwt";

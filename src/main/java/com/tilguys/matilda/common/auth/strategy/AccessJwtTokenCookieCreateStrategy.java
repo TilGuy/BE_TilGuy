@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -28,7 +27,7 @@ public class AccessJwtTokenCookieCreateStrategy implements JwtCookieCreateStrate
     }
 
     private String createJwtToken(Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        Long id = (Long) authentication.getPrincipal();
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
@@ -37,7 +36,7 @@ public class AccessJwtTokenCookieCreateStrategy implements JwtCookieCreateStrate
         Date tokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
 
         return Jwts.builder()
-                .setSubject(user.getUsername())
+                .setSubject(String.valueOf(id))
                 .claim(AUTHORITIES_KEY, authorities)
                 .setExpiration(tokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS512)

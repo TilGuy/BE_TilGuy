@@ -34,4 +34,8 @@ public class UserService {
                 .build();
         userRepository.save(tilUser);
     }
+
+    public Optional<TilUser> findById(long id) {
+        return userRepository.findById(id);
+    }
 }
