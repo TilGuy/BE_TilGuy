@@ -14,5 +14,5 @@ public interface TilRepository extends JpaRepository<Til, Long> {
 
     List<Til> findByCreatedAtBetween(final LocalDateTime from, final LocalDateTime to);
 
-    Page<Til> findAllByUserId(Pageable pageable, Long userId);
+    Page<Til> findAllByUserId(final Pageable pageable, final Long userId);
 }
