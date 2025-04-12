@@ -77,6 +77,7 @@ public class JwtMvcTest {
     }
 
     @Test
+    @WithMockCustomUser(identifier = "praisebak")
     void 만료된_JWT_토큰일시_로그인_제외_권한_부족() throws Exception {
         Cookie jwtCookie = expireCreateJwt.createJwtCookie();
         mockMvc.perform(MockMvcRequestBuilders.get("/api/oauth/logout")
@@ -85,11 +86,12 @@ public class JwtMvcTest {
     }
 
     @Test
-    void 만료된_JWT_토큰일시_로그인은_가능() throws Exception {
+    @WithMockCustomUser(identifier = "praisebak")
+    void 만료된_JWT_토큰일시_로그인_요청은_가능하다() throws Exception {
         Cookie jwtCookie = expireCreateJwt.createJwtCookie();
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/oauth/login")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/oauth/login")
                         .cookie(jwtCookie))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     @Test
