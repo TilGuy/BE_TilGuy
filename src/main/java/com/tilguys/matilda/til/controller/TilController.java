@@ -1,10 +1,17 @@
 package com.tilguys.matilda.til.controller;
 
+import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilCreateRequest;
+import com.tilguys.matilda.til.dto.TilDatesResponse;
+import com.tilguys.matilda.til.dto.TilDetailResponse;
+import com.tilguys.matilda.til.dto.TilDetailsResponse;
 import com.tilguys.matilda.til.service.TilService;
 import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,33 +28,34 @@ public class TilController {
 
     @PostMapping("")
     public ResponseEntity<?> saveTil(@RequestBody final TilCreateRequest createRequest) {
-        return ResponseEntity.ok(tilService.createTil(createRequest));
-    }
-
-    @GetMapping("/today")
-    public ResponseEntity<?> getTodayTil() {
-        return ResponseEntity.ok(tilService.getTodayTilByUserId(1L)); // todo : 유저 정보 반환으로 변경
+        Til saved = tilService.createTil(createRequest);
+        return ResponseEntity.ok(saved);
     }
 
     @GetMapping("/dates")
-    public ResponseEntity<?> getAllTilDates() {
-        return ResponseEntity.ok(tilService.getAllTilDatesByUserId(1L)); // todo : 유저 정보 반환으로 변경
+    public ResponseEntity<?> getAllTilDates(@AuthenticationPrincipal final Long userId) {
+        TilDatesResponse datesForUser = tilService.getAllTilDatesByUserId(userId);
+        return ResponseEntity.ok(datesForUser);
     }
 
     @GetMapping("/recent")
-    public ResponseEntity<?> getRecentTilById() {
-        return ResponseEntity.ok(tilService.getRecentTilById(1L)); // todo : 유저 정보 반환으로 변경
+    public ResponseEntity<?> getRecentTilById(@AuthenticationPrincipal final Long userId) {
+        List<TilDetailResponse> recentTils = tilService.getRecentTilById(userId);
+        return ResponseEntity.ok(recentTils);
     }
 
     @GetMapping("/main")
     public ResponseEntity<?> getMainTil(@RequestParam(defaultValue = "0") final int page,
                                         @RequestParam(defaultValue = "10") final int size) {
-        return ResponseEntity.ok(tilService.getMainTilByPagination(page, size));
+        Page<TilDetailResponse> tilPage = tilService.getTilByPagination(page, size);
+        return ResponseEntity.ok(tilPage);
     }
 
     @GetMapping("/range")
-    public ResponseEntity<?> getTilByDateRange(@RequestParam final LocalDate from,
+    public ResponseEntity<?> getTilByDateRange(@AuthenticationPrincipal final Long userId,
+                                               @RequestParam final LocalDate from,
                                                @RequestParam final LocalDate to) {
-        return ResponseEntity.ok(tilService.getTilByDateRange(from, to));
+        TilDetailsResponse tilsInRange = tilService.getTilByDateRange(userId, from, to);
+        return ResponseEntity.ok(tilsInRange);
     }
 }
