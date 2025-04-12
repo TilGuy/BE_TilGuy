@@ -52,7 +52,7 @@ public class TilService {
     }
 
     public Page<TilDetailResponse> getRecentTilById(final Long userId) {
-        return getTilByPaginationForUser(0, RECENT_TIL_SIZE, userId);
+        return getUserTilByPagination(0, RECENT_TIL_SIZE, userId);
     }
 
     public Page<TilDetailResponse> getTilByPagination(final int page, final int size) {
@@ -63,7 +63,7 @@ public class TilService {
         return tilPage.map(TilDetailResponse::fromEntity);
     }
 
-    public Page<TilDetailResponse> getTilByPaginationForUser(final int page, final int size, final Long userId) {
+    public Page<TilDetailResponse> getUserTilByPagination(final int page, final int size, final Long userId) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<Til> tilPage = tilRepository.findAllByUserId(pageable, userId);
