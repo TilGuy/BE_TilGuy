@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,6 +37,9 @@ public class Til extends BaseEntity {
     @Column(name = "content")
     private String content;
 
+    @Column(name = "date")
+    private LocalDate date;
+
     @Column(name = "is_public")
     private boolean isPublic;
 
@@ -49,5 +53,9 @@ public class Til extends BaseEntity {
 
     public void markAsDeleted() {
         this.isDeleted = true;
+    }
+
+    public boolean isWithinDateRange(final LocalDate from, final LocalDate to) {
+        return from.isBefore(date) && to.isAfter(date);
     }
 }
