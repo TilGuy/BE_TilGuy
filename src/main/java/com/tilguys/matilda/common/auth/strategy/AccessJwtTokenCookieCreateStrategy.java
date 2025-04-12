@@ -36,7 +36,7 @@ public class AccessJwtTokenCookieCreateStrategy implements JwtCookieCreateStrate
         Date tokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
 
         return Jwts.builder()
-                .setSubject(id + "")
+                .setSubject(String.valueOf(id))
                 .claim(AUTHORITIES_KEY, authorities)
                 .setExpiration(tokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS512)
