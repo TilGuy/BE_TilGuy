@@ -7,7 +7,6 @@ import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
 import com.tilguys.matilda.til.service.TilService;
 import java.time.LocalDate;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +39,7 @@ public class TilController {
 
     @GetMapping("/recent")
     public ResponseEntity<?> getRecentTilById(@AuthenticationPrincipal final Long userId) {
-        List<TilDetailResponse> recentTils = tilService.getRecentTilById(userId);
+        Page<TilDetailResponse> recentTils = tilService.getRecentTilById(userId);
         return ResponseEntity.ok(recentTils);
     }
 
