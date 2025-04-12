@@ -47,7 +47,7 @@ public class TilController {
     @GetMapping("/main")
     public ResponseEntity<?> getMainTil(@RequestParam(defaultValue = "0") final int page,
                                         @RequestParam(defaultValue = "10") final int size) {
-        Page<TilDetailResponse> tilPage = tilService.getMainTilByPagination(page, size);
+        Page<TilDetailResponse> tilPage = tilService.getTilByPagination(page, size);
         return ResponseEntity.ok(tilPage);
     }
 
