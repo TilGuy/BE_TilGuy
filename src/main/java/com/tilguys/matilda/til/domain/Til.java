@@ -56,6 +56,9 @@ public class Til extends BaseEntity {
     }
 
     public boolean isWithinDateRange(final LocalDate from, final LocalDate to) {
-        return from.isBefore(date) && to.isAfter(date);
+        boolean isAfterOrEqualFrom = !date.isBefore(from);
+        boolean isBeforeOrEqualTo = !date.isAfter(to);
+
+        return isAfterOrEqualFrom && isBeforeOrEqualTo;
     }
 }
