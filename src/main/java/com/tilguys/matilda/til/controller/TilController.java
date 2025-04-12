@@ -11,6 +11,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -53,7 +54,7 @@ public class TilController {
     @GetMapping("/range")
     public ResponseEntity<?> getTilByDateRange(@RequestParam final LocalDate from,
                                                @RequestParam final LocalDate to) {
-        TilDetailsResponse tilsInRange = tilService.getTilByDateRange(from, to);
+        TilDetailsResponse tilsInRange = tilService.getTilByDateRange(userId, from, to);
         return ResponseEntity.ok(tilsInRange);
     }
 }
