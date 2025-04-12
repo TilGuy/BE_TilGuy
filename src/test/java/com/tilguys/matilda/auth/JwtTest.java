@@ -23,14 +23,14 @@ public class JwtTest {
 
     @Test
     @WithMockCustomUser(identifier = "praisebak")
-    void 로그인시_깃허브_아이디를_담은_jwt를_반환한다() {
+    void 로그인시_깃허브_아이디를_담은_JWT를_반환한다() {
         Cookie jwtCookie = jwt.createJwtCookie();
         Assertions.assertThat(jwtCookie.getName()).isNotNull();
     }
 
     @Test
     @WithMockCustomUser(identifier = "praisebak")
-    void jwt로_유저를_식별할_수_있다() {
+    void JWT로_유저를_식별할_수_있다() {
         Cookie jwtCookie = jwt.createJwtCookie();
         String token = jwtCookie.getValue();
         Authentication authentication = jwt.getAuthentication(token);
