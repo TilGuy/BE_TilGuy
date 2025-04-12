@@ -35,20 +35,6 @@ public class TilService {
                 .orElseThrow(IllegalArgumentException::new);
     }
 
-    public TilDetailResponse getTodayTilByUserId(final Long userId) {
-        Til today = tilRepository.findByUserId(userId)
-                .stream()
-                .filter(Til::isToday)
-                .findFirst()
-                .orElse(null);
-
-        if (today == null) {
-            return null;
-        }
-
-        return TilDetailResponse.fromEntity(today);
-    }
-
     public List<TilDetailResponse> getRecentTilById(final Long userId) {
         List<TilDetailResponse> recentTil = tilRepository.findByUserId(userId)
                 .stream()
