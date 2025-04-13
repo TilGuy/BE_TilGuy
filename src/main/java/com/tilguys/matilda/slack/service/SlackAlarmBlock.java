@@ -10,6 +10,7 @@ public class SlackAlarmBlock {
     private static final String WRITER_FORMAT = "작성자: *%s*";
     private static final String CONTENT_FORMAT = "📖 내용 요약: %s\n";
     private static final String TAG_FORMAT = "🏷️ 태그 : %s\n";
+    
     private final List<Map<String, Object>> blocks = new ArrayList<>();
 
     public SlackAlarmBlock(String content, String nickname, String dateString, List<String> tags) {
