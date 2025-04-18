@@ -26,8 +26,8 @@ public class TilService {
 
     private final TilRepository tilRepository;
 
-    public Til createTil(final TilCreateRequest createRequest) {
-        Til newTil = createRequest.toEntity();
+    public Til createTil(final TilCreateRequest createRequest, final Long userId) {
+        Til newTil = createRequest.toEntity(userId);
         return tilRepository.save(newTil);
     }
 
