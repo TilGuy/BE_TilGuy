@@ -1,5 +1,6 @@
 package com.tilguys.matilda.til.controller;
 
+import com.tilguys.matilda.slack.service.SlackService;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilCreateRequest;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TilController {
 
     private final TilService tilService;
+    private final SlackService slackService;
 
     @PostMapping("")
     public ResponseEntity<?> saveTil(@RequestBody final TilCreateRequest createRequest) {

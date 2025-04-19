@@ -1,8 +1,11 @@
 package com.tilguys.matilda.common.auth.config;
 
 import com.tilguys.matilda.common.auth.Jwt;
+import com.tilguys.matilda.common.auth.service.AuthService;
 import com.tilguys.matilda.common.auth.service.UserService;
+import com.tilguys.matilda.til.service.UserRefreshTokenService;
 import com.tilguys.matilda.user.TilUser;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -27,28 +30,66 @@ public class PrevLoginFilter extends OncePerRequestFilter {
 
     private final Jwt jwt;
     private final UserService userService;
+    private final UserRefreshTokenService userRefreshTokenService;
+    private final AuthService authService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            clearSecurityContext();
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = jwt.getTokenFromCookie(cookies);
+        if (token.isEmpty()) {
+            clearSecurityContext();
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         try {
-            jwt.validateToken(token);
-            String id = jwt.getPrincipleFromToken(token);
-            Optional<TilUser> userByIdentifier = userService.findById(Long.parseLong(id));
-            if (userByIdentifier.isEmpty()) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            Authentication authentication = createAuthentication(userByIdentifier.get());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            resolveJwtToken(token);
+        } catch (ExpiredJwtException e) {
+            Long id = jwt.resolveUserIdWhenJwtExpired(e);
+            userRefreshTokenReLogin(id, response);
         } catch (RuntimeException ignore) {
-            SecurityContextHolder.getContext().setAuthentication(null);
+            clearSecurityContext();
         }
         filterChain.doFilter(request, response);
+    }
+
+    private void clearSecurityContext() {
+        SecurityContextHolder.getContext().setAuthentication(null);
+    }
+
+    private void setSecurityContext(Authentication authentication) {
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    private void resolveJwtToken(String token) {
+        Long userId = jwt.getUserIdFromToken(token);
+        Optional<TilUser> userByIdentifier = userService.findById(userId);
+        if (userByIdentifier.isEmpty()) {
+            clearSecurityContext();
+            return;
+        }
+
+        setSecurityContext(createAuthentication(userByIdentifier.get()));
+    }
+
+    private void userRefreshTokenReLogin(Long id, HttpServletResponse response) {
+        boolean refreshSuccess = userRefreshTokenService.isReLoginPossible(id);
+        if (refreshSuccess) {
+            Authentication authentication = authService.createAuthenticationFromId(id);
+            setSecurityContext(authentication);
+            Cookie jwtCookie = jwt.createJwtCookie();
+            response.addCookie(jwtCookie);
+            return;
+        }
+        clearSecurityContext();
     }
 
     private Authentication createAuthentication(TilUser tilUser) {

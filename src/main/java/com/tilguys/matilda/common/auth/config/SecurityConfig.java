@@ -3,9 +3,11 @@ package com.tilguys.matilda.common.auth.config;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 import com.tilguys.matilda.common.auth.Jwt;
+import com.tilguys.matilda.common.auth.service.AuthService;
 import com.tilguys.matilda.common.auth.service.UserService;
 import com.tilguys.matilda.common.auth.strategy.AccessJwtTokenCookieCreateStrategy;
 import com.tilguys.matilda.common.auth.strategy.JwtCookieCreateStrategy;
+import com.tilguys.matilda.til.service.UserRefreshTokenService;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
@@ -28,7 +30,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class SecurityConfig implements WebMvcConfigurer {
 
-    private static final String[] PERMITTED_ROLES = {"USER"};
+    private static final String[] PERMITTED_ROLES = {"ROLE_USER"};
 
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -37,6 +39,8 @@ public class SecurityConfig implements WebMvcConfigurer {
     private String secret;
 
     private final UserService userService;
+    private final UserRefreshTokenService userRefreshTokenService;
+    private final AuthService authService;
 
     @Bean
     public Key jwtKey() {
@@ -56,7 +60,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     @Bean
     public PrevLoginFilter prevLoginFilter() {
-        return new PrevLoginFilter(jwt(), userService);
+        return new PrevLoginFilter(jwt(), userService, userRefreshTokenService, authService);
     }
 
     @Bean

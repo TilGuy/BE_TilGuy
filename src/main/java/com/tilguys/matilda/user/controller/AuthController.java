@@ -44,6 +44,7 @@ public class AuthController {
         }
         GithubUserInfo gitHubUserInfo = githubAuthService.getGitHubUserInfo(accessToken);
         Authentication authentication = authService.createAuthenticationFromName(gitHubUserInfo.identifier());
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         Cookie jwtCookie = jwt.createJwtCookie();
