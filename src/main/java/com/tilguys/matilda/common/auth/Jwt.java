@@ -1,6 +1,7 @@
 package com.tilguys.matilda.common.auth;
 
 
+import com.tilguys.matilda.common.auth.exception.InvalidJwtToken;
 import com.tilguys.matilda.common.auth.exception.MatildaException;
 import com.tilguys.matilda.common.auth.strategy.JwtCookieCreateStrategy;
 import io.jsonwebtoken.Claims;
@@ -22,8 +23,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -38,6 +37,7 @@ public class Jwt {
     private static final String INVALID_JWT_SIGN = "잘못된 JWT 서명입니다.";
     private static final String NOT_SUPPORTED_JWT = "지원되지 않는 JWT 토큰입니다.";
     private static final String INVALID_JWT_ARGUMENT = "JWT 토큰이 잘못되었습니다.";
+    private static final String CLAIMS_USER_ID = "userId";
 
     private final JwtCookieCreateStrategy jwtCookieCreateStrategy;
     private final Key key;
@@ -73,11 +73,12 @@ public class Jwt {
             log.info(NOT_SUPPORTED_JWT);
         } catch (IllegalArgumentException e) {
             log.info(INVALID_JWT_ARGUMENT);
+        } catch (ExpiredJwtException e) {
+            log.info("token expired : " + e.getMessage());
         }
         log.info("token : " + token);
         return false;
     }
-
 
     private Claims parseClaims(String accessToken) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
@@ -90,6 +91,16 @@ public class Jwt {
 
     public String getPrincipleFromToken(String token) {
         return getSubjectFromToken(token);
+    }
+
+    public Long getUserIdFromToken(String token) {
+        Claims claims = parseClaims(token);
+        // Try to get from dedicated userId claim first
+        if (claims.get(CLAIMS_USER_ID) != null) {
+            return Long.parseLong(claims.get(CLAIMS_USER_ID).toString());
+        }
+        // Fallback to subject if userId claim is not present
+        return Long.parseLong(claims.getSubject());
     }
 
     public String resolveRefreshToken(HttpServletRequest request) {
@@ -108,6 +119,10 @@ public class Jwt {
         return COOKIE_NAME;
     }
 
+    public static String getClaimsUserId() {
+        return CLAIMS_USER_ID;
+    }
+
     public Authentication getAuthentication(String accessToken) {
         Claims claims = parseClaims(accessToken);
 
@@ -120,8 +135,21 @@ public class Jwt {
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
-        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+        // 사용자 ID를 Long으로 변환하여 principal로 사용
+        Long userId = Long.parseLong(claims.getSubject());
+
+        // User 객체 대신 Long 타입의 userId를 principal로 사용
+        return new UsernamePasswordAuthenticationToken(userId, "", authorities);
+    }
+
+    public Long resolveUserIdWhenJwtExpired(ExpiredJwtException e) {
+        Object idObject = e.getClaims().get(Jwt.getClaimsUserId());
+
+        // Number로 캐스팅 후 longValue() 메서드 사용
+        if (idObject instanceof Number) {
+            return ((Number) idObject).longValue();
+        }
+        throw new InvalidJwtToken("jwt id는 숫자여야합니다.");
     }
 
 //
@@ -168,4 +196,3 @@ public class Jwt {
 //        return jwtTokenFactory.getUsernameFromToken(token);
 //    }
 }
-

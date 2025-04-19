@@ -1,5 +1,6 @@
 package com.tilguys.matilda.common.auth.service;
 
+import com.tilguys.matilda.common.auth.exception.NotExistUserException;
 import com.tilguys.matilda.user.TilUser;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,5 +37,12 @@ public class AuthService {
 
         }
         return null;
+    }
+
+    public Authentication createAuthenticationFromId(Long id) {
+        Optional<TilUser> user = userService.findById(id);
+        user.orElseThrow(NotExistUserException::new);
+        String identifier = user.get().getIdentifier();
+        return createAuthenticationFromName(identifier);
     }
 }

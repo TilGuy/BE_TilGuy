@@ -37,6 +37,7 @@ public class AccessJwtTokenCookieCreateStrategy implements JwtCookieCreateStrate
 
         return Jwts.builder()
                 .setSubject(String.valueOf(id))
+                .claim(Jwt.getClaimsUserId(), id)
                 .claim(AUTHORITIES_KEY, authorities)
                 .setExpiration(tokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS512)
