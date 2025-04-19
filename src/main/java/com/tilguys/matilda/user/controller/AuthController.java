@@ -42,8 +42,7 @@ public class AuthController {
         if (accessToken == null) {
             throw new OAuth2AuthenticationException("로그인에 실패하였습니다");
         }
-        GithubUserInfo gitHubUserInfo;
-        gitHubUserInfo = githubAuthService.getGitHubUserInfo(accessToken);
+        GithubUserInfo gitHubUserInfo = githubAuthService.getGitHubUserInfo(accessToken);
         Authentication authentication = authService.createAuthenticationFromName(gitHubUserInfo.identifier());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
