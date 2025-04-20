@@ -6,6 +6,7 @@ import com.tilguys.matilda.auth.strategy.TestJwtTokenCookieCreateStrategy;
 import com.tilguys.matilda.auth.user.WithMockCustomUser;
 import com.tilguys.matilda.common.auth.Jwt;
 import com.tilguys.matilda.common.auth.repository.UserRefreshTokenRepository;
+import com.tilguys.matilda.common.auth.service.AuthService;
 import com.tilguys.matilda.user.ProviderInfo;
 import com.tilguys.matilda.user.Role;
 import com.tilguys.matilda.user.TilUser;
@@ -46,11 +47,14 @@ public class JwtMvcTest {
     @Autowired
     private Key jwtKey;
 
+    @Autowired
+    private AuthService authService;
+
     private Jwt expireCreateJwt;
 
     @BeforeEach
     void setup() {
-        this.expireCreateJwt = new Jwt(new TestJwtTokenCookieCreateStrategy(jwtKey), jwtKey);
+        this.expireCreateJwt = new Jwt(new TestJwtTokenCookieCreateStrategy(jwtKey), jwtKey, authService);
     }
 
     @BeforeAll

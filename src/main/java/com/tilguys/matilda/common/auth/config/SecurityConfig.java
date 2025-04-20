@@ -55,7 +55,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     @Bean
     public Jwt jwt() {
-        return new Jwt(jwtCookieCreateStrategy(), jwtKey());
+        return new Jwt(jwtCookieCreateStrategy(), jwtKey(), authService);
     }
 
     @Bean
