@@ -49,7 +49,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
     testImplementation "org.mockito:mockito-inline:5.2.0"
-    testImplementation 'com.h2database:h2' // ✅ 이 줄 추가!
+    testImplementation 'com.h2database:h2'
 }
 
 tasks.named('test') {
