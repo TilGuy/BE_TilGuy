@@ -6,18 +6,15 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.Cookie;
 import java.security.Key;
 import java.util.Date;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class AccessJwtTokenCookieCreateStrategy implements JwtCookieCreateStrategy {
 
-    private static final String AUTHORITIES_KEY = "Authorization";
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; // 30분
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 1; // 30분
     private final Key key;
 
     @Override
@@ -28,9 +25,6 @@ public class AccessJwtTokenCookieCreateStrategy implements JwtCookieCreateStrate
 
     private String createJwtToken(Authentication authentication) {
         Long id = (Long) authentication.getPrincipal();
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
 
         long now = (new Date()).getTime();
         Date tokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
@@ -38,7 +32,6 @@ public class AccessJwtTokenCookieCreateStrategy implements JwtCookieCreateStrate
         return Jwts.builder()
                 .setSubject(String.valueOf(id))
                 .claim(Jwt.getClaimsUserId(), id)
-                .claim(AUTHORITIES_KEY, authorities)
                 .setExpiration(tokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
