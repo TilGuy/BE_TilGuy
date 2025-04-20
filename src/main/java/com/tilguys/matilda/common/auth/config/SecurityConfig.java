@@ -30,7 +30,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class SecurityConfig implements WebMvcConfigurer {
 
-    private static final String[] PERMITTED_ROLES = {"ROLE_USER"};
+    private static final String[] PERMITTED_ROLES = {"USER"};
 
     @Value("${frontend.url}")
     private String frontendUrl;
