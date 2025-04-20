@@ -28,8 +28,9 @@ public class TilController {
     private final SlackService slackService;
 
     @PostMapping("")
-    public ResponseEntity<?> saveTil(@RequestBody final TilCreateRequest createRequest) {
-        Til saved = tilService.createTil(createRequest);
+    public ResponseEntity<?> saveTil(@RequestBody final TilCreateRequest createRequest,
+                                     @AuthenticationPrincipal final Long userId) {
+        Til saved = tilService.createTil(createRequest, userId);
         return ResponseEntity.ok(saved);
     }
 
