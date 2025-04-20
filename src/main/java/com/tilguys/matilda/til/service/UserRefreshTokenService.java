@@ -24,10 +24,28 @@ public class UserRefreshTokenService {
         userService.validateExistUser(identifier);
         TilUser tilUser = userService.findUserByIdentifier(identifier).get();
         long refreshTokenAliveSecond = Jwt.getRefreshTokenAliveSecond();
-        UserRefreshToken refreshToken = UserRefreshToken.builder()
-                .userId(tilUser.getId())
-                .expireDate(LocalDateTime.now().plusSeconds(refreshTokenAliveSecond))
-                .build();
+        LocalDateTime newExpireDate = LocalDateTime.now().plusSeconds(refreshTokenAliveSecond);
+        UserRefreshToken refreshToken = createAllUpdateRefreshToken(tilUser, newExpireDate);
         userRefreshTokenRepository.save(refreshToken);
+    }
+
+    private UserRefreshToken createAllUpdateRefreshToken(TilUser tilUser, LocalDateTime newExpireDate) {
+        return userRefreshTokenRepository.findById(tilUser.getId())
+                .map(existingToken -> {
+                    // 기존 토큰이 있으면 만료 시간 업데이트
+                    existingToken.setExpireDate(newExpireDate);
+                    return existingToken;
+                })
+                .orElseGet(() ->
+                        // 기존 토큰이 없으면 새로 생성
+                        UserRefreshToken.builder()
+                                .userId(tilUser.getId())
+                                .expireDate(newExpireDate)
+                                .build()
+                );
+    }
+
+    public void deleteRefreshTokenById(Long id) {
+        userRefreshTokenRepository.deleteById(id);
     }
 }
