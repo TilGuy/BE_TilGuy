@@ -116,14 +116,6 @@ public class Jwt {
         return null;
     }
 
-    public static String getCookieName() {
-        return COOKIE_NAME;
-    }
-
-    public static String getClaimsUserId() {
-        return CLAIMS_USER_ID;
-    }
-
     public Authentication getAuthentication(String accessToken) {
         Claims claims = parseClaims(accessToken);
 
@@ -155,6 +147,18 @@ public class Jwt {
 
     public static long getRefreshTokenAliveSecond() {
         return REFRESH_TOKEN_TIME;
+    }
+
+    public static String getAuthoritiesKey() {
+        return AUTHORITIES_KEY;
+    }
+
+    public static String getCookieName() {
+        return COOKIE_NAME;
+    }
+
+    public static String getClaimsUserId() {
+        return CLAIMS_USER_ID;
     }
 
 //
