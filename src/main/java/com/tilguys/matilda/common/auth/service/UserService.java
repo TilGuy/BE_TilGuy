@@ -13,9 +13,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
 
-
-    private static final String USER_DOESNT_EXIST = "유저를 찾을 수 없습니다.";
-
     private final UserRepository userRepository;
 
     public void validateExistUser(String identifier) {

@@ -4,6 +4,7 @@ import com.tilguys.matilda.common.auth.GithubUserInfo;
 import com.tilguys.matilda.common.auth.Jwt;
 import com.tilguys.matilda.common.auth.service.AuthService;
 import com.tilguys.matilda.common.auth.service.GithubAuthService;
+import com.tilguys.matilda.til.service.UserRefreshTokenService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class AuthController {
     private final AuthService authService;
     private final GithubAuthService githubAuthService;
     private final Jwt jwt;
+    private final UserRefreshTokenService userRefreshTokenService;
 
     @GetMapping("/logout")
     public ResponseEntity<?> logout() {
@@ -42,10 +44,12 @@ public class AuthController {
         if (accessToken == null) {
             throw new OAuth2AuthenticationException("로그인에 실패하였습니다");
         }
+
         GithubUserInfo gitHubUserInfo = githubAuthService.getGitHubUserInfo(accessToken);
-        Authentication authentication = authService.createAuthenticationFromName(gitHubUserInfo.identifier());
+        Authentication authentication = authService.login(gitHubUserInfo.identifier());
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        userRefreshTokenService.addRefreshToken(gitHubUserInfo.identifier());
 
         Cookie jwtCookie = jwt.createJwtCookie();
         response.addCookie(jwtCookie);

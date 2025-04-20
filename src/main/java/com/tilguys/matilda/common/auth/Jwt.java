@@ -38,6 +38,7 @@ public class Jwt {
     private static final String NOT_SUPPORTED_JWT = "지원되지 않는 JWT 토큰입니다.";
     private static final String INVALID_JWT_ARGUMENT = "JWT 토큰이 잘못되었습니다.";
     private static final String CLAIMS_USER_ID = "userId";
+    private static final long REFRESH_TOKEN_TIME = 60 * 60 * 24 * 7;
 
     private final JwtCookieCreateStrategy jwtCookieCreateStrategy;
     private final Key key;
@@ -150,6 +151,10 @@ public class Jwt {
             return ((Number) idObject).longValue();
         }
         throw new InvalidJwtToken("jwt id는 숫자여야합니다.");
+    }
+
+    public static long getRefreshTokenAliveSecond() {
+        return REFRESH_TOKEN_TIME;
     }
 
 //

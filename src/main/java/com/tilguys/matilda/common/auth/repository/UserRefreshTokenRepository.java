@@ -1,6 +1,6 @@
-package com.tilguys.matilda.til.repository;
+package com.tilguys.matilda.common.auth.repository;
 
-import com.tilguys.matilda.auth.user.UserRefreshToken;
+import com.tilguys.matilda.common.auth.UserRefreshToken;
 import java.time.LocalDateTime;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

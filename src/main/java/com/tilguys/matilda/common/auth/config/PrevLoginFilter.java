@@ -55,7 +55,6 @@ public class PrevLoginFilter extends OncePerRequestFilter {
             clearJwtToken(response);
             Long id = jwt.resolveUserIdWhenJwtExpired(e);
             userRefreshTokenReLogin(id, response);
-        } catch (RuntimeException ignore) {
         }
         filterChain.doFilter(request, response);
     }
@@ -100,7 +99,7 @@ public class PrevLoginFilter extends OncePerRequestFilter {
 
     private Authentication createAuthentication(TilUser tilUser) {
         Collection<? extends GrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority(tilUser.getRole().getKey()));
+                new SimpleGrantedAuthority(tilUser.getRole().toString()));
         return new UsernamePasswordAuthenticationToken(tilUser.getId(), "", authorities);
     }
 }

@@ -5,7 +5,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import com.tilguys.matilda.auth.strategy.TestJwtTokenCookieCreateStrategy;
 import com.tilguys.matilda.auth.user.WithMockCustomUser;
 import com.tilguys.matilda.common.auth.Jwt;
-import com.tilguys.matilda.til.repository.UserRefreshTokenRepository;
+import com.tilguys.matilda.common.auth.repository.UserRefreshTokenRepository;
 import com.tilguys.matilda.user.ProviderInfo;
 import com.tilguys.matilda.user.Role;
 import com.tilguys.matilda.user.TilUser;

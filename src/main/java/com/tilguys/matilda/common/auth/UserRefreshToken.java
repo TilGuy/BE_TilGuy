@@ -1,4 +1,4 @@
-package com.tilguys.matilda.auth.user;
+package com.tilguys.matilda.common.auth;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
