@@ -3,7 +3,9 @@ package com.tilguys.matilda.common.auth;
 
 import com.tilguys.matilda.common.auth.exception.InvalidJwtToken;
 import com.tilguys.matilda.common.auth.exception.MatildaException;
+import com.tilguys.matilda.common.auth.service.AuthService;
 import com.tilguys.matilda.common.auth.strategy.JwtCookieCreateStrategy;
+import com.tilguys.matilda.user.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -15,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +45,7 @@ public class Jwt {
 
     private final JwtCookieCreateStrategy jwtCookieCreateStrategy;
     private final Key key;
+    private final AuthService authService;
 
     public Cookie createJwtCookie() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -123,6 +127,7 @@ public class Jwt {
             throw new MatildaException(INVALID_AUTH_TOKEN);
         }
 
+        authService.createAuthorities(List.of(Role.from((String) claims.get(AUTHORITIES_KEY))));
         Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
                         .map(SimpleGrantedAuthority::new)
@@ -160,48 +165,4 @@ public class Jwt {
     public static String getClaimsUserId() {
         return CLAIMS_USER_ID;
     }
-
-//
-//    public String getNewAccessCode(HttpServletRequest request)
-//    {
-//        String refreshToken = resolveRefreshToken(request);
-//        if (StringUtils.hasText(refreshToken) && jwtTokenFactory.validateToken(refreshToken)) {
-//            Authentication authentication = jwtTokenFactory.getAuthentication(refreshToken);
-//            return jwtTokenFactory.generateAccessToken(authentication);
-//        }
-//        throw new MatildaException(INVALID_AUTH_TOKEN);
-//    }
-//
-//    public void deleteRefreshCookie(HttpServletResponse response)
-//    {
-//        Cookie deletedRefreshTokenCookie = new Cookie("refreshToken", null);
-//        deletedRefreshTokenCookie.setMaxAge(0);
-//        deletedRefreshTokenCookie.setPath("/"); // 쿠키의 경로를 설정합니다. 필요에 따라 경로를 조정하세요.
-//        response.addCookie(deletedRefreshTokenCookie);
-//    }
-//
-//    public static String generateRandomPassword() {
-//        int minLength = 8;
-//        int maxLength = 20;
-//
-//        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_+=<>?";
-//
-//        SecureRandom random = new SecureRandom();
-//        StringBuilder password = new StringBuilder();
-//
-//        int passwordLength = minLength + random.nextInt(maxLength - minLength + 1);
-//
-//        for (int i = 0; i < passwordLength; i++) {
-//            int randomIndex = random.nextInt(characters.length());
-//            char randomChar = characters.charAt(randomIndex);
-//
-//            password.append(randomChar);
-//        }
-//
-//        return password.toString();
-//    }
-//
-//    public String getUsernameFromToken(String token) {
-//        return jwtTokenFactory.getUsernameFromToken(token);
-//    }
 }
