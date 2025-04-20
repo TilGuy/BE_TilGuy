@@ -8,6 +8,7 @@ import com.tilguys.matilda.user.TilUser;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +31,7 @@ public class UserRefreshTokenService {
     }
 
     private UserRefreshToken createAllUpdateRefreshToken(TilUser tilUser, LocalDateTime newExpireDate) {
-        return userRefreshTokenRepository.findById(tilUser.getId())
+        return userRefreshTokenRepository.findByUserId(tilUser.getId())
                 .map(existingToken -> {
                     // 기존 토큰이 있으면 만료 시간 업데이트
                     existingToken.setExpireDate(newExpireDate);
@@ -45,7 +46,8 @@ public class UserRefreshTokenService {
                 );
     }
 
-    public void deleteRefreshTokenById(Long id) {
-        userRefreshTokenRepository.deleteById(id);
+    @Transactional
+    public void deleteRefreshTokenByUserId(Long userId) {
+        userRefreshTokenRepository.deleteByUserId(userId);
     }
 }
