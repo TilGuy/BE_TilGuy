@@ -26,8 +26,8 @@ public class TilService {
 
     private final TilRepository tilRepository;
 
-    public Til createTil(final TilCreateRequest createRequest, final Long userId) {
-        Til newTil = createRequest.toEntity(userId);
+    public Til createTil(final TilCreateRequest tilCreateDto, final long userId) {
+        Til newTil = tilCreateDto.toEntity(userId);
         return tilRepository.save(newTil);
     }
 
@@ -60,9 +60,9 @@ public class TilService {
         return new TilDatesResponse(all);
     }
 
-    public void updateTil(final TilUpdateRequest updateRequest) {
-        Til til = getTilByTilId(updateRequest.tilId());
-        til.updateContentAndVisibility(updateRequest.content(), updateRequest.isPublic());
+    public void updateTil(final TilUpdateRequest tilUpdateDto) {
+        Til til = getTilByTilId(tilUpdateDto.tilId());
+        til.updateContentAndVisibility(tilUpdateDto.content(), tilUpdateDto.isPublic());
     }
 
     public void deleteTil(final Long tilId) {
