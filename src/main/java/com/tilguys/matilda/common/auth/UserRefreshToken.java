@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Builder
@@ -23,6 +24,7 @@ public class UserRefreshToken {
     @NotNull
     private Long userId;
 
+    @Setter
     @NotNull
     private LocalDateTime expireDate;
 }
