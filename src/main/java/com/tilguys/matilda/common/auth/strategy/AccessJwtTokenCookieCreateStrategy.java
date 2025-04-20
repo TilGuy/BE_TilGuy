@@ -6,8 +6,10 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.Cookie;
 import java.security.Key;
 import java.util.Date;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -25,6 +27,9 @@ public class AccessJwtTokenCookieCreateStrategy implements JwtCookieCreateStrate
 
     private String createJwtToken(Authentication authentication) {
         Long id = (Long) authentication.getPrincipal();
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
 
         long now = (new Date()).getTime();
         Date tokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
@@ -32,6 +37,7 @@ public class AccessJwtTokenCookieCreateStrategy implements JwtCookieCreateStrate
         return Jwts.builder()
                 .setSubject(String.valueOf(id))
                 .claim(Jwt.getClaimsUserId(), id)
+                .claim(Jwt.getAuthoritiesKey(), authorities)
                 .setExpiration(tokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
