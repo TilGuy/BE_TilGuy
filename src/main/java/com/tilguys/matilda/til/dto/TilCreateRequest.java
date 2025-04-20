@@ -8,7 +8,7 @@ public record TilCreateRequest(
         boolean isPublic
 ) {
 
-    public Til toEntity(final Long userId) {
+    public Til toEntity(final long userId) {
         return Til.builder()
                 .userId(userId)
                 .title(title)
