@@ -1,8 +1,10 @@
 package com.tilguys.matilda.common.auth.service;
 
+import com.tilguys.matilda.common.auth.exception.NotExistUserException;
+import com.tilguys.matilda.user.Role;
 import com.tilguys.matilda.user.TilUser;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,24 +19,31 @@ public class AuthService {
 
     private final UserService userService;
 
-    public Authentication createAuthenticationFromName(String identifier) {
-        try {
-            Optional<TilUser> userByIdentifier = userService.findUserByIdentifier(
-                    identifier);
-            if (userByIdentifier.isEmpty()) {
-                userService.signup(identifier);
-                userByIdentifier = userService.findUserByIdentifier(identifier);
-            }
-
-            Collection<? extends GrantedAuthority> authorities =
-                    Arrays.stream(userByIdentifier.get().getRole().toString().split(","))
-                            .map(SimpleGrantedAuthority::new)
-                            .toList();
-
-            return new UsernamePasswordAuthenticationToken(userByIdentifier.get().getId(), "", authorities);
-        } catch (RuntimeException ignore) {
-
+    public Authentication login(String identifier) {
+        Optional<TilUser> userByIdentifier = userService.findUserByIdentifier(
+                identifier);
+        if (userByIdentifier.isEmpty()) {
+            userService.signup(identifier);
+            userByIdentifier = userService.findUserByIdentifier(identifier);
         }
-        return null;
+
+        Collection<? extends GrantedAuthority> authorities =
+                createAuthorities(List.of(userByIdentifier.get().getRole()));
+
+        return new UsernamePasswordAuthenticationToken(userByIdentifier.get().getId(), "", authorities);
+    }
+
+    public List<SimpleGrantedAuthority> createAuthorities(List<Role> roles) {
+        return roles.stream()
+                .map(Enum::toString)
+                .map(SimpleGrantedAuthority::new)
+                .toList();
+    }
+
+    public Authentication createAuthenticationFromId(Long id) {
+        Optional<TilUser> user = userService.findById(id);
+        user.orElseThrow(NotExistUserException::new);
+        String identifier = user.get().getIdentifier();
+        return login(identifier);
     }
 }
