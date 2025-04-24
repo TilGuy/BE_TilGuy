@@ -33,8 +33,8 @@ public class Til extends BaseEntity {
     @Column(name = "title")
     private String title;
 
-    @Lob
-    @Column(name = "content")
+    @Lob()
+    @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
     @Column(name = "date")
