@@ -1,5 +1,6 @@
 package com.tilguys.matilda.auth.strategy;
 
+import com.tilguys.matilda.common.auth.Jwt;
 import com.tilguys.matilda.common.auth.strategy.JwtCookieCreateStrategy;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -19,11 +20,13 @@ public class TestJwtTokenCookieCreateStrategy implements JwtCookieCreateStrategy
 
     @Override
     public Cookie createCookie(Authentication authentication) {
+        Long id = (Long) authentication.getPrincipal();
         Date now = new Date();
         Date expiredDate = new Date(now.getTime() - 1000L); // 1초 전 = 이미 만료됨
 
         String token = Jwts.builder()
                 .setSubject(authentication.getName())
+                .claim(Jwt.getClaimsUserId(), id)
                 .setIssuedAt(now)
                 .setExpiration(expiredDate)
                 .signWith(key, SignatureAlgorithm.HS512)

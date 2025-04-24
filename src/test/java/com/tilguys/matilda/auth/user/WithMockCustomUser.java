@@ -8,7 +8,7 @@ import org.springframework.security.test.context.support.WithSecurityContext;
 @Retention(RetentionPolicy.RUNTIME)
 @WithSecurityContext(factory = WithMockCustomUserSecurityContextFactory.class)
 public @interface WithMockCustomUser {
-    String identifier() default "first";
+    long identifier() default 0L;
 
     Role role() default Role.USER;
 }

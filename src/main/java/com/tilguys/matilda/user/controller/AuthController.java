@@ -4,11 +4,13 @@ import com.tilguys.matilda.common.auth.GithubUserInfo;
 import com.tilguys.matilda.common.auth.Jwt;
 import com.tilguys.matilda.common.auth.service.AuthService;
 import com.tilguys.matilda.common.auth.service.GithubAuthService;
+import com.tilguys.matilda.til.service.UserRefreshTokenService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,12 +28,14 @@ public class AuthController {
     private final AuthService authService;
     private final GithubAuthService githubAuthService;
     private final Jwt jwt;
+    private final UserRefreshTokenService userRefreshTokenService;
 
     @GetMapping("/logout")
-    public ResponseEntity<?> logout() {
+    public ResponseEntity<?> logout(@AuthenticationPrincipal Long id) {
         Cookie jwt = new Cookie(Jwt.getCookieName(), null);
         jwt.setMaxAge(0); // 쿠키의 expiration 타임을 0으로 하여 없앤다.
         jwt.setPath("/"); // 모든 경로에서 삭제 됬음을 알린다.
+        userRefreshTokenService.deleteRefreshTokenByUserId(id);
         return ResponseEntity.ok(ResponseEntity.accepted().build());
     }
 
@@ -42,9 +46,12 @@ public class AuthController {
         if (accessToken == null) {
             throw new OAuth2AuthenticationException("로그인에 실패하였습니다");
         }
+
         GithubUserInfo gitHubUserInfo = githubAuthService.getGitHubUserInfo(accessToken);
-        Authentication authentication = authService.createAuthenticationFromName(gitHubUserInfo.identifier());
+        Authentication authentication = authService.login(gitHubUserInfo.identifier());
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        userRefreshTokenService.addRefreshToken(gitHubUserInfo.identifier());
 
         Cookie jwtCookie = jwt.createJwtCookie();
         response.addCookie(jwtCookie);
