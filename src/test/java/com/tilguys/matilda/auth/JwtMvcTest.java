@@ -76,7 +76,7 @@ public class JwtMvcTest {
 
     @Test
     @WithMockCustomUser(identifier = "praisebak")
-    void 만료된_JWT_토큰일시_403_발생할_수_있다() throws Exception {
+    void 만료된_JWT_토큰일시_403_발생한다() throws Exception {
         Cookie jwtCookie = expireCreateJwt.createJwtCookie();
         mockMvc.perform(MockMvcRequestBuilders.get("/api/oauth/logout")
                         .cookie(jwtCookie))
