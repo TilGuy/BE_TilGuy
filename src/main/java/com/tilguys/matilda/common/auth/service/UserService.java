@@ -30,6 +30,9 @@ public class UserService {
     }
 
     public void signup(String identifier) {
+        if (userRepository.existsByIdentifier(identifier)) {
+            return;
+        }
         TilUser tilUser = TilUser.builder()
                 .identifier(identifier)
                 .providerInfo(ProviderInfo.GITHUB)
@@ -47,5 +50,6 @@ public class UserService {
         TilUser userByIdentifier = findUserByIdentifier(githubUserInfo.identifier())
                 .orElseThrow(DoesNotExistUserException::new);
         userByIdentifier.updateAvatarUrl(githubUserInfo.avatarUrl());
+        userByIdentifier.updateNickname(githubUserInfo.nickname());
     }
 }

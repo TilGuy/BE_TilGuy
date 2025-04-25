@@ -43,4 +43,12 @@ public class AuthService {
     private void updateUserProfile(GithubUserInfo gitHubUserInfo) {
         userService.updateUserInfo(gitHubUserInfo);
     }
+
+    public GithubUserInfo getGithubInfoById(Long id) {
+        TilUser tilUser = userService.findById(id).orElseThrow(DoesNotExistUserException::new);
+        String avatarUrl = tilUser.getAvatarUrl();
+        String identifier = tilUser.getIdentifier();
+        String nickname = tilUser.getNickname();
+        return new GithubUserInfo(identifier, avatarUrl, nickname);
+    }
 }

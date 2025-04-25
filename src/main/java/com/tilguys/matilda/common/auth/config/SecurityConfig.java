@@ -70,6 +70,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/api/oauth/login")
                         .permitAll()
+                        .requestMatchers("/api/user/profileUrl/**")
+                        .permitAll()
                         .anyRequest()
                         .hasAnyRole(PERMITTED_ROLES));
         return http.build();

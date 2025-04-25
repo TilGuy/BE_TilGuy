@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -65,9 +64,8 @@ public class JwtMvcTest {
         Cookie jwtCookie = jwt.createJwtCookie();
         String token = jwtCookie.getValue();
         Authentication authentication = jwt.getAuthentication(token);
-
-        User principal = (User) authentication.getPrincipal();
-        assertThat(principal.getUsername()).isEqualTo("praisebak");
+        long id = Long.parseLong((String) authentication.getPrincipal());
+        assertThat(id).isEqualTo(1L);
     }
 
     @Test
