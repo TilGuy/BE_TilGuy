@@ -4,14 +4,12 @@ import com.tilguys.matilda.common.auth.GithubUserInfo;
 import com.tilguys.matilda.common.auth.Jwt;
 import com.tilguys.matilda.common.auth.service.AuthService;
 import com.tilguys.matilda.common.auth.service.GithubAuthService;
-import com.tilguys.matilda.til.service.UserRefreshTokenService;
+import com.tilguys.matilda.common.auth.service.UserRefreshTokenService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/oauth")
 @RestController
 @RequiredArgsConstructor
-public class AuthController {
+public class OAuthController {
 
     private final AuthService authService;
     private final GithubAuthService githubAuthService;
@@ -40,17 +38,15 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> getUserInfo(@RequestParam(value = "code") String code,
-                                         HttpServletResponse response) {
+    public ResponseEntity<?> login(@RequestParam(value = "code") String code,
+                                   HttpServletResponse response) {
         String accessToken = githubAuthService.getAccessToken(code);
         if (accessToken == null) {
             throw new OAuth2AuthenticationException("로그인에 실패하였습니다");
         }
 
         GithubUserInfo gitHubUserInfo = githubAuthService.getGitHubUserInfo(accessToken);
-        Authentication authentication = authService.login(gitHubUserInfo.identifier());
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        authService.loginProcessByGithubInfo(gitHubUserInfo);
         userRefreshTokenService.addRefreshToken(gitHubUserInfo.identifier());
 
         Cookie jwtCookie = jwt.createJwtCookie();

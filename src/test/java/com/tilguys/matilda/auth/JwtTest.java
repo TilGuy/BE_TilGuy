@@ -1,5 +1,7 @@
 package com.tilguys.matilda.auth;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 import com.tilguys.matilda.auth.user.WithMockCustomUser;
 import com.tilguys.matilda.common.auth.Jwt;
 import jakarta.servlet.http.Cookie;
@@ -34,7 +36,7 @@ public class JwtTest {
         String token = jwtCookie.getValue();
         Authentication authentication = jwt.getAuthentication(token);
 
-        Long principal = (Long) authentication.getPrincipal();
-        Assertions.assertThat(principal).isEqualTo(1L);
+        Long id = (Long) authentication.getPrincipal();
+        assertThat(id).isEqualTo(1L);
     }
 }

@@ -65,8 +65,9 @@ public class GithubAuthService {
 
         String identifier = body.get("login");
         String avatarUrl = body.get("avatar_url");
+        String nickname = body.getOrDefault("name", identifier);
 
-        return new GithubUserInfo(identifier, avatarUrl);
+        return new GithubUserInfo(identifier, avatarUrl, nickname);
     }
 }
 
