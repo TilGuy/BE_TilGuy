@@ -1,14 +1,15 @@
 package com.tilguys.matilda.common.auth.service;
 
+import com.tilguys.matilda.common.auth.GithubUserInfo;
+import com.tilguys.matilda.common.auth.exception.DoesNotExistUserException;
 import com.tilguys.matilda.user.TilUser;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,24 +18,29 @@ public class AuthService {
 
     private final UserService userService;
 
-    public Authentication createAuthenticationFromName(String identifier) {
-        try {
-            Optional<TilUser> userByIdentifier = userService.findUserByIdentifier(
-                    identifier);
-            if (userByIdentifier.isEmpty()) {
-                userService.signup(identifier);
-                userByIdentifier = userService.findUserByIdentifier(identifier);
-            }
+    public void setAuthenticationFromUser(String identifier) {
+        TilUser user = userService.findUserByIdentifier(identifier).orElseThrow(DoesNotExistUserException::new);
 
-            Collection<? extends GrantedAuthority> authorities =
-                    Arrays.stream(userByIdentifier.get().getRole().toString().split(","))
-                            .map(SimpleGrantedAuthority::new)
-                            .toList();
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(user.getRole().toString().split(","))
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                user.getId(), "", authorities);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
 
-            return new UsernamePasswordAuthenticationToken(userByIdentifier.get().getId(), "", authorities);
-        } catch (RuntimeException ignore) {
+    public void signup(String identifier) {
+        userService.signup(identifier);
+    }
 
-        }
-        return null;
+    public void loginProcessByGithubInfo(GithubUserInfo gitHubUserInfo) {
+        updateUserProfile(gitHubUserInfo);
+        signup(gitHubUserInfo.identifier());
+        setAuthenticationFromUser(gitHubUserInfo.identifier());
+    }
+
+    private void updateUserProfile(GithubUserInfo gitHubUserInfo) {
+        userService.updateUserInfo(gitHubUserInfo);
     }
 }

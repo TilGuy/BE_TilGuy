@@ -8,8 +8,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,15 +34,16 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> getUserInfo(@RequestParam(value = "code") String code,
-                                         HttpServletResponse response) {
+    public ResponseEntity<?> login(@RequestParam(value = "code") String code,
+                                   HttpServletResponse response) {
         String accessToken = githubAuthService.getAccessToken(code);
         if (accessToken == null) {
             throw new OAuth2AuthenticationException("로그인에 실패하였습니다");
         }
+
         GithubUserInfo gitHubUserInfo = githubAuthService.getGitHubUserInfo(accessToken);
-        Authentication authentication = authService.createAuthenticationFromName(gitHubUserInfo.identifier());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        authService.loginProcessByGithubInfo(gitHubUserInfo);
 
         Cookie jwtCookie = jwt.createJwtCookie();
         response.addCookie(jwtCookie);
