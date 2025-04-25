@@ -2,6 +2,7 @@ package com.tilguys.matilda.common.auth.service;
 
 import com.tilguys.matilda.common.auth.GithubUserInfo;
 import com.tilguys.matilda.common.auth.exception.DoesNotExistUserException;
+import com.tilguys.matilda.common.auth.exception.NotExistUserException;
 import com.tilguys.matilda.user.ProviderInfo;
 import com.tilguys.matilda.user.Role;
 import com.tilguys.matilda.user.TilUser;
@@ -15,9 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
 
-    private static final String USER_DOESNT_EXIST = "유저를 찾을 수 없습니다.";
-
     private final UserRepository userRepository;
+
+    public void validateExistUser(String identifier) {
+        userRepository.findByIdentifier(identifier)
+                .orElseThrow(NotExistUserException::new);
+    }
 
     public Optional<TilUser> findUserByIdentifier(String userIdentifier) {
         return userRepository.findByIdentifier(userIdentifier);

@@ -3,11 +3,11 @@ package com.tilguys.matilda.user.controller;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.tilguys.matilda.common.auth.service.AuthService;
 import com.tilguys.matilda.user.ProviderInfo;
 import com.tilguys.matilda.user.Role;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.repository.UserRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -15,17 +15,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @ActiveProfiles("test")
-@Transactional
 class UserControllerTest {
 
     @Autowired
@@ -34,11 +31,7 @@ class UserControllerTest {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private AuthService authService;
-
     @BeforeEach
-    @Transactional
     void setUp() {
         // 테스트 데이터 설정
         TilUser user = TilUser.builder()
@@ -51,8 +44,12 @@ class UserControllerTest {
         userRepository.save(user);
     }
 
+    @AfterEach
+    void tearDown() {
+        userRepository.deleteAll();
+    }
+
     @Test
-    @WithMockUser(username = "praisebak", roles = "USER")
     void 프로필_이미지_테스트() throws Exception {
         // 실제 API 호출
         mockMvc.perform(MockMvcRequestBuilders.get("/api/user/profileUrl/1"))

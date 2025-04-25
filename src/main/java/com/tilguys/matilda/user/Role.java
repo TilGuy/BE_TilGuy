@@ -7,8 +7,14 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum Role {
 
-    USER("ROLE_USER", "일반 사용자");
+    USER;
 
-    private final String key;
-    private final String title;
+    public static Role from(String findRole) {
+        for (Role role : Role.values()) {
+            if (role.toString().equals(findRole)) {
+                return role;
+            }
+        }
+        throw new IllegalArgumentException("존재하지 않는 권한입니다" + findRole);
+    }
 }

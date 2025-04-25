@@ -3,6 +3,8 @@ package com.tilguys.matilda.common.auth.config;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 import com.tilguys.matilda.common.auth.Jwt;
+import com.tilguys.matilda.common.auth.service.AuthService;
+import com.tilguys.matilda.common.auth.service.UserRefreshTokenService;
 import com.tilguys.matilda.common.auth.service.UserService;
 import com.tilguys.matilda.common.auth.strategy.AccessJwtTokenCookieCreateStrategy;
 import com.tilguys.matilda.common.auth.strategy.JwtCookieCreateStrategy;
@@ -37,6 +39,8 @@ public class SecurityConfig implements WebMvcConfigurer {
     private String secret;
 
     private final UserService userService;
+    private final UserRefreshTokenService userRefreshTokenService;
+    private final AuthService authService;
 
     @Bean
     public Key jwtKey() {
@@ -51,12 +55,12 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     @Bean
     public Jwt jwt() {
-        return new Jwt(jwtCookieCreateStrategy(), jwtKey());
+        return new Jwt(jwtCookieCreateStrategy(), jwtKey(), authService);
     }
 
     @Bean
     public PrevLoginFilter prevLoginFilter() {
-        return new PrevLoginFilter(jwt(), userService);
+        return new PrevLoginFilter(jwt(), userService, userRefreshTokenService, authService);
     }
 
     @Bean
@@ -73,7 +77,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers("/api/user/profileUrl/**")
                         .permitAll()
                         .anyRequest()
-                        .hasAnyRole(PERMITTED_ROLES));
+                        .hasAnyAuthority(PERMITTED_ROLES));
         return http.build();
     }
 
