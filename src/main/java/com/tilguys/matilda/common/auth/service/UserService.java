@@ -2,7 +2,6 @@ package com.tilguys.matilda.common.auth.service;
 
 import com.tilguys.matilda.common.auth.GithubUserInfo;
 import com.tilguys.matilda.common.auth.exception.DoesNotExistUserException;
-import com.tilguys.matilda.common.auth.exception.MatildaException;
 import com.tilguys.matilda.user.ProviderInfo;
 import com.tilguys.matilda.user.Role;
 import com.tilguys.matilda.user.TilUser;
@@ -19,11 +18,6 @@ public class UserService {
     private static final String USER_DOESNT_EXIST = "유저를 찾을 수 없습니다.";
 
     private final UserRepository userRepository;
-
-    public void validateExistUser(String identifier) {
-        userRepository.findByIdentifier(identifier)
-                .orElseThrow(() -> new MatildaException(USER_DOESNT_EXIST));
-    }
 
     public Optional<TilUser> findUserByIdentifier(String userIdentifier) {
         return userRepository.findByIdentifier(userIdentifier);
