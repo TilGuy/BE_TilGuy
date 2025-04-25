@@ -16,8 +16,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AccessJwtTokenCookieCreateStrategy implements JwtCookieCreateStrategy {
 
-    private static final String AUTHORITIES_KEY = "Authorization";
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; // 30분
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60; // 1시간
     private final Key key;
 
     @Override
@@ -37,7 +36,8 @@ public class AccessJwtTokenCookieCreateStrategy implements JwtCookieCreateStrate
 
         return Jwts.builder()
                 .setSubject(String.valueOf(id))
-                .claim(AUTHORITIES_KEY, authorities)
+                .claim(Jwt.getClaimsUserId(), id)
+                .claim(Jwt.getAuthoritiesKey(), authorities)
                 .setExpiration(tokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
