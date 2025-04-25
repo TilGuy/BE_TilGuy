@@ -135,8 +135,6 @@ public class Jwt {
 
         // 사용자 ID를 Long으로 변환하여 principal로 사용
         Long userId = Long.parseLong(claims.getSubject());
-
-        // User 객체 대신 Long 타입의 userId를 principal로 사용
         return new UsernamePasswordAuthenticationToken(userId, "", authorities);
     }
 

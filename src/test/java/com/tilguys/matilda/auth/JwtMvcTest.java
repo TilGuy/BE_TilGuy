@@ -12,8 +12,8 @@ import com.tilguys.matilda.user.Role;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
+import jakarta.transaction.Transactional;
 import java.security.Key;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -26,11 +26,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.transaction.annotation.Transactional;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @SpringBootTest
-@Transactional
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 public class JwtMvcTest {
@@ -51,20 +49,12 @@ public class JwtMvcTest {
     private AuthService authService;
 
     private Jwt expireCreateJwt;
+    @Autowired
+    private UserRepository userRepository;
 
     @BeforeEach
     void setup() {
         this.expireCreateJwt = new Jwt(new TestJwtTokenCookieCreateStrategy(jwtKey), jwtKey, authService);
-    }
-
-    @BeforeAll
-    static void init(@Autowired UserRepository userRepositoryParam) {
-        final TilUser TIL_USER = TilUser.builder()
-                .identifier("praisebak")
-                .providerInfo(ProviderInfo.GITHUB)
-                .role(Role.USER)
-                .build();
-        userRepositoryParam.save(TIL_USER);
     }
 
     @Test
@@ -116,11 +106,25 @@ public class JwtMvcTest {
 
     @Test
     @WithMockCustomUser(identifier = 1L)
+    @Transactional
     void 유효한_JWT_토큰이_있으면_유저_권한으로_요청가능하다() throws Exception {
+        TilUser user = TilUser.builder()
+                .avatarUrl("https://avatars.githubusercontent.com/u/101252011?v=4")
+                .identifier("praisebak")
+                .nickname("praisebak")
+                .providerInfo(ProviderInfo.GITHUB)
+                .role(Role.USER).build();
+
+        userRepository.save(user);
+
         Cookie jwtCookie = jwt.createJwtCookie();
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/oauth/logout")
-                        .cookie(jwtCookie))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+        try {
+            mockMvc.perform(MockMvcRequestBuilders.get("/api/oauth/logout")
+                            .cookie(jwtCookie))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 //TODO

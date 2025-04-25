@@ -1,9 +1,8 @@
-package com.tilguys.matilda.til.service;
+package com.tilguys.matilda.common.auth.service;
 
 import com.tilguys.matilda.common.auth.Jwt;
 import com.tilguys.matilda.common.auth.UserRefreshToken;
 import com.tilguys.matilda.common.auth.repository.UserRefreshTokenRepository;
-import com.tilguys.matilda.common.auth.service.UserService;
 import com.tilguys.matilda.user.TilUser;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;

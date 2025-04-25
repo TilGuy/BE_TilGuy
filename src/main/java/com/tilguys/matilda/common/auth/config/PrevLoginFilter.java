@@ -2,8 +2,8 @@ package com.tilguys.matilda.common.auth.config;
 
 import com.tilguys.matilda.common.auth.Jwt;
 import com.tilguys.matilda.common.auth.service.AuthService;
+import com.tilguys.matilda.common.auth.service.UserRefreshTokenService;
 import com.tilguys.matilda.common.auth.service.UserService;
-import com.tilguys.matilda.til.service.UserRefreshTokenService;
 import com.tilguys.matilda.user.TilUser;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
