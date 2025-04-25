@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/oauth")
 @RestController
 @RequiredArgsConstructor
-public class AuthController {
+public class OAuthController {
 
     private final AuthService authService;
     private final GithubAuthService githubAuthService;
@@ -42,7 +42,6 @@ public class AuthController {
         }
 
         GithubUserInfo gitHubUserInfo = githubAuthService.getGitHubUserInfo(accessToken);
-
         authService.loginProcessByGithubInfo(gitHubUserInfo);
 
         Cookie jwtCookie = jwt.createJwtCookie();

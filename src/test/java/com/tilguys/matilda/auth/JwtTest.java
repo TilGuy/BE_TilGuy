@@ -1,5 +1,7 @@
 package com.tilguys.matilda.auth;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 import com.tilguys.matilda.auth.user.WithMockCustomUser;
 import com.tilguys.matilda.common.auth.Jwt;
 import jakarta.servlet.http.Cookie;
@@ -10,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -35,7 +36,7 @@ public class JwtTest {
         String token = jwtCookie.getValue();
         Authentication authentication = jwt.getAuthentication(token);
 
-        User principal = (User) authentication.getPrincipal();
-        Assertions.assertThat(principal.getUsername()).isEqualTo("1");
+        long id = Long.parseLong((String) authentication.getPrincipal());
+        assertThat(id).isEqualTo(1L);
     }
 }

@@ -1,5 +1,6 @@
 package com.tilguys.matilda.user;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -28,6 +29,7 @@ public class TilUser {
     private ProviderInfo providerInfo;
 
     @NotNull
+    @Column(unique = true)
     private String identifier;
 
     @NotNull
@@ -40,5 +42,9 @@ public class TilUser {
 
     public void updateAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
     }
 }
