@@ -34,7 +34,7 @@ public class Til extends BaseEntity {
     private String title;
 
     @Lob
-    @Column(name = "content")
+    @Column(name = "content", columnDefinition = "MEDIUMTEXT")
     private String content;
 
     @Column(name = "date")
