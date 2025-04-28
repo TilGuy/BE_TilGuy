@@ -17,7 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @SpringBootTest
 @ActiveProfiles("test")
-public class JwtTest {
+class JwtTest {
 
     @Autowired
     private Jwt jwt;

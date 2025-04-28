@@ -31,7 +31,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class JwtMvcTest {
+class JwtMvcTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -118,13 +118,9 @@ public class JwtMvcTest {
         userRepository.save(user);
 
         Cookie jwtCookie = jwt.createJwtCookie();
-        try {
-            mockMvc.perform(MockMvcRequestBuilders.get("/api/oauth/logout")
-                            .cookie(jwtCookie))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/oauth/logout")
+                        .cookie(jwtCookie))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
 //TODO
