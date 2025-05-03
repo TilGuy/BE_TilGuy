@@ -3,6 +3,7 @@ package com.tilguys.matilda.common.auth.service;
 import com.tilguys.matilda.common.auth.GithubUserInfo;
 import com.tilguys.matilda.common.auth.SimpleUserInfo;
 import com.tilguys.matilda.common.auth.exception.DoesNotExistUserException;
+import com.tilguys.matilda.common.auth.exception.OAuthFailException;
 import com.tilguys.matilda.user.Role;
 import com.tilguys.matilda.user.TilUser;
 import java.util.List;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,6 +27,12 @@ public class AuthService {
     public void loginProcessByGithubInfo(GithubUserInfo gitHubUserInfo) {
         updateUserProfile(gitHubUserInfo);
         signup(gitHubUserInfo.identifier());
+        
+        TilUser userByIdentifier = userService.findUserByIdentifier(gitHubUserInfo.identifier())
+                .orElseThrow(() -> new OAuthFailException("존재하지 않는 유저입니다"));
+
+        Authentication authentication = createAuthentication(userByIdentifier);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     private void updateUserProfile(GithubUserInfo gitHubUserInfo) {

@@ -1,5 +1,7 @@
 package com.tilguys.matilda.til.service;
 
+import com.tilguys.matilda.tag.service.TilTagService;
+import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilCreateRequest;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
@@ -25,10 +27,17 @@ public class TilService {
     private static final int RECENT_TIL_SIZE = 4;
 
     private final TilRepository tilRepository;
+    private final TilTagService tilTagService;
 
+    @Transactional
     public Til createTil(final TilCreateRequest tilCreateDto, final long userId) {
         Til newTil = tilCreateDto.toEntity(userId);
-        return tilRepository.save(newTil);
+        Til til = tilRepository.save(newTil);
+        List<Tag> tags = tilTagService.extractTilTags(til.getContent())
+                .stream()
+                .toList();
+        til.updateTags(tags);
+        return til;
     }
 
     public Page<TilDetailResponse> getRecentTilById(final Long userId) {

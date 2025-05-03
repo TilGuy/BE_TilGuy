@@ -3,6 +3,8 @@ package com.tilguys.matilda.tag.service;
 import com.tilguys.matilda.tag.domain.OpenAIClient;
 import com.tilguys.matilda.tag.domain.TilTagGenerator;
 import com.tilguys.matilda.tag.domain.TilTagParser;
+import com.tilguys.matilda.til.domain.Tag;
+import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,12 +26,15 @@ public class TilTagService {
         this.tagParser = new TilTagParser();
     }
 
-    public Set<String> extractTilTags(String tilContent) {
+    public List<Tag> extractTilTags(String tilContent) {
         String responseJson = openAIClient.callOpenAI(
                 tagGenerator.createPrompt(tilContent),
                 tagGenerator.createFunctionDefinition()
         );
 
-        return tagParser.parseTags(responseJson);
+        Set<String> tags = tagParser.parseTags(responseJson);
+        return tags.stream()
+                .map(Tag::new)
+                .toList();
     }
 }
