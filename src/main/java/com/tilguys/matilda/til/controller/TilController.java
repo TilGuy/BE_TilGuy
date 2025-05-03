@@ -8,6 +8,7 @@ import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
 import com.tilguys.matilda.til.service.TilService;
 import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,7 @@ public class TilController {
     public ResponseEntity<?> saveTil(@RequestBody final TilCreateRequest createRequest,
                                      @AuthenticationPrincipal final Long userId) {
         Til saved = tilService.createTil(createRequest, userId);
+        slackService.sendTilWriteAlarm(saved.getContent(), "null", saved.getTitle(), List.of());
         return ResponseEntity.ok(saved);
     }
 
