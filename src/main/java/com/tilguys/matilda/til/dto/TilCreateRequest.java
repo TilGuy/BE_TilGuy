@@ -1,10 +1,12 @@
 package com.tilguys.matilda.til.dto;
 
 import com.tilguys.matilda.til.domain.Til;
+import java.time.LocalDate;
 
 public record TilCreateRequest(
         String title,
         String content,
+        LocalDate date,
         boolean isPublic
 ) {
 
@@ -13,6 +15,7 @@ public record TilCreateRequest(
                 .userId(userId)
                 .title(title)
                 .content(content)
+                .date(date)
                 .isPublic(isPublic)
                 .build();
     }
