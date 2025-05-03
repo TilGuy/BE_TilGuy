@@ -1,5 +1,6 @@
 package com.tilguys.matilda.user;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -7,7 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class TilUser {
 
     @Id
@@ -29,6 +29,7 @@ public class TilUser {
     private ProviderInfo providerInfo;
 
     @NotNull
+    @Column(unique = true)
     private String identifier;
 
     @NotNull
@@ -36,4 +37,14 @@ public class TilUser {
     private Role role;
 
     private String nickname;
+
+    private String avatarUrl;
+
+    public void updateAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
 }

@@ -4,10 +4,10 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 import com.tilguys.matilda.common.auth.Jwt;
 import com.tilguys.matilda.common.auth.service.AuthService;
+import com.tilguys.matilda.common.auth.service.UserRefreshTokenService;
 import com.tilguys.matilda.common.auth.service.UserService;
 import com.tilguys.matilda.common.auth.strategy.AccessJwtTokenCookieCreateStrategy;
 import com.tilguys.matilda.common.auth.strategy.JwtCookieCreateStrategy;
-import com.tilguys.matilda.til.service.UserRefreshTokenService;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
@@ -73,6 +73,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .addFilterBefore(prevLoginFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/api/oauth/login")
+                        .permitAll()
+                        .requestMatchers("/api/user/profileUrl/**")
                         .permitAll()
                         .anyRequest()
                         .hasAnyAuthority(PERMITTED_ROLES));
