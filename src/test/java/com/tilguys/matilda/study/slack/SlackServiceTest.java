@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import com.tilguys.matilda.slack.service.SlackService;
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -15,7 +14,6 @@ import org.springframework.test.context.ActiveProfiles;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @SpringBootTest
 @ActiveProfiles("production")
-@Disabled
 class SlackServiceTest {
 
     @Autowired
