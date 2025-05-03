@@ -1,4 +1,4 @@
-package com.tilguys.matilda.quiz.service;
+package com.tilguys.matilda.tag.service;
 
 import com.tilguys.matilda.tag.domain.OpenAIClient;
 import com.tilguys.matilda.tag.domain.TilTagGenerator;
