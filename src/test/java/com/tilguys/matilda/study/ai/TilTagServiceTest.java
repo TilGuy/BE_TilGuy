@@ -1,8 +1,8 @@
 package com.tilguys.matilda.study.ai;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.tilguys.matilda.quiz.service.TilTagService;
+import com.tilguys.matilda.tag.service.TilTagService;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -15,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @ActiveProfiles("test")
 @Disabled
+//할당량을 소모하니 필요할때만 테스트할것!
 class TilTagServiceTest {
 
     @Autowired
@@ -22,7 +23,7 @@ class TilTagServiceTest {
 
     @Test
     void gpt_실제_할당량_소모_요청_테스트() {
-        assertDoesNotThrow(() -> tilTagService.extractTilTags("DTO를 사용하는 이유\n"
+        String tilContent = "DTO를 사용하는 이유\n"
                 + "객체 자체를 넘겨주게 되면 불필요한 정보까지 넘어가게 된다.\n"
                 + "예시로, User라는 객체에 password 필드가 있다고 하자. 요청에 이것까지 넘겨주면 큰 일이 날 수 있다.\n"
                 + "모델과 뷰 사이에 의존성이 생긴다. 이 의존성을 끊기 위해 사용한다.\n"
@@ -50,6 +51,7 @@ class TilTagServiceTest {
                 + "도메인은 null이 들어갈 수도 있고, 어떠한 경우에는 값이 있을 수 있다.\n"
                 + "만약 중요한 필드이면 유지보수가 어렵다.\n"
                 + "null에 대한 이유가 없기 때문이다. null이 들어오는 것이 문제가 되진 않지만, 이게 null인 이유는 알아야 한다.(DB오류, 사용자가 적지 않음 등 많은 이유가 있을 수 있다.)\n"
-                + "API 응답 스펙이 정해진다면 그 필드의 값은 항상 같은 원칙으로 반환되도록 명확하게 설계가 가능하다."));
+                + "API 응답 스펙이 정해진다면 그 필드의 값은 항상 같은 원칙으로 반환되도록 명확하게 설계가 가능하다.";
+        assertThat(tilTagService.extractTilTags(tilContent)).hasSizeGreaterThan(0);
     }
 }
