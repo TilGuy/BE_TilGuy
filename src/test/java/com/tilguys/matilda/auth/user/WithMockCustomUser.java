@@ -11,4 +11,6 @@ public @interface WithMockCustomUser {
     long identifier() default 0L;
 
     Role role() default Role.USER;
+
+    String nickname() default "test";
 }
