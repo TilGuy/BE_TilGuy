@@ -32,7 +32,7 @@ public class TilController {
     private final TilService tilService;
     private final SlackService slackService;
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<?> saveTil(@RequestBody final TilCreateRequest createRequest,
                                      @AuthenticationPrincipal final Long userId) {
         Til saved = tilService.createTil(createRequest, userId);
@@ -46,7 +46,7 @@ public class TilController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("")
+    @PatchMapping
     public ResponseEntity<?> updateTil(@RequestBody final TilUpdateRequest request) {
         tilService.updateTil(request);
         return ResponseEntity.ok().build();
