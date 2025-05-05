@@ -1,5 +1,6 @@
 package com.tilguys.matilda.til.controller;
 
+import com.tilguys.matilda.common.auth.SimpleUserInfo;
 import com.tilguys.matilda.slack.service.SlackService;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilCreateRequest;
@@ -8,7 +9,7 @@ import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
 import com.tilguys.matilda.til.service.TilService;
 import java.time.LocalDate;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -30,21 +31,23 @@ public class TilController {
 
     @PostMapping("")
     public ResponseEntity<?> saveTil(@RequestBody final TilCreateRequest createRequest,
-                                     @AuthenticationPrincipal final Long userId) {
-        Til saved = tilService.createTil(createRequest, userId);
-        slackService.sendTilWriteAlarm(saved.getContent(), "null", saved.getTitle(), List.of());
-        return ResponseEntity.ok(saved);
+                                     @AuthenticationPrincipal final SimpleUserInfo simpleUserInfo) {
+        Til til = tilService.createTil(createRequest, simpleUserInfo.id());
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yy-MM월-dd일");
+        String dateString = dateTimeFormatter.format(til.getDate());
+        slackService.sendTilWriteAlarm(til.getContent(), simpleUserInfo.nickname(), dateString, til.getTags());
+        return ResponseEntity.ok(til);
     }
 
     @GetMapping("/dates")
-    public ResponseEntity<?> getAllTilDates(@AuthenticationPrincipal final Long userId) {
-        TilDatesResponse datesForUser = tilService.getAllTilDatesByUserId(userId);
+    public ResponseEntity<?> getAllTilDates(@AuthenticationPrincipal final SimpleUserInfo simpleUserInfo) {
+        TilDatesResponse datesForUser = tilService.getAllTilDatesByUserId(simpleUserInfo.id());
         return ResponseEntity.ok(datesForUser);
     }
 
     @GetMapping("/recent")
-    public ResponseEntity<?> getRecentTilById(@AuthenticationPrincipal final Long userId) {
-        Page<TilDetailResponse> recentTils = tilService.getRecentTilById(userId);
+    public ResponseEntity<?> getRecentTilById(@AuthenticationPrincipal final SimpleUserInfo simpleUserInfo) {
+        Page<TilDetailResponse> recentTils = tilService.getRecentTilById(simpleUserInfo.id());
         return ResponseEntity.ok(recentTils);
     }
 
@@ -56,10 +59,10 @@ public class TilController {
     }
 
     @GetMapping("/range")
-    public ResponseEntity<?> getTilByDateRange(@AuthenticationPrincipal final Long userId,
+    public ResponseEntity<?> getTilByDateRange(@AuthenticationPrincipal final SimpleUserInfo simpleUserInfo,
                                                @RequestParam final LocalDate from,
                                                @RequestParam final LocalDate to) {
-        TilDetailsResponse tilsInRange = tilService.getTilByDateRange(userId, from, to);
+        TilDetailsResponse tilsInRange = tilService.getTilByDateRange(simpleUserInfo.id(), from, to);
         return ResponseEntity.ok(tilsInRange);
     }
 }

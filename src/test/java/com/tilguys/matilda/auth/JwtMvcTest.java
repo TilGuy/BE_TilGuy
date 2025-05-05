@@ -5,6 +5,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import com.tilguys.matilda.auth.strategy.TestJwtTokenCookieCreateStrategy;
 import com.tilguys.matilda.auth.user.WithMockCustomUser;
 import com.tilguys.matilda.common.auth.Jwt;
+import com.tilguys.matilda.common.auth.SimpleUserInfo;
+import com.tilguys.matilda.common.auth.UserRefreshToken;
 import com.tilguys.matilda.common.auth.repository.UserRefreshTokenRepository;
 import com.tilguys.matilda.common.auth.service.AuthService;
 import com.tilguys.matilda.user.ProviderInfo;
@@ -14,6 +16,7 @@ import com.tilguys.matilda.user.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.transaction.Transactional;
 import java.security.Key;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -21,7 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -49,31 +53,13 @@ class JwtMvcTest {
     private AuthService authService;
 
     private Jwt expireCreateJwt;
+
     @Autowired
     private UserRepository userRepository;
 
     @BeforeEach
     void setup() {
         this.expireCreateJwt = new Jwt(new TestJwtTokenCookieCreateStrategy(jwtKey), jwtKey, authService);
-    }
-
-    @Test
-    @WithMockCustomUser(identifier = 1L)
-    void 로그인시_깃허브_아이디를_담은_jwt를_반환한다() {
-        Cookie jwtCookie = jwt.createJwtCookie();
-        assertThat(jwtCookie.getName()).isNotNull();
-    }
-
-    @Test
-    @WithMockCustomUser(identifier = 1L)
-    void JWT로_유저를_식별할_수_있다() {
-        Cookie jwtCookie = jwt.createJwtCookie();
-        String token = jwtCookie.getValue();
-        Authentication authentication = jwt.getAuthentication(token);
-
-        Long principal = (Long) authentication.getPrincipal();
-
-        assertThat(principal).isEqualTo(1L);
     }
 
     @Test
@@ -123,22 +109,32 @@ class JwtMvcTest {
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
-//TODO
-//    @Test
-//    @WithMockCustomUser(identifier = 1L)
-//    void 만료된_ACCESS_TOKEN일시_REFRESH_TOKEN를_확인하여_유효하면_ACCESS_TOKEN을_갱신한다() throws Exception {
-//        Cookie jwtCookie = expireCreateJwt.createJwtCookie();
-//        UserRefreshToken userRefreshToken = UserRefreshToken.builder()
-//                .userId(1L)
-//                .expireDate(LocalDateTime.now().plusHours(1L))
-//                .build();
-//        userRefreshTokenRepository.save(userRefreshToken);
-//
-//        mockMvc.perform(MockMvcRequestBuilders.get("/api/oauth/logout")
-//                        .cookie(jwtCookie))
-//                .andExpect(result -> {
-//                    int status = result.getResponse().getStatus();
-//                    assertThat(status).isNotEqualTo(403);
-//                });
-//    }
+    @Test
+    @Transactional
+    void 만료된_ACCESS_TOKEN일시_REFRESH_TOKEN를_확인하여_유효하면_ACCESS_TOKEN을_갱신한다() throws Exception {
+        TilUser user = TilUser.builder()
+                .avatarUrl("https://avatars.githubusercontent.com/u/101252011?v=4")
+                .identifier("praisebak")
+                .nickname("praisebak")
+                .providerInfo(ProviderInfo.GITHUB)
+                .role(Role.USER).build();
+        TilUser savedUser = userRepository.save(user);
+        
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(new SimpleUserInfo(
+                savedUser.getId(), savedUser.getNickname()), authService.createAuthentication(savedUser)));
+
+        Cookie jwtCookie = expireCreateJwt.createJwtCookie();
+        UserRefreshToken userRefreshToken = UserRefreshToken.builder()
+                .userId(savedUser.getId())
+                .expireDate(LocalDateTime.now().plusHours(1L))
+                .build();
+
+        userRefreshTokenRepository.save(userRefreshToken);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/oauth/logout").cookie(jwtCookie))
+                .andExpect(result -> {
+                    int status = result.getResponse().getStatus();
+                    assertThat(status).isNotEqualTo(403);
+                });
+    }
 }

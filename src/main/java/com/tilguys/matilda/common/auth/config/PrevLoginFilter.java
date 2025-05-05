@@ -12,12 +12,9 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -80,7 +77,7 @@ public class PrevLoginFilter extends OncePerRequestFilter {
             return;
         }
 
-        Authentication authentication = createAuthentication(userByIdentifier.get());
+        Authentication authentication = authService.createAuthentication(userByIdentifier.get());
         setSecurityContext(authentication);
     }
 
@@ -94,10 +91,5 @@ public class PrevLoginFilter extends OncePerRequestFilter {
             return;
         }
         clearSecurityContext();
-    }
-
-    private Authentication createAuthentication(TilUser tilUser) {
-        List<SimpleGrantedAuthority> authorities = authService.createAuthorities(List.of(tilUser.getRole()));
-        return new UsernamePasswordAuthenticationToken(tilUser.getId(), "", authorities);
     }
 }

@@ -1,6 +1,7 @@
 package com.tilguys.matilda.common.auth.service;
 
 import com.tilguys.matilda.common.auth.GithubUserInfo;
+import com.tilguys.matilda.common.auth.exception.OAuthFailException;
 import java.util.Collections;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,7 +51,11 @@ public class GithubAuthService {
     }
 
     private String extractAccessToken(Map<String, Object> responseBody) {
-        return (String) responseBody.get("access_token");
+        String accessToken = (String) responseBody.get("access_token");
+        if (accessToken == null) {
+            throw new OAuthFailException("access token을 가져오는데 실패하였습니다.");
+        }
+        return accessToken;
     }
 
     public GithubUserInfo getGitHubUserInfo(String accessToken) {
