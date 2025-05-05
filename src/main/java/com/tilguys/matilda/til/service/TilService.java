@@ -54,7 +54,7 @@ public class TilService {
     public TilDatesResponse getAllTilDatesByUserId(final Long userId) {
         List<LocalDate> all = tilRepository.findByUserId(userId)
                 .stream()
-                .map(til -> til.getCreatedAt().toLocalDate())
+                .map(Til::getDate)
                 .toList();
 
         return new TilDatesResponse(all);
