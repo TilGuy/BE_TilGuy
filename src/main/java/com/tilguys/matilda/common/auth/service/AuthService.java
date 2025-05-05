@@ -1,18 +1,15 @@
 package com.tilguys.matilda.common.auth.service;
 
 import com.tilguys.matilda.common.auth.GithubUserInfo;
+import com.tilguys.matilda.common.auth.SimpleUserInfo;
 import com.tilguys.matilda.common.auth.exception.DoesNotExistUserException;
-import com.tilguys.matilda.common.auth.exception.NotExistUserException;
+import com.tilguys.matilda.common.auth.exception.OAuthFailException;
 import com.tilguys.matilda.user.Role;
 import com.tilguys.matilda.user.TilUser;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -23,18 +20,6 @@ public class AuthService {
 
     private final UserService userService;
 
-    public void setAuthenticationFromUser(String identifier) {
-        TilUser user = userService.findUserByIdentifier(identifier).orElseThrow(DoesNotExistUserException::new);
-
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(user.getRole().toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .toList();
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                user.getId(), "", authorities);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
-
     public void signup(String identifier) {
         userService.signup(identifier);
     }
@@ -42,7 +27,12 @@ public class AuthService {
     public void loginProcessByGithubInfo(GithubUserInfo gitHubUserInfo) {
         updateUserProfile(gitHubUserInfo);
         signup(gitHubUserInfo.identifier());
-        setAuthenticationFromUser(gitHubUserInfo.identifier());
+        
+        TilUser userByIdentifier = userService.findUserByIdentifier(gitHubUserInfo.identifier())
+                .orElseThrow(() -> new OAuthFailException("존재하지 않는 유저입니다"));
+
+        Authentication authentication = createAuthentication(userByIdentifier);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     private void updateUserProfile(GithubUserInfo gitHubUserInfo) {
@@ -65,23 +55,13 @@ public class AuthService {
     }
 
     public Authentication createAuthenticationFromId(Long id) {
-        Optional<TilUser> user = userService.findById(id);
-        user.orElseThrow(NotExistUserException::new);
-        String identifier = user.get().getIdentifier();
-        return login(identifier);
+        TilUser user = userService.findById(id).orElseThrow(DoesNotExistUserException::new);
+        return createAuthentication(user);
     }
 
-    public Authentication login(String identifier) {
-        Optional<TilUser> userByIdentifier = userService.findUserByIdentifier(
-                identifier);
-        if (userByIdentifier.isEmpty()) {
-            userService.signup(identifier);
-            userByIdentifier = userService.findUserByIdentifier(identifier);
-        }
-
-        Collection<? extends GrantedAuthority> authorities =
-                createAuthorities(List.of(userByIdentifier.get().getRole()));
-
-        return new UsernamePasswordAuthenticationToken(userByIdentifier.get().getId(), "", authorities);
+    public Authentication createAuthentication(TilUser tilUser) {
+        List<SimpleGrantedAuthority> authorities = createAuthorities(List.of(tilUser.getRole()));
+        SimpleUserInfo simpleUserInfo = new SimpleUserInfo(tilUser.getId(), tilUser.getNickname());
+        return new UsernamePasswordAuthenticationToken(simpleUserInfo, "", authorities);
     }
 }

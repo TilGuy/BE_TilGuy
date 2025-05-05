@@ -1,6 +1,7 @@
 package com.tilguys.matilda.common.auth.strategy;
 
 import com.tilguys.matilda.common.auth.Jwt;
+import com.tilguys.matilda.common.auth.SimpleUserInfo;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.Cookie;
@@ -26,7 +27,8 @@ public class AccessJwtTokenCookieCreateStrategy implements JwtCookieCreateStrate
     }
 
     private String createJwtToken(Authentication authentication) {
-        Long id = (Long) authentication.getPrincipal();
+        SimpleUserInfo simpleUserInfo = (SimpleUserInfo) authentication.getPrincipal();
+        Long id = simpleUserInfo.id();
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
@@ -38,6 +40,7 @@ public class AccessJwtTokenCookieCreateStrategy implements JwtCookieCreateStrate
                 .setSubject(String.valueOf(id))
                 .claim(Jwt.getClaimsUserId(), id)
                 .claim(Jwt.getAuthoritiesKey(), authorities)
+                .claim(Jwt.getNicknameKey(), simpleUserInfo)
                 .setExpiration(tokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();

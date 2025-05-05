@@ -11,7 +11,6 @@ import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -34,9 +33,7 @@ class JwtTest {
     void JWT로_유저를_식별할_수_있다() {
         Cookie jwtCookie = jwt.createJwtCookie();
         String token = jwtCookie.getValue();
-        Authentication authentication = jwt.getAuthentication(token);
-
-        Long id = (Long) authentication.getPrincipal();
-        assertThat(id).isEqualTo(1L);
+        Long userIdFromToken = jwt.getUserIdFromToken(token);
+        assertThat(userIdFromToken).isEqualTo(1L);
     }
 }

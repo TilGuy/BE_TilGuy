@@ -1,5 +1,6 @@
 package com.tilguys.matilda.slack.service;
 
+import com.tilguys.matilda.til.domain.Tag;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +29,10 @@ public class SlackService {
     @Value("${slack.channel.id}")
     private String channelId;
 
-    public void sendTilWriteAlarm(String content, String nickname, String dateString, List<String> tags) {
+    public void sendTilWriteAlarm(String content, String nickname, String dateString, List<Tag> tags) {
         Map<String, Object> payload = new HashMap<>();
-        SlackAlarmBlock slackAlarmBlock = new SlackAlarmBlock(content, nickname, dateString, tags);
+        List<String> tagStrings = tags.stream().map(Tag::getTagString).toList();
+        SlackAlarmBlock slackAlarmBlock = new SlackAlarmBlock(content, nickname, dateString, tagStrings);
         List<Map<String, Object>> blocks = slackAlarmBlock.alarmBlock();
 
         // chat.postMessage API에 필요한 파라미터 추가

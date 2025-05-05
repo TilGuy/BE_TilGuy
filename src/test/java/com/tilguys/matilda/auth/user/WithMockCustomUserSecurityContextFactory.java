@@ -1,5 +1,6 @@
 package com.tilguys.matilda.auth.user;
 
+import com.tilguys.matilda.common.auth.SimpleUserInfo;
 import java.util.List;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,7 +15,9 @@ public class WithMockCustomUserSecurityContextFactory implements WithSecurityCon
     public SecurityContext createSecurityContext(WithMockCustomUser customUser) {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(1L, null,
+        SimpleUserInfo simpleUserInfo = new SimpleUserInfo(customUser.identifier(), customUser.nickname());
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(simpleUserInfo, null,
                 List.of(new SimpleGrantedAuthority(customUser.role().toString())));
         context.setAuthentication(authentication);
         return context;
