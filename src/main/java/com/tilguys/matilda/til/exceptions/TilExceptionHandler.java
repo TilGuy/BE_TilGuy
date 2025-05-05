@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 @RestControllerAdvice(assignableTypes = {TilController.class})
 public class TilExceptionHandler {
-    
+
     @ExceptionHandler({IllegalArgumentException.class})
     public ProblemDetail handleServiceLogicException(IllegalArgumentException e) {
-        log.error("IllegalArgumentException occurred: {}", e.getMessage(), e);
+        log.warn("IllegalArgumentException occurred: {}", e.getMessage());
         return createErrorResponse(e, HttpStatus.BAD_REQUEST);
     }
 
