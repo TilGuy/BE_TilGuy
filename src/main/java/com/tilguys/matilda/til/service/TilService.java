@@ -31,6 +31,10 @@ public class TilService {
 
     @Transactional
     public Til createTil(final TilCreateRequest tilCreateDto, final long userId) {
+        boolean exists = tilRepository.existsByDateAndUserId(tilCreateDto.date(), userId);
+        if (exists) {
+            throw new IllegalArgumentException("같은 날에 작성된 게시물이 존재합니다!");
+        }
         Til newTil = tilCreateDto.toEntity(userId);
         Til til = tilRepository.save(newTil);
         List<Tag> tags = tilTagService.extractTilTags(til.getContent())
