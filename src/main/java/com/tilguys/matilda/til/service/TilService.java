@@ -91,6 +91,7 @@ public class TilService {
 
         List<TilDetailResponse> responseList = tils.stream()
                 .filter(til -> til.isWithinDateRange(from, to))
+                .filter(Til::isNotDeleted)
                 .map(TilDetailResponse::fromEntity)
                 .toList();
 
