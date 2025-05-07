@@ -27,10 +27,11 @@ public class Til extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "til_id")
     @Getter
+    @Column(name = "til_id")
     private Long tilId;
 
+    @Getter
     @Column(name = "user_id")
     private Long userId;
 
@@ -74,12 +75,15 @@ public class Til extends BaseEntity {
         return isAfterOrEqualFrom && isBeforeOrEqualTo;
     }
 
-    //til
     public void updateTags(List<Tag> newTags) {
-        this.tags.clear(); // 기존 태그 삭제
+        this.tags.clear();
         for (Tag tag : newTags) {
-            tag.setTil(this); // 양방향 연관관계 설정
+            tag.setTil(this);
             this.tags.add(tag);
         }
+    }
+
+    public boolean isNotDeleted() {
+        return !isDeleted;
     }
 }
