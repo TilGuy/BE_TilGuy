@@ -19,7 +19,7 @@ public class HomeService {
     private final TilRepository tilRepository;
 
     public RecentTilResponses getRecentTils() {
-        List<Til> recentTils = tilRepository.findRecentTop10PublicTils();
+        List<Til> recentTils = tilRepository.findRecentPublicTils();
         List<RecentTilResponse> responses = convertToRecentTilResponses(recentTils);
         return new RecentTilResponses(responses);
     }

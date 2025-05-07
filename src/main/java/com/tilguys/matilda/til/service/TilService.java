@@ -65,8 +65,8 @@ public class TilService {
     }
 
     public TilDatesResponse getAllTilDatesByUserId(final Long userId) {
-        List<LocalDate> all = tilRepository.findByUserId(userId)
-                .stream()
+        List<LocalDate> all = tilRepository.findByUserId(userId).stream()
+                .filter(Til::isNotDeleted)
                 .map(Til::getDate)
                 .toList();
 
@@ -91,6 +91,7 @@ public class TilService {
 
         List<TilDetailResponse> responseList = tils.stream()
                 .filter(til -> til.isWithinDateRange(from, to))
+                .filter(Til::isNotDeleted)
                 .map(TilDetailResponse::fromEntity)
                 .toList();
 
