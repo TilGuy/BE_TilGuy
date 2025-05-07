@@ -16,8 +16,8 @@ public interface TilRepository extends JpaRepository<Til, Long> {
 
     Page<Til> findAllByUserId(final Pageable pageable, final Long userId);
 
-    @Query(value = "SELECT t FROM Til t WHERE t.isDeleted = false AND t.isPublic = true ORDER BY t.createdAt DESC LIMIT 10")
-    List<Til> findRecentTop10PublicTils();
+    @Query(value = "SELECT t FROM Til t WHERE t.isDeleted = false AND t.isPublic = true ORDER BY t.createdAt DESC LIMIT 20")
+    List<Til> findRecentTop20PublicTils();
 
     boolean existsByDateAndUserId(LocalDate date, Long userId);
 }
