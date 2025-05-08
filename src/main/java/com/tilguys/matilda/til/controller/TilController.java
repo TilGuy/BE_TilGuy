@@ -7,6 +7,7 @@ import com.tilguys.matilda.til.dto.TilCreateRequest;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
 import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
+import com.tilguys.matilda.til.dto.TilUpdateRequest;
 import com.tilguys.matilda.til.service.TilService;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -14,7 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +33,7 @@ public class TilController {
     private final TilService tilService;
     private final SlackService slackService;
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<?> saveTil(@RequestBody final TilCreateRequest createRequest,
                                      @AuthenticationPrincipal final SimpleUserInfo simpleUserInfo) {
         Til til = tilService.createTil(createRequest, simpleUserInfo.id());
@@ -37,6 +41,18 @@ public class TilController {
         String dateString = dateTimeFormatter.format(til.getDate());
         slackService.sendTilWriteAlarm(til.getContent(), simpleUserInfo.nickname(), dateString, til.getTags());
         return ResponseEntity.ok(til);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> softDeleteTil(@PathVariable final Long id) {
+        tilService.deleteTil(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping
+    public ResponseEntity<?> updateTil(@RequestBody final TilUpdateRequest request) {
+        tilService.updateTil(request);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/dates")
