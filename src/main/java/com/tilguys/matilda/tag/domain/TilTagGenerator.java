@@ -8,7 +8,9 @@ public class TilTagGenerator {
     public List<Map<String, Object>> createPrompt(String tilContent) {
         Map<String, Object> userMessage = Map.of(
                 "role", "user",
-                "content", "다음의 TIL을 내용을 기반으로 TIL의 핵심 기술 태그들을 추출해주세요 최대 3개입니다: " + tilContent
+                "content",
+                "다음의 TIL을 내용을 기반으로 TIL의 핵심 기술 태그들을 추출해주세요 최대 5개입니다 하지만 억지로 채우는것보다 핵심적인 내용만 채우는게 중요하고 최소 3개입니다: "
+                        + tilContent
         );
 
         return List.of(userMessage);
