@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -19,5 +20,6 @@ public interface TilRepository extends JpaRepository<Til, Long> {
     @Query(value = "SELECT t FROM Til t WHERE t.isDeleted = false AND t.isPublic = true ORDER BY t.createdAt DESC LIMIT 10")
     List<Til> findRecentPublicTils();
 
-    boolean existsByDateAndUserId(LocalDate date, Long userId);
+    @Query(value = "SELECT CASE WHEN COUNT(t) > 0 THEN true ELSE false END FROM Til t WHERE t.isDeleted = false AND t.date = :date AND t.userId = :userId")
+    boolean existsByDateAndUserId(@Param("date") LocalDate date, @Param("userId") Long userId);
 }
