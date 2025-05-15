@@ -8,6 +8,7 @@ import com.tilguys.matilda.til.dto.TilDatesResponse;
 import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
 import com.tilguys.matilda.til.dto.TilUpdateRequest;
+import com.tilguys.matilda.til.service.RecentTilService;
 import com.tilguys.matilda.til.service.TilService;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TilController {
 
     private final TilService tilService;
+    private final RecentTilService recentTilService;
     private final SlackService slackService;
 
     @PostMapping
@@ -80,5 +82,10 @@ public class TilController {
                                                @RequestParam final LocalDate to) {
         TilDetailsResponse tilsInRange = tilService.getTilByDateRange(simpleUserInfo.id(), from, to);
         return ResponseEntity.ok(tilsInRange);
+    }
+
+    @GetMapping("/recent")
+    public ResponseEntity<?> getRecentTils() {
+        return ResponseEntity.ok(recentTilService.getRecentTils());
     }
 }

@@ -1,9 +1,9 @@
-package com.tilguys.matilda.home.service;
+package com.tilguys.matilda.til.service;
 
 import com.tilguys.matilda.common.auth.exception.NotExistUserException;
-import com.tilguys.matilda.home.dto.RecentTilResponse;
-import com.tilguys.matilda.home.dto.RecentTilResponses;
 import com.tilguys.matilda.til.domain.Til;
+import com.tilguys.matilda.til.dto.RecentTilResponse;
+import com.tilguys.matilda.til.dto.RecentTilResponses;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.repository.UserRepository;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class HomeService {
+public class RecentTilService {
 
     private final UserRepository userRepository;
     private final TilRepository tilRepository;

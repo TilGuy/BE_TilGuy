@@ -1,7 +1,6 @@
-package com.tilguys.matilda.home.dto;
+package com.tilguys.matilda.til.dto;
 
 import com.tilguys.matilda.til.domain.Til;
-import com.tilguys.matilda.til.dto.TagsResponse;
 import com.tilguys.matilda.user.TilUser;
 
 public record RecentTilResponse(
