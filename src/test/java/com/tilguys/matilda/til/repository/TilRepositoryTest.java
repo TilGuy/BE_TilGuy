@@ -18,14 +18,31 @@ class TilRepositoryTest {
     private TilRepository tilRepository;
 
     @Test
-    void 삭제와_공개_조건의_최신_TIL을_조회한다() {
+    void 삭제와_공개_조건의_최근_TIL을_조회한다() {
         // given
-        IntStream.range(0, 10).forEach(i -> {
+        IntStream.range(0, 5).forEach(i -> {
             createTilFixture(true, false);
         });
 
         createTilFixture(true, true); // 삭제된 TIL
         createTilFixture(false, false); // 비공개 TIL
+
+        // when
+        List<Til> result = tilRepository.findTop10ByIsDeletedFalseAndIsPublicTrueOrderByCreatedAtDesc();
+
+        // then
+        assertThat(result)
+                .hasSize(5)
+                .extracting("createdAt", LocalDateTime.class)
+                .isSortedAccordingTo(Comparator.reverseOrder());
+    }
+
+    @Test
+    void 최근_TIL_10개를_조회한다() {
+        // given
+        IntStream.range(0, 15).forEach(i -> {
+            createTilFixture(true, false);
+        });
 
         // when
         List<Til> result = tilRepository.findTop10ByIsDeletedFalseAndIsPublicTrueOrderByCreatedAtDesc();
