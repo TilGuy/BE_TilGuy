@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -16,8 +15,7 @@ public interface TilRepository extends JpaRepository<Til, Long> {
 
     Page<Til> findAllByUserId(final Pageable pageable, final Long userId);
 
-    @Query(value = "SELECT t FROM Til t WHERE t.isDeleted = false AND t.isPublic = true ORDER BY t.createdAt DESC LIMIT 10")
-    List<Til> findRecentPublicTils();
+    List<Til> findTop10ByIsDeletedFalseAndIsPublicTrueOrderByCreatedAtDesc();
 
     boolean existsByDateAndUserId(LocalDate date, Long userId);
 }
