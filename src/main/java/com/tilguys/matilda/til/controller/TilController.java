@@ -63,12 +63,6 @@ public class TilController {
         return ResponseEntity.ok(datesForUser);
     }
 
-    @GetMapping("/recent")
-    public ResponseEntity<?> getRecentTilById(@AuthenticationPrincipal final SimpleUserInfo simpleUserInfo) {
-        Page<TilDetailResponse> recentTils = tilService.getRecentTilById(simpleUserInfo.id());
-        return ResponseEntity.ok(recentTils);
-    }
-
     @GetMapping("/main")
     public ResponseEntity<?> getMainTil(@RequestParam(defaultValue = "0") final int page,
                                         @RequestParam(defaultValue = "10") final int size) {
