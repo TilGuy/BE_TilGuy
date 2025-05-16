@@ -30,9 +30,6 @@ public class TilTagParser {
                 tagSet.add(tagNode.asText().toLowerCase());
             }
 
-            // 결과 출력 (디버깅용)
-            System.out.println("Extracted " + tagSet.size() + " tags: " + tagSet);
-
             return tagSet;
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Failed to process tag extraction response", e);
