@@ -9,8 +9,6 @@ import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
 import com.tilguys.matilda.til.dto.TilUpdateRequest;
 import com.tilguys.matilda.til.repository.TilRepository;
-import java.time.LocalDate;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @Transactional
@@ -31,7 +32,7 @@ public class TilService {
 
     @Transactional
     public Til createTil(final TilCreateRequest tilCreateDto, final long userId) {
-        boolean exists = tilRepository.existsByDateAndUserId(tilCreateDto.date(), userId);
+        boolean exists = tilRepository.existsByDateAndUserIdAndIsDeletedFalse(tilCreateDto.date(), userId);
         if (exists) {
             throw new IllegalArgumentException("같은 날에 작성된 게시물이 존재합니다!");
         }
