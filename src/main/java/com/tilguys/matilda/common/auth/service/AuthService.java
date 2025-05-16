@@ -25,9 +25,9 @@ public class AuthService {
     }
 
     public void loginProcessByGithubInfo(GithubUserInfo gitHubUserInfo) {
-        updateUserProfile(gitHubUserInfo);
         signup(gitHubUserInfo.identifier());
-        
+        updateUserProfile(gitHubUserInfo);
+
         TilUser userByIdentifier = userService.findUserByIdentifier(gitHubUserInfo.identifier())
                 .orElseThrow(() -> new OAuthFailException("존재하지 않는 유저입니다"));
 
