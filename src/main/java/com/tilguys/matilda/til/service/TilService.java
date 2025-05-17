@@ -64,6 +64,7 @@ public class TilService {
         return tilPage.map(TilDetailResponse::fromEntity);
     }
 
+
     public TilDatesResponse getAllTilDatesByUserId(final Long userId) {
         List<LocalDate> all = tilRepository.findByUserId(userId).stream()
                 .filter(Til::isNotDeleted)
@@ -98,7 +99,7 @@ public class TilService {
         return new TilDetailsResponse(responseList);
     }
 
-    private Til getTilByTilId(final Long tilId) {
+    public Til getTilByTilId(final Long tilId) {
         return tilRepository.findById(tilId)
                 .orElseThrow(IllegalArgumentException::new);
     }
