@@ -8,6 +8,5 @@ RUN mkdir -p /app/logs
 
 EXPOSE 9999
 
-ENTRYPOINT ["nohup", "java", "-jar","-Dspring.profiles.active=dev", "app.jar", "> application.log 2>&1 &"]
+ENTRYPOINT ["nohup", "java", "-jar","-Dspring.profiles.active=production", "app.jar", "> application.log 2>&1 &"]
 
-# 지금은 필요없지만..
