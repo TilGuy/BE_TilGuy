@@ -5,6 +5,6 @@ import java.util.List;
 
 public record TilWithUserResponses(
         @JsonValue
-        List<TilWithUserResponse> recents
+        List<TilWithUserResponse> tilWithUsers
 ) {
 }

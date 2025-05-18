@@ -39,12 +39,12 @@ class RecentTilServiceTest {
 
         // then
         assertAll(
-                () -> assertThat(result.recents()).hasSize(2),
-                () -> assertThat(result.recents()).extracting("title").containsOnly("제목1", "제목2"),
-                () -> assertThat(result.recents()).extracting("content").containsOnly("내용1", "내용2"),
-                () -> assertThat(result.recents()).extracting("nickname").containsOnly("이름", "이름"),
-                () -> assertThat(result.recents()).extracting("avatarUrl").containsOnly("프로필 주소", "프로필 주소"),
-                () -> assertThat(result.recents())
+                () -> assertThat(result.tilWithUsers()).hasSize(2),
+                () -> assertThat(result.tilWithUsers()).extracting("title").containsOnly("제목1", "제목2"),
+                () -> assertThat(result.tilWithUsers()).extracting("content").containsOnly("내용1", "내용2"),
+                () -> assertThat(result.tilWithUsers()).extracting("nickname").containsOnly("이름", "이름"),
+                () -> assertThat(result.tilWithUsers()).extracting("avatarUrl").containsOnly("프로필 주소", "프로필 주소"),
+                () -> assertThat(result.tilWithUsers())
                         .extracting("tags.tags")
                         .allMatch(tags -> tags.equals(List.of("태그1", "태그2")))
         );
