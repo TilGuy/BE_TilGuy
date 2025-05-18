@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TilRepository extends JpaRepository<Til, Long> {
 
+    List<Til> findAllByOrderByDateDesc();
+
     List<Til> findByTilUserId(final Long userId);
 
     Page<Til> findAllByTilUserId(final Pageable pageable, final Long userId);

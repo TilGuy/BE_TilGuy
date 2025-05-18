@@ -35,7 +35,7 @@ public class TilService {
     private final TilUserService userService;
 
     public TilWithUserResponses getTilAll() {
-        List<TilWithUserResponse> responses = tilRepository.findAll().stream()
+        List<TilWithUserResponse> responses = tilRepository.findAllByOrderByDateDesc().stream()
                 .map(TilWithUserResponse::new)
                 .toList();
 
