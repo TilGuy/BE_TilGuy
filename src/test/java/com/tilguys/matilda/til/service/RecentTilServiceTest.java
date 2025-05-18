@@ -6,7 +6,7 @@ import static org.mockito.Mockito.doReturn;
 
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
-import com.tilguys.matilda.til.dto.RecentTilResponses;
+import com.tilguys.matilda.til.dto.TilWithUserResponses;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.repository.UserRepository;
@@ -43,7 +43,7 @@ class RecentTilServiceTest {
                 .findById(1L);
 
         // when
-        RecentTilResponses result = recentTilService.getRecentTils();
+        TilWithUserResponses result = recentTilService.getRecentTils();
 
         // then
         assertAll(
