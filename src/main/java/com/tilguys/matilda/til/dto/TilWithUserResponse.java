@@ -1,7 +1,6 @@
 package com.tilguys.matilda.til.dto;
 
 import com.tilguys.matilda.til.domain.Til;
-import com.tilguys.matilda.user.TilUser;
 
 public record TilWithUserResponse(
         String title,
@@ -11,13 +10,13 @@ public record TilWithUserResponse(
         String avatarUrl
 ) {
 
-    public TilWithUserResponse(Til til, TilUser tilUser) {
+    public TilWithUserResponse(Til til) {
         this(
                 til.getTitle(),
                 til.getContent(),
                 new TagsResponse(til.getTags()),
-                tilUser.getNickname(),
-                tilUser.getAvatarUrl()
+                til.getTilUser().getNickname(),
+                til.getTilUser().getAvatarUrl()
         );
     }
 }

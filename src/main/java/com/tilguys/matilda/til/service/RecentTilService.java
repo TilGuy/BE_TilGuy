@@ -1,12 +1,9 @@
 package com.tilguys.matilda.til.service;
 
-import com.tilguys.matilda.common.auth.exception.NotExistUserException;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilWithUserResponse;
 import com.tilguys.matilda.til.dto.TilWithUserResponses;
 import com.tilguys.matilda.til.repository.TilRepository;
-import com.tilguys.matilda.user.TilUser;
-import com.tilguys.matilda.user.repository.UserRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,7 +12,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RecentTilService {
 
-    private final UserRepository userRepository;
     private final TilRepository tilRepository;
 
     public TilWithUserResponses getRecentTils() {
@@ -31,8 +27,6 @@ public class RecentTilService {
     }
 
     private TilWithUserResponse createRecentTilResponse(Til til) {
-        TilUser user = userRepository.findById(til.getUserId())
-                .orElseThrow(NotExistUserException::new);
-        return new TilWithUserResponse(til, user);
+        return new TilWithUserResponse(til);
     }
 }

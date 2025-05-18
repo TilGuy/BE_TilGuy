@@ -9,9 +9,7 @@ import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilWithUserResponses;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.TilUser;
-import com.tilguys.matilda.user.repository.UserRepository;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,20 +25,14 @@ class RecentTilServiceTest {
     @Mock
     private TilRepository tilRepository;
 
-    @Mock
-    private UserRepository userRepository;
-
     @Test
     void 최근_TIL을_응답_객체로_반환한다() {
         // given
-        List<Til> tils = List.of(createTilFixture("제목1", "내용1"), createTilFixture("제목2", "내용2"));
-        Optional<TilUser> tilUser = Optional.of(createTilUserFixture());
+        TilUser tilUser = createTilUserFixture();
+        List<Til> tils = List.of(createTilFixture("제목1", "내용1", tilUser), createTilFixture("제목2", "내용2", tilUser));
 
         doReturn(tils).when(tilRepository)
                 .findTop10ByIsDeletedFalseAndIsPublicTrueOrderByCreatedAtDesc();
-
-        doReturn(tilUser).when(userRepository)
-                .findById(1L);
 
         // when
         TilWithUserResponses result = recentTilService.getRecentTils();
@@ -65,9 +57,9 @@ class RecentTilServiceTest {
                 .build();
     }
 
-    private Til createTilFixture(String title, String content) {
+    private Til createTilFixture(String title, String content, TilUser tilUser) {
         return Til.builder()
-                .userId(1L)
+                .tilUser(tilUser)
                 .title(title)
                 .content(content)
                 .tags(List.of(
