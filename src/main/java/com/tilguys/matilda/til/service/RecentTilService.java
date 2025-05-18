@@ -2,8 +2,8 @@ package com.tilguys.matilda.til.service;
 
 import com.tilguys.matilda.common.auth.exception.NotExistUserException;
 import com.tilguys.matilda.til.domain.Til;
-import com.tilguys.matilda.til.dto.RecentTilResponse;
-import com.tilguys.matilda.til.dto.RecentTilResponses;
+import com.tilguys.matilda.til.dto.TilWithUserResponse;
+import com.tilguys.matilda.til.dto.TilWithUserResponses;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.repository.UserRepository;
@@ -18,21 +18,21 @@ public class RecentTilService {
     private final UserRepository userRepository;
     private final TilRepository tilRepository;
 
-    public RecentTilResponses getRecentTils() {
+    public TilWithUserResponses getRecentTils() {
         List<Til> recentTils = tilRepository.findTop10ByIsDeletedFalseAndIsPublicTrueOrderByCreatedAtDesc();
-        List<RecentTilResponse> responses = convertToRecentTilResponses(recentTils);
-        return new RecentTilResponses(responses);
+        List<TilWithUserResponse> responses = convertToRecentTilResponses(recentTils);
+        return new TilWithUserResponses(responses);
     }
 
-    private List<RecentTilResponse> convertToRecentTilResponses(List<Til> recentTils) {
+    private List<TilWithUserResponse> convertToRecentTilResponses(List<Til> recentTils) {
         return recentTils.stream()
                 .map(this::createRecentTilResponse)
                 .toList();
     }
 
-    private RecentTilResponse createRecentTilResponse(Til til) {
+    private TilWithUserResponse createRecentTilResponse(Til til) {
         TilUser user = userRepository.findById(til.getUserId())
                 .orElseThrow(NotExistUserException::new);
-        return new RecentTilResponse(til, user);
+        return new TilWithUserResponse(til, user);
     }
 }
