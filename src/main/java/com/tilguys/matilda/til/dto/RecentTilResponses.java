@@ -1,4 +1,4 @@
-package com.tilguys.matilda.home.dto;
+package com.tilguys.matilda.til.dto;
 
 import java.util.List;
 
