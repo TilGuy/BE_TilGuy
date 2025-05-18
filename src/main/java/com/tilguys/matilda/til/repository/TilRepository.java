@@ -11,11 +11,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TilRepository extends JpaRepository<Til, Long> {
 
-    List<Til> findByUserId(final Long userId);
+    List<Til> findByTilUserId(final Long userId);
 
-    Page<Til> findAllByUserId(final Pageable pageable, final Long userId);
+    Page<Til> findAllByTilUserId(final Pageable pageable, final Long userId);
 
     List<Til> findTop10ByIsDeletedFalseAndIsPublicTrueOrderByCreatedAtDesc();
 
-    boolean existsByDateAndUserId(LocalDate date, Long userId);
+    boolean existsByDateAndTilUserId(LocalDate date, Long tilUserId);
 }
