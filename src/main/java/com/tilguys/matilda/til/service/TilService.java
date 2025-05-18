@@ -32,6 +32,15 @@ public class TilService {
 
     private final TilRepository tilRepository;
     private final TilTagService tilTagService;
+    private final TilUserService userService;
+
+    public TilWithUserResponses getTilAll() {
+        List<TilWithUserResponse> responses = tilRepository.findAll().stream()
+                .map(TilWithUserResponse::new)
+                .toList();
+
+        return new TilWithUserResponses(responses);
+    }
 
     @Transactional
     public Til createTil(final TilCreateRequest tilCreateDto, final long userId) {
