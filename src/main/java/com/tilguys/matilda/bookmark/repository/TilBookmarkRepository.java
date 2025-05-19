@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TilBookmarkRepository extends JpaRepository<TilBookmark, Long> {
 
-    List<TilBookmark> findByMember_id(Long memberId);
+    List<TilBookmark> findByTilUser_id(Long memberId);
 
     boolean existsByTil_TilId(long l);
 }
