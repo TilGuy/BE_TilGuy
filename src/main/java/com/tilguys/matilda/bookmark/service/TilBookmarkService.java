@@ -6,7 +6,7 @@ import com.tilguys.matilda.bookmark.repository.TilBookmarkRepository;
 import com.tilguys.matilda.common.auth.service.UserService;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.service.TilService;
-import com.tilguys.matilda.user.Member;
+import com.tilguys.matilda.user.TilUser;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,17 +22,17 @@ public class TilBookmarkService {
 
     @Transactional
     public void toggleBookmark(ToggleTilBookmarkRequest toggleBookmark, Long memberId) {
-        Member member = userService.getById(memberId);
+        TilUser tilUser = userService.getById(memberId);
         if (tilBookmarkRepository.existsByTil_TilId(toggleBookmark.tilId())) {
             tilBookmarkRepository.deleteById(toggleBookmark.tilId());
             return;
         }
         Til tilByTilId = tilService.getTilByTilId(toggleBookmark.tilId());
-        tilBookmarkRepository.save(new TilBookmark(null, tilByTilId, member));
+        tilBookmarkRepository.save(new TilBookmark(null, tilByTilId, tilUser));
     }
 
     @Transactional
     public List<TilBookmark> userBookmark(Long memberId) {
-        return tilBookmarkRepository.findByMember_id(memberId);
+        return tilBookmarkRepository.findByTilUser_id(memberId);
     }
 }
