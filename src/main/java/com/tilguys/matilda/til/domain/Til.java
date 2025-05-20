@@ -10,13 +10,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Builder
@@ -59,9 +60,11 @@ public class Til extends BaseEntity {
     @Builder.Default
     private List<Tag> tags = new ArrayList<>();
 
-    public void updateContentAndVisibility(final String content, final boolean isPublic) {
+    public void update(final String content, final boolean isPublic, final LocalDate date, String title) {
         this.content = content;
         this.isPublic = isPublic;
+        this.date = date;
+        this.title = title;
     }
 
     public void markAsDeleted() {
