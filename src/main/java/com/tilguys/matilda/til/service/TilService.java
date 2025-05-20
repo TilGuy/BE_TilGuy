@@ -74,9 +74,14 @@ public class TilService {
         return new TilDatesResponse(all);
     }
 
-    public void updateTil(final TilUpdateRequest tilUpdateDto) {
-        Til til = getTilByTilId(tilUpdateDto.tilId());
-        til.updateContentAndVisibility(tilUpdateDto.content(), tilUpdateDto.isPublic());
+    public void updateTil(final Long tilId, final TilUpdateRequest tilUpdateDto) {
+        Til til = getTilByTilId(tilId);
+        til.update(
+                tilUpdateDto.content(),
+                tilUpdateDto.isPublic(),
+                tilUpdateDto.date(),
+                tilUpdateDto.title()
+        );
     }
 
     public void deleteTil(final Long tilId) {
