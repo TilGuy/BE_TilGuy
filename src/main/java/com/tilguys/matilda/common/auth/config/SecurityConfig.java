@@ -31,16 +31,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class SecurityConfig implements WebMvcConfigurer {
 
     private static final String[] PERMITTED_ROLES = {"USER"};
-
-    @Value("${frontend.url}")
-    private String frontendUrl;
-
-    @Value("${jwt.secret}")
-    private String secret;
-
     private final UserService userService;
     private final UserRefreshTokenService userRefreshTokenService;
     private final AuthService authService;
+    @Value("${frontend.url}")
+    private String frontendUrl;
+    @Value("${jwt.secret}")
+    private String secret;
 
     @Bean
     public Key jwtKey() {
@@ -72,9 +69,11 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .formLogin(FormLoginConfigurer::disable)
                 .addFilterBefore(prevLoginFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/api/oauth/login")
-                        .permitAll()
-                        .requestMatchers("/api/user/profileUrl/**")
+                        .requestMatchers(
+                                "/api/oauth/login",
+                                "/api/til/recent",
+                                "/api/user/profileUrl/**"
+                        )
                         .permitAll()
                         .anyRequest()
                         .hasAnyAuthority(PERMITTED_ROLES));
