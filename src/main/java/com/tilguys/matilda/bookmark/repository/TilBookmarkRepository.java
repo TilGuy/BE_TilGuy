@@ -10,5 +10,7 @@ public interface TilBookmarkRepository extends JpaRepository<TilBookmark, Long> 
 
     List<TilBookmark> findByTilUser_id(Long memberId);
 
-    boolean existsByTil_TilId(long l);
+    boolean existsByTil_TilId(long id);
+
+    void deleteByTil_TilId(long id);
 }
