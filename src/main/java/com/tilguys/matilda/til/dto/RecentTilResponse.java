@@ -1,13 +1,12 @@
-package com.tilguys.matilda.home.dto;
+package com.tilguys.matilda.til.dto;
 
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.user.TilUser;
-import java.util.List;
 
 public record RecentTilResponse(
         String title,
         String content,
-        List<String> tags,
+        TagsResponse tags,
         String nickname,
         String avatarUrl
 ) {
@@ -16,7 +15,7 @@ public record RecentTilResponse(
         this(
                 til.getTitle(),
                 til.getContent(),
-                List.of("Java", "Spring"), // 태그 타입 생길 시 수정
+                new TagsResponse(til.getTags()),
                 tilUser.getNickname(),
                 tilUser.getAvatarUrl()
         );
