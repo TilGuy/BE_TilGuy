@@ -24,7 +24,7 @@ public class TilBookmarkService {
     public void toggleBookmark(ToggleTilBookmarkRequest toggleBookmark, Long memberId) {
         TilUser tilUser = userService.getById(memberId);
         if (tilBookmarkRepository.existsByTil_TilId(toggleBookmark.tilId())) {
-            tilBookmarkRepository.deleteById(toggleBookmark.tilId());
+            tilBookmarkRepository.deleteByTil_TilId(toggleBookmark.tilId());
             return;
         }
         Til tilByTilId = tilService.getTilByTilId(toggleBookmark.tilId());
