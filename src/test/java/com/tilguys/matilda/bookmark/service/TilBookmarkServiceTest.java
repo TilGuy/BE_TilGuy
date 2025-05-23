@@ -14,7 +14,6 @@ import com.tilguys.matilda.user.ProviderInfo;
 import com.tilguys.matilda.user.Role;
 import com.tilguys.matilda.user.TilUser;
 import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +51,6 @@ class TilBookmarkServiceTest {
     }
 
     @Test
-    @Transactional
     void toggleBookmark() {
         TilUser member = new TilUser(null, ProviderInfo.GITHUB, "asdf", Role.USER, "asdf", "asdfasdf");
         Til til = new Til(null, member.getId(), "Asdf", "asdf", LocalDate.now(), true, false, new ArrayList<>());
@@ -74,7 +72,6 @@ class TilBookmarkServiceTest {
     }
 
     @Test
-    @Transactional
     void removeBookmark() {
         TilUser member = new TilUser(null, ProviderInfo.GITHUB, "asdf", Role.USER, "asdf", "asdfasdf");
         Til til = new Til(null, member.getId(), "Asdf", "asdf", LocalDate.now(), true, false, new ArrayList<>());
