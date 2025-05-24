@@ -8,7 +8,11 @@ import com.tilguys.matilda.til.dto.TilDatesResponse;
 import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
 import com.tilguys.matilda.til.dto.TilUpdateRequest;
+import com.tilguys.matilda.til.dto.TilWithUserResponse;
+import com.tilguys.matilda.til.dto.TilWithUserResponses;
 import com.tilguys.matilda.til.repository.TilRepository;
+import com.tilguys.matilda.user.TilUser;
+import com.tilguys.matilda.user.service.TilUserService;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +32,15 @@ public class TilService {
 
     private final TilRepository tilRepository;
     private final TilTagService tilTagService;
+    private final TilUserService userService;
+
+    public TilWithUserResponses getTilAll() {
+        List<TilWithUserResponse> responses = tilRepository.findAllByOrderByDateDesc().stream()
+                .map(TilWithUserResponse::new)
+                .toList();
+
+        return new TilWithUserResponses(responses);
+    }
 
     @Transactional
     public Til createTil(final TilCreateRequest tilCreateDto, final long userId) {
@@ -35,7 +48,9 @@ public class TilService {
         if (exists) {
             throw new IllegalArgumentException("같은 날에 작성된 게시물이 존재합니다!");
         }
-        Til newTil = tilCreateDto.toEntity(userId);
+
+        TilUser user = userService.findById(userId);
+        Til newTil = tilCreateDto.toEntity(user);
         Til til = tilRepository.save(newTil);
         List<Tag> tags = tilTagService.extractTilTags(til.getContent())
                 .stream()
@@ -59,14 +74,14 @@ public class TilService {
     public Page<TilDetailResponse> getUserTilByPagination(final int page, final int size, final Long userId) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        Page<Til> tilPage = tilRepository.findAllByUserId(pageable, userId);
+        Page<Til> tilPage = tilRepository.findAllByTilUserId(pageable, userId);
 
         return tilPage.map(TilDetailResponse::fromEntity);
     }
 
 
     public TilDatesResponse getAllTilDatesByUserId(final Long userId) {
-        List<LocalDate> all = tilRepository.findByUserId(userId).stream()
+        List<LocalDate> all = tilRepository.findByTilUserId(userId).stream()
                 .filter(Til::isNotDeleted)
                 .map(Til::getDate)
                 .toList();
@@ -93,7 +108,7 @@ public class TilService {
     }
 
     public TilDetailsResponse getTilByDateRange(final Long userId, final LocalDate from, final LocalDate to) {
-        List<Til> tils = tilRepository.findByUserId(userId);
+        List<Til> tils = tilRepository.findByTilUserId(userId);
 
         List<TilDetailResponse> responseList = tils.stream()
                 .filter(til -> til.isWithinDateRange(from, to))

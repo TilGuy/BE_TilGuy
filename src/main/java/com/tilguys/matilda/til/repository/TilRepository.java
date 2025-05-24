@@ -12,9 +12,11 @@ import java.util.List;
 @Repository
 public interface TilRepository extends JpaRepository<Til, Long> {
 
-    List<Til> findByUserId(final Long userId);
+    List<Til> findAllByOrderByDateDesc();
 
-    Page<Til> findAllByUserId(final Pageable pageable, final Long userId);
+    List<Til> findByTilUserId(final Long userId);
+
+    Page<Til> findAllByTilUserId(final Pageable pageable, final Long userId);
 
     List<Til> findTop10ByIsDeletedFalseAndIsPublicTrueOrderByCreatedAtDesc();
 

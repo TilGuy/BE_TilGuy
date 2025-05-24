@@ -36,6 +36,11 @@ public class TilController {
     private final RecentTilService recentTilService;
     private final SlackService slackService;
 
+    @GetMapping("/all")
+    public ResponseEntity<?> getTilAll() {
+        return ResponseEntity.ok().body(tilService.getTilAll());
+    }
+
     @PostMapping
     public ResponseEntity<?> saveTil(@RequestBody final TilCreateRequest createRequest,
                                      @AuthenticationPrincipal final SimpleUserInfo simpleUserInfo) {
