@@ -1,8 +1,12 @@
 package com.tilguys.matilda.til.dto;
 
+import java.time.LocalDate;
+
 public record TilUpdateRequest(
-        Long tilId,
         String content,
-        boolean isPublic
+        LocalDate date,
+        boolean isPublic,
+        String title
 ) {
+
 }

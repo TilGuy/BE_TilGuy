@@ -50,4 +50,8 @@ public class UserService {
         userByIdentifier.updateAvatarUrl(githubUserInfo.avatarUrl());
         userByIdentifier.updateNickname(githubUserInfo.nickname());
     }
+
+    public TilUser getById(Long memberId) {
+        return findById(memberId).orElseThrow(NotExistUserException::new);
+    }
 }
