@@ -1,6 +1,7 @@
 package com.tilguys.matilda.til.dto;
 
 import com.tilguys.matilda.til.domain.Til;
+import com.tilguys.matilda.user.TilUser;
 import java.time.LocalDate;
 
 public record TilCreateRequest(
@@ -10,9 +11,9 @@ public record TilCreateRequest(
         boolean isPublic
 ) {
 
-    public Til toEntity(final long userId) {
+    public Til toEntity(TilUser user) {
         return Til.builder()
-                .userId(userId)
+                .tilUser(user)
                 .title(title)
                 .content(content)
                 .date(date)

@@ -3,16 +3,15 @@ package com.tilguys.matilda.til.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.tilguys.matilda.tag.service.TilTagService;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
 import com.tilguys.matilda.til.repository.TilRepository;
 import java.time.LocalDate;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -21,15 +20,9 @@ class TilServiceTest {
 
     @Mock
     private TilRepository tilRepository;
-    @Mock
-    private TilTagService tilTagService;
 
+    @InjectMocks
     private TilService tilService;
-
-    @BeforeEach
-    void setUp() {
-        tilService = new TilService(tilRepository, tilTagService);
-    }
 
     @Test
     void 날짜_범위에_포함되는_TIL만_반환한다() {
@@ -42,7 +35,7 @@ class TilServiceTest {
         Til withinRange = createTil(2L, 12);
 
         List<Til> tils = List.of(outOfRange, withinRange);
-        when(tilRepository.findByUserId(userId))
+        when(tilRepository.findByTilUserId(userId))
                 .thenReturn(tils);
 
         // when
