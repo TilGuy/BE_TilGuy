@@ -9,7 +9,7 @@ public class TilTagGenerator {
         Map<String, Object> userMessage = Map.of(
                 "role", "user",
                 "content",
-                "다음의 TIL을 내용을 기반으로 TIL의 핵심 기술 태그들을 추출해주세요 최대 5개입니다 하지만 억지로 채우는것보다 핵심적인 내용만 채우는게 중요하고 최소 3개입니다: "
+                "1.다음의 TIL을 내용을 기반으로 TIL 내용에서 핵심으로 생각하는 기술 태그들을 추출해주세요. 2. 최대 5개입니다 3.억지로 채우는것보다 핵심적인 내용만 채우는게 중요하고 최소 3개입니다: "
                         + tilContent
         );
 
