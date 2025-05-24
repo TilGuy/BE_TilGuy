@@ -35,6 +35,7 @@ public class TilTagService {
         Set<String> tags = tagParser.parseTags(responseJson);
         return tags.stream()
                 .map(Tag::new)
-                .toList();
+                .toList()
+                .subList(0, Math.min(5, tags.size()));
     }
 }
