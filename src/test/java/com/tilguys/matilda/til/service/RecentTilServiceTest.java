@@ -6,12 +6,10 @@ import static org.mockito.Mockito.doReturn;
 
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
-import com.tilguys.matilda.til.dto.RecentTilResponses;
+import com.tilguys.matilda.til.dto.TilWithUserResponses;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.TilUser;
-import com.tilguys.matilda.user.repository.UserRepository;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,32 +25,26 @@ class RecentTilServiceTest {
     @Mock
     private TilRepository tilRepository;
 
-    @Mock
-    private UserRepository userRepository;
-
     @Test
     void 최근_TIL을_응답_객체로_반환한다() {
         // given
-        List<Til> tils = List.of(createTilFixture("제목1", "내용1"), createTilFixture("제목2", "내용2"));
-        Optional<TilUser> tilUser = Optional.of(createTilUserFixture());
+        TilUser tilUser = createTilUserFixture();
+        List<Til> tils = List.of(createTilFixture("제목1", "내용1", tilUser), createTilFixture("제목2", "내용2", tilUser));
 
         doReturn(tils).when(tilRepository)
                 .findTop10ByIsDeletedFalseAndIsPublicTrueOrderByCreatedAtDesc();
 
-        doReturn(tilUser).when(userRepository)
-                .findById(1L);
-
         // when
-        RecentTilResponses result = recentTilService.getRecentTils();
+        TilWithUserResponses result = recentTilService.getRecentTils();
 
         // then
         assertAll(
-                () -> assertThat(result.recents()).hasSize(2),
-                () -> assertThat(result.recents()).extracting("title").containsOnly("제목1", "제목2"),
-                () -> assertThat(result.recents()).extracting("content").containsOnly("내용1", "내용2"),
-                () -> assertThat(result.recents()).extracting("nickname").containsOnly("이름", "이름"),
-                () -> assertThat(result.recents()).extracting("avatarUrl").containsOnly("프로필 주소", "프로필 주소"),
-                () -> assertThat(result.recents())
+                () -> assertThat(result.tilWithUsers()).hasSize(2),
+                () -> assertThat(result.tilWithUsers()).extracting("title").containsOnly("제목1", "제목2"),
+                () -> assertThat(result.tilWithUsers()).extracting("content").containsOnly("내용1", "내용2"),
+                () -> assertThat(result.tilWithUsers()).extracting("nickname").containsOnly("이름", "이름"),
+                () -> assertThat(result.tilWithUsers()).extracting("avatarUrl").containsOnly("프로필 주소", "프로필 주소"),
+                () -> assertThat(result.tilWithUsers())
                         .extracting("tags.tags")
                         .allMatch(tags -> tags.equals(List.of("태그1", "태그2")))
         );
@@ -65,9 +57,9 @@ class RecentTilServiceTest {
                 .build();
     }
 
-    private Til createTilFixture(String title, String content) {
+    private Til createTilFixture(String title, String content, TilUser tilUser) {
         return Til.builder()
-                .userId(1L)
+                .tilUser(tilUser)
                 .title(title)
                 .content(content)
                 .tags(List.of(
