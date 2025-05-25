@@ -44,7 +44,7 @@ public class TilService {
 
     @Transactional
     public Til createTil(final TilCreateRequest tilCreateDto, final long userId) {
-        boolean exists = tilRepository.existsByDateAndUserIdAndIsDeletedFalse(tilCreateDto.date(), userId);
+        boolean exists = tilRepository.existsByDateAndTilUserIdAndIsDeletedFalse(tilCreateDto.date(), userId);
         if (exists) {
             throw new IllegalArgumentException("같은 날에 작성된 게시물이 존재합니다!");
         }
@@ -78,7 +78,6 @@ public class TilService {
 
         return tilPage.map(TilDetailResponse::fromEntity);
     }
-
 
     public TilDatesResponse getAllTilDatesByUserId(final Long userId) {
         List<LocalDate> all = tilRepository.findByTilUserId(userId).stream()
