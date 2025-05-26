@@ -33,7 +33,7 @@ public class TilService {
     private final TilUserService userService;
 
     public TilWithUserResponses getPublicTils(int pageNumber, int pageSize) {
-        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, "date");
         List<TilWithUserResponse> activeTils = tilRepository.findAllByIsPublicTrueAndIsDeletedFalse(pageRequest)
                 .stream()
                 .map(TilWithUserResponse::new)
