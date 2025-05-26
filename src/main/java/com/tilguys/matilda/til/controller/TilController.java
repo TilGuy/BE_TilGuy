@@ -10,6 +10,8 @@ import com.tilguys.matilda.til.dto.TilDetailsResponse;
 import com.tilguys.matilda.til.dto.TilUpdateRequest;
 import com.tilguys.matilda.til.service.RecentTilService;
 import com.tilguys.matilda.til.service.TilService;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
 @RequestMapping("/api/til")
 @RestController
 @RequiredArgsConstructor
@@ -37,8 +36,11 @@ public class TilController {
     private final SlackService slackService;
 
     @GetMapping("/all")
-    public ResponseEntity<?> getTilAll() {
-        return ResponseEntity.ok().body(tilService.getTilAll());
+    public ResponseEntity<?> getPublicTils(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(tilService.getPublicTils(page, size));
     }
 
     @PostMapping
@@ -88,7 +90,11 @@ public class TilController {
     }
 
     @GetMapping("/recent")
-    public ResponseEntity<?> getRecentTils() {
-        return ResponseEntity.ok(recentTilService.getRecentTils());
+    public ResponseEntity<?> getRecentTils(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+
+    ) {
+        return ResponseEntity.ok(recentTilService.getRecentTils(page, size));
     }
 }
