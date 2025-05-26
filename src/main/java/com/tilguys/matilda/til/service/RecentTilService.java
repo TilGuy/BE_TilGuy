@@ -2,7 +2,6 @@ package com.tilguys.matilda.til.service;
 
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilWithUserResponse;
-import com.tilguys.matilda.til.dto.TilWithUserResponses;
 import com.tilguys.matilda.til.repository.TilRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +16,10 @@ public class RecentTilService {
 
     private final TilRepository tilRepository;
 
-    public TilWithUserResponses getRecentTils(int page, int size) {
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+    public List<TilWithUserResponse> getRecentTils() {
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.Direction.DESC, "createdAt");
         Page<Til> recentTils = tilRepository.findAllByIsPublicTrueAndIsDeletedFalse(pageRequest);
-        List<TilWithUserResponse> responses = convertToRecentTilResponses(recentTils.getContent());
-        return new TilWithUserResponses(responses);
+        return convertToRecentTilResponses(recentTils.getContent());
     }
 
     private List<TilWithUserResponse> convertToRecentTilResponses(List<Til> recentTils) {

@@ -90,11 +90,7 @@ public class TilController {
     }
 
     @GetMapping("/recent")
-    public ResponseEntity<?> getRecentTils(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-
-    ) {
-        return ResponseEntity.ok(recentTilService.getRecentTils(page, size));
+    public ResponseEntity<?> getRecentTils() {
+        return ResponseEntity.ok(recentTilService.getRecentTils());
     }
 }
