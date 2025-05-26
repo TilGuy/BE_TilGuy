@@ -15,7 +15,5 @@ public interface TilRepository extends JpaRepository<Til, Long> {
 
     List<Til> findByTilUserId(final Long userId);
 
-    List<Til> findTop10ByIsDeletedFalseAndIsPublicTrueOrderByCreatedAtDesc();
-
     boolean existsByDateAndTilUserIdAndIsDeletedFalse(LocalDate date, Long userId);
 }

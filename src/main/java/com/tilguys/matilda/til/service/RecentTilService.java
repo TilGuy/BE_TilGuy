@@ -6,6 +6,9 @@ import com.tilguys.matilda.til.dto.TilWithUserResponses;
 import com.tilguys.matilda.til.repository.TilRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,9 +17,10 @@ public class RecentTilService {
 
     private final TilRepository tilRepository;
 
-    public TilWithUserResponses getRecentTils() {
-        List<Til> recentTils = tilRepository.findTop10ByIsDeletedFalseAndIsPublicTrueOrderByCreatedAtDesc();
-        List<TilWithUserResponse> responses = convertToRecentTilResponses(recentTils);
+    public TilWithUserResponses getRecentTils(int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        Page<Til> recentTils = tilRepository.findAllByIsPublicTrueAndIsDeletedFalse(pageRequest);
+        List<TilWithUserResponse> responses = convertToRecentTilResponses(recentTils.getContent());
         return new TilWithUserResponses(responses);
     }
 
