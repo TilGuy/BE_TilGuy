@@ -3,13 +3,12 @@ package com.tilguys.matilda.til.service;
 import com.tilguys.matilda.tag.service.TilTagService;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
+import com.tilguys.matilda.til.dto.PagedTilResponse;
 import com.tilguys.matilda.til.dto.TilCreateRequest;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
 import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
 import com.tilguys.matilda.til.dto.TilUpdateRequest;
-import com.tilguys.matilda.til.dto.TilWithUserResponse;
-import com.tilguys.matilda.til.dto.TilWithUserResponses;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.service.TilUserService;
@@ -32,14 +31,10 @@ public class TilService {
     private final TilTagService tilTagService;
     private final TilUserService userService;
 
-    public TilWithUserResponses getPublicTils(int pageNumber, int pageSize) {
+    public PagedTilResponse getPublicTils(int pageNumber, int pageSize) {
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, "date");
-        List<TilWithUserResponse> activeTils = tilRepository.findAllByIsPublicTrueAndIsDeletedFalse(pageRequest)
-                .stream()
-                .map(TilWithUserResponse::new)
-                .toList();
-
-        return new TilWithUserResponses(activeTils);
+        Page<Til> tilPage = tilRepository.findAllByIsPublicTrueAndIsDeletedFalse(pageRequest);
+        return new PagedTilResponse(tilPage);
     }
 
     @Transactional
