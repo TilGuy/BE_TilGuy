@@ -1,15 +1,17 @@
 package com.tilguys.matilda.tag.service;
 
-import com.tilguys.matilda.tag.domain.OpenAIClient;
+import com.tilguys.matilda.common.external.OpenAIClient;
 import com.tilguys.matilda.tag.domain.TilTagGenerator;
 import com.tilguys.matilda.tag.domain.TilTagParser;
+import com.tilguys.matilda.tag.repository.TagRepository;
 import com.tilguys.matilda.til.domain.Tag;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 @Service
 public class TilTagService {
@@ -17,13 +19,15 @@ public class TilTagService {
     private final OpenAIClient openAIClient;
     private final TilTagGenerator tagGenerator;
     private final TilTagParser tagParser;
+    private final TagRepository tagRepository;
 
-    public TilTagService(@Value(value = "${openai.api.key}") String apiKey,
-                         @Value(value = "${openai.api.url}") String apiUrl,
-                         @Autowired RestTemplate restTemplate) {
-        this.openAIClient = new OpenAIClient(apiKey, apiUrl, restTemplate);
+
+    public TilTagService(@Autowired OpenAIClient openAIClient,
+                         TagRepository tagRepository) {
+        this.tagRepository = tagRepository;
         this.tagGenerator = new TilTagGenerator();
         this.tagParser = new TilTagParser();
+        this.openAIClient = openAIClient;
     }
 
     public List<Tag> extractTilTags(String tilContent) {
@@ -37,5 +41,9 @@ public class TilTagService {
                 .map(Tag::new)
                 .toList()
                 .subList(0, Math.min(5, tags.size()));
+    }
+
+    public List<Tag> getRecentWroteTags(LocalDate recent) {
+        return tagRepository.findByCreatedAtAfter(LocalDateTime.of(recent, LocalTime.MIN));
     }
 }
