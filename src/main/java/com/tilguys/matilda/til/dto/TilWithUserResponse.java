@@ -3,6 +3,7 @@ package com.tilguys.matilda.til.dto;
 import com.tilguys.matilda.til.domain.Til;
 
 public record TilWithUserResponse(
+        Long id,
         String title,
         String content,
         TagsResponse tags,
@@ -12,6 +13,7 @@ public record TilWithUserResponse(
 
     public TilWithUserResponse(Til til) {
         this(
+                til.getTilId(),
                 til.getTitle(),
                 til.getContent(),
                 new TagsResponse(til.getTags()),
