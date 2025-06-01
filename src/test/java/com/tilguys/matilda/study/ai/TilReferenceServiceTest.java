@@ -56,7 +56,7 @@ class TilReferenceServiceTest {
                 "GPT가 추출한 단어: " + actual.stream().map(Reference::getWord).toList()
         );
         System.out.println(
-                "GPT가 추출한 레퍼런스: " + actual.stream().map(Reference::getReference).toList()
+                "GPT가 추출한 레퍼런스: " + actual.stream().map(Reference::getInfo).toList()
         );
     }
 }
