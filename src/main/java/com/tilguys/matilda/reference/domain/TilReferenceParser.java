@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tilguys.matilda.til.domain.Reference;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -35,7 +34,7 @@ public class TilReferenceParser {
 
                 Reference reference = Reference.builder()
                         .word(word.toLowerCase().trim())
-                        .reference(referenceText.trim())
+                        .info(referenceText.trim())
                         .build();
 
                 referenceSet.add(reference);

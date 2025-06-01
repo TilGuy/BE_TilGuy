@@ -31,8 +31,8 @@ public class Reference {
 
     @NotNull
     @Getter
-    @Column(name = "reference", columnDefinition = "TEXT")
-    private String reference;
+    @Column(name = "info", columnDefinition = "TEXT")
+    private String info;
 
     @Setter
     @ManyToOne
