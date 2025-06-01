@@ -1,6 +1,8 @@
 package com.tilguys.matilda.til.service;
 
+import com.tilguys.matilda.reference.service.TilReferenceService;
 import com.tilguys.matilda.tag.service.TilTagService;
+import com.tilguys.matilda.til.domain.Reference;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilCreateRequest;
@@ -32,6 +34,7 @@ public class TilService {
 
     private final TilRepository tilRepository;
     private final TilTagService tilTagService;
+    private final TilReferenceService tilReferenceService;
     private final TilUserService userService;
 
     public TilWithUserResponses getTilAll() {
@@ -56,6 +59,9 @@ public class TilService {
                 .stream()
                 .toList();
         til.updateTags(tags);
+        List<Reference> references = tilReferenceService.extractTilReference(til.getContent());
+        til.updateReferences(references);
+
         return til;
     }
 
