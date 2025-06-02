@@ -32,7 +32,13 @@ public class TilBookmarkService {
     }
 
     @Transactional
-    public List<TilBookmark> userBookmark(Long memberId) {
-        return tilBookmarkRepository.findByTilUser_id(memberId);
+    public List<Til> userBookmarkTils(Long memberId) {
+        List<TilBookmark> tilBookmarks = tilBookmarkRepository.findByTilUser_id(memberId);
+
+        List<Long> tilIds = tilBookmarks.stream()
+                .map(currentTilBookmark -> currentTilBookmark.getTil().getTilId())
+                .toList();
+
+        return tilService.getTilsByIds(tilIds);
     }
 }
