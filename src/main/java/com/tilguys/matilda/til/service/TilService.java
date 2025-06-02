@@ -5,13 +5,12 @@ import com.tilguys.matilda.tag.service.TilTagService;
 import com.tilguys.matilda.til.domain.Reference;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
+import com.tilguys.matilda.til.dto.PagedTilResponse;
 import com.tilguys.matilda.til.dto.TilCreateRequest;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
 import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
 import com.tilguys.matilda.til.dto.TilUpdateRequest;
-import com.tilguys.matilda.til.dto.TilWithUserResponse;
-import com.tilguys.matilda.til.dto.TilWithUserResponses;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.service.TilUserService;
@@ -30,19 +29,15 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TilService {
 
-    private static final int RECENT_TIL_SIZE = 4;
-
     private final TilRepository tilRepository;
     private final TilTagService tilTagService;
     private final TilReferenceService tilReferenceService;
     private final TilUserService userService;
 
-    public TilWithUserResponses getTilAll() {
-        List<TilWithUserResponse> responses = tilRepository.findAllByOrderByDateDesc().stream()
-                .map(TilWithUserResponse::new)
-                .toList();
-
-        return new TilWithUserResponses(responses);
+    public PagedTilResponse getPublicTils(int pageNumber, int pageSize) {
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, "date");
+        Page<Til> tilPage = tilRepository.findAllByIsPublicTrueAndIsDeletedFalse(pageRequest);
+        return new PagedTilResponse(tilPage);
     }
 
     @Transactional
@@ -65,22 +60,10 @@ public class TilService {
         return til;
     }
 
-    public Page<TilDetailResponse> getRecentTilById(final Long userId) {
-        return getUserTilByPagination(0, RECENT_TIL_SIZE, userId);
-    }
-
     public Page<TilDetailResponse> getTilByPagination(final int page, final int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<Til> tilPage = tilRepository.findAll(pageable);
-
-        return tilPage.map(TilDetailResponse::fromEntity);
-    }
-
-    public Page<TilDetailResponse> getUserTilByPagination(final int page, final int size, final Long userId) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        Page<Til> tilPage = tilRepository.findAllByTilUserId(pageable, userId);
 
         return tilPage.map(TilDetailResponse::fromEntity);
     }

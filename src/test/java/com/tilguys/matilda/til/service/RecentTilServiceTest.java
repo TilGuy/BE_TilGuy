@@ -15,6 +15,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 @ExtendWith(MockitoExtension.class)
 class RecentTilServiceTest {
@@ -28,14 +32,19 @@ class RecentTilServiceTest {
     @Test
     void 최근_TIL을_응답_객체로_반환한다() {
         // given
+        int page = 0;
+        int size = 10;
+
         TilUser tilUser = createTilUserFixture();
         List<Til> tils = List.of(createTilFixture("제목1", "내용1", tilUser), createTilFixture("제목2", "내용2", tilUser));
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        Page<Til> tilPage = new PageImpl<>(tils, pageRequest, tils.size());
 
-        doReturn(tils).when(tilRepository)
-                .findTop10ByIsDeletedFalseAndIsPublicTrueOrderByCreatedAtDesc();
+        doReturn(tilPage).when(tilRepository)
+                .findAllByIsPublicTrueAndIsDeletedFalse(pageRequest);
 
         // when
-        TilWithUserResponses result = recentTilService.getRecentTils();
+        TilWithUserResponses result = recentTilService.getRecentTils(page, size);
 
         // then
         assertAll(
