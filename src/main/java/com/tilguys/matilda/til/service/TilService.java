@@ -15,6 +15,8 @@ import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.service.TilUserService;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -110,5 +112,13 @@ public class TilService {
     public Til getTilByTilId(final Long tilId) {
         return tilRepository.findById(tilId)
                 .orElseThrow(IllegalArgumentException::new);
+    }
+
+    public List<Til> getTilsByIds(List<Long> tilIds) {
+        List<Til> tils = new ArrayList<>();
+        for (Long tilId : tilIds) {
+            tils.add(getTilByTilId(tilId));
+        }
+        return Collections.unmodifiableList(tils);
     }
 }
