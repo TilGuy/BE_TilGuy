@@ -1,10 +1,11 @@
 package com.tilguys.matilda.bookmark.controller;
 
-import com.tilguys.matilda.bookmark.domain.TilBookmark;
-import com.tilguys.matilda.bookmark.dto.TilBookmarkResponse;
 import com.tilguys.matilda.bookmark.dto.ToggleTilBookmarkRequest;
 import com.tilguys.matilda.bookmark.service.TilBookmarkService;
 import com.tilguys.matilda.common.auth.SimpleUserInfo;
+import com.tilguys.matilda.til.domain.Til;
+import com.tilguys.matilda.til.dto.TilWithUserResponse;
+import com.tilguys.matilda.til.service.TilService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TilBookmarkController {
 
     private final TilBookmarkService tilBookmarkService;
+    private final TilService tilService;
 
     @PostMapping("/toggle")
     public ResponseEntity<?> toggleBookmark(
@@ -33,12 +35,12 @@ public class TilBookmarkController {
     @GetMapping
     public ResponseEntity<?> getUserBookmarks(
             @AuthenticationPrincipal final SimpleUserInfo simpleUserInfo) {
-        List<TilBookmark> bookmarks = tilBookmarkService.userBookmark(simpleUserInfo.id());
+        List<Til> userTils = tilBookmarkService.userBookmarkTils(simpleUserInfo.id());
 
-        List<TilBookmarkResponse> tilBookmarkResponses = bookmarks.stream()
-                .map((bookmark) -> new TilBookmarkResponse(bookmark.getId(), bookmark.getTil().getTilId()))
+        List<TilWithUserResponse> tilWithUserResponseList = userTils.stream()
+                .map(TilWithUserResponse::new)
                 .toList();
 
-        return ResponseEntity.ok(tilBookmarkResponses);
+        return ResponseEntity.ok(tilWithUserResponseList);
     }
 }
