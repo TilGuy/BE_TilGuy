@@ -1,19 +1,19 @@
 package com.tilguys.matilda.til.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.tilguys.matilda.til.domain.Til;
-import com.tilguys.matilda.user.ProviderInfo;
-import com.tilguys.matilda.user.Role;
+import com.tilguys.matilda.til.domain.TilFixture;
 import com.tilguys.matilda.user.TilUser;
+import com.tilguys.matilda.user.TilUserFixture;
 import com.tilguys.matilda.user.repository.UserRepository;
-import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 @DataJpaTest
 class TilRepositoryTest {
@@ -25,64 +25,47 @@ class TilRepositoryTest {
     private UserRepository userRepository;
 
     @Test
-    void 삭제와_공개_조건의_최근_TIL을_조회한다() {
+    void 삭제되지_않은_공개_TIL_목록을_페이징하여_조회한다() {
         // given
-        TilUser tilUser = createAndSaveUserFixture();
+        TilUser tilUser = createAndSaveTilUser();
 
-        IntStream.range(0, 5).forEach(i -> {
-            createTilFixture(true, false, tilUser);
-        });
+        // 조회 가능
+        createTils(tilUser, true, false, 15);
 
-        createTilFixture(true, true, tilUser); // 삭제된 TIL
-        createTilFixture(false, false, tilUser); // 비공개 TIL
+        // 조회 불가능 (isPublic : false)
+        createTils(tilUser, false, false, 5);
+
+        // 조회 불가능 (isDeleted : true)
+        createTils(tilUser, true, true, 5);
+
+        PageRequest pageRequest = PageRequest.of(0, 10);
 
         // when
-        List<Til> result = tilRepository.findTop10ByIsDeletedFalseAndIsPublicTrueOrderByCreatedAtDesc();
+        Page<Til> result = tilRepository.findAllByIsPublicTrueAndIsDeletedFalse(pageRequest);
 
         // then
-        assertThat(result)
-                .hasSize(5)
-                .extracting("createdAt", LocalDateTime.class)
-                .isSortedAccordingTo(Comparator.reverseOrder());
+        assertAll(
+                () -> assertThat(result.getTotalElements()).isEqualTo(15),
+                () -> assertThat(result.getTotalPages()).isEqualTo(2),
+                () -> assertThat(result).extracting("isPublic").containsOnly(true),
+                () -> assertThat(result).extracting("isDeleted").containsOnly(false)
+        );
     }
 
-    @Test
-    void 최근_TIL_10개를_조회한다() {
-        // given
-        TilUser tilUser = createAndSaveUserFixture();
-
-        IntStream.range(0, 15).forEach(i -> {
-            createTilFixture(true, false, tilUser);
-        });
-
-        // when
-        List<Til> result = tilRepository.findTop10ByIsDeletedFalseAndIsPublicTrueOrderByCreatedAtDesc();
-
-        // then
-        assertThat(result)
-                .hasSize(10)
-                .extracting("createdAt", LocalDateTime.class)
-                .isSortedAccordingTo(Comparator.reverseOrder());
+    private void createTils(TilUser tilUser, boolean isPublic, boolean isDeleted, int count) {
+        IntStream.range(0, count).forEach(i ->
+                createAndSaveTil(tilUser, isPublic, isDeleted)
+        );
     }
 
-    private TilUser createAndSaveUserFixture() {
-        TilUser tilUser = TilUser.builder()
-                .providerInfo(ProviderInfo.GITHUB)
-                .identifier("test-identifier")
-                .role(Role.USER)
-                .build();
+    private void createAndSaveTil(TilUser tilUser, boolean isPublic, boolean isDeleted) {
+        Til til = TilFixture.createTilFixture(tilUser, isPublic, isDeleted);
+        tilRepository.save(til);
+    }
 
+    private TilUser createAndSaveTilUser() {
+        TilUser tilUser = TilUserFixture.createTilUserFixture();
         userRepository.save(tilUser);
         return tilUser;
-    }
-
-    private void createTilFixture(boolean isPublic, boolean isDeleted, TilUser tilUser) {
-        tilRepository.save(
-                Til.builder()
-                        .tilUser(tilUser)
-                        .isPublic(isPublic)
-                        .isDeleted(isDeleted)
-                        .build()
-        );
     }
 }
