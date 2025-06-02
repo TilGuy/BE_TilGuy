@@ -1,23 +1,26 @@
-package com.tilguys.matilda.tag.domain;
+package com.tilguys.matilda.common.external;
 
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+@Component
 public class OpenAIClient {
 
     private final String apiUrl;
     private final String apiKey;
-    private final RestTemplate restTemplate;
+    private final RestTemplate restTemplate = new RestTemplate();
 
-    public OpenAIClient(String apiKey, String apiUrl, RestTemplate restTemplate) {
+    public OpenAIClient(@Value(value = "${openai.api.key}") String apiKey,
+                        @Value(value = "${openai.api.url}") String apiUrl) {
         this.apiUrl = apiUrl;
         this.apiKey = apiKey;
-        this.restTemplate = restTemplate;
     }
 
     public String callOpenAI(List<Map<String, Object>> messages, Map<String, Object> functionDefinition) {
