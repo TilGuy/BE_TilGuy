@@ -7,6 +7,7 @@ public record TilWithUserResponse(
         String title,
         String content,
         TagsResponse tags,
+        ReferencesResponse references,
         String nickname,
         String avatarUrl
 ) {
@@ -17,6 +18,7 @@ public record TilWithUserResponse(
                 til.getTitle(),
                 til.getContent(),
                 new TagsResponse(til.getTags()),
+                new ReferencesResponse(til.getReferences()),
                 til.getTilUser().getNickname(),
                 til.getTilUser().getAvatarUrl()
         );

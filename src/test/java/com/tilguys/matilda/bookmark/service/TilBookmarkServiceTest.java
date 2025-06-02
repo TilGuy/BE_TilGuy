@@ -74,6 +74,7 @@ class TilBookmarkServiceTest {
     void removeBookmark() {
         TilUser member = new TilUser(null, ProviderInfo.GITHUB, "asdf", Role.USER, "asdf", "asdfasdf");
         Til til = new Til(null, member, "Asdf", "asdf", LocalDate.now(), true, false, new ArrayList<>());
+
         em.persist(member);
         em.persist(til);
         em.flush();
