@@ -38,6 +38,5 @@ public class Reference {
     @ManyToOne
     @JoinColumn(name = "til_id")
     private Til til;
-
 }
 
