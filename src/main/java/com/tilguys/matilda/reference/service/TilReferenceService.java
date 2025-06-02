@@ -1,15 +1,12 @@
 package com.tilguys.matilda.reference.service;
 
+import com.tilguys.matilda.common.external.OpenAIClient;
 import com.tilguys.matilda.reference.domain.TilReferenceGenerator;
 import com.tilguys.matilda.reference.domain.TilReferenceParser;
-import com.tilguys.matilda.tag.domain.OpenAIClient;
 import com.tilguys.matilda.til.domain.Reference;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.List;
 
 @Service
 public class TilReferenceService {
@@ -19,9 +16,8 @@ public class TilReferenceService {
     private final TilReferenceParser tilReferenceParser;
 
     public TilReferenceService(@Value(value = "${openai.api.key}") String apiKey,
-                               @Value(value = "${openai.api.url}") String apiUrl,
-                               @Autowired RestTemplate restTemplate) {
-        this.openAIClient = new OpenAIClient(apiKey, apiUrl, restTemplate);
+                               @Value(value = "${openai.api.url}") String apiUrl) {
+        this.openAIClient = new OpenAIClient(apiKey, apiUrl);
         this.tilReferenceGenerator = new TilReferenceGenerator();
         this.tilReferenceParser = new TilReferenceParser();
     }
