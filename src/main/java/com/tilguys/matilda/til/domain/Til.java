@@ -14,14 +14,13 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Builder
@@ -65,6 +64,11 @@ public class Til extends BaseEntity {
     @Builder.Default
     private List<Tag> tags = new ArrayList<>();
 
+    @Getter
+    @OneToMany(mappedBy = "til", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Reference> references = new ArrayList<>();
+
     public void update(final String content, final boolean isPublic, final LocalDate date, String title) {
         this.content = content;
         this.isPublic = isPublic;
@@ -88,6 +92,14 @@ public class Til extends BaseEntity {
         for (Tag tag : newTags) {
             tag.setTil(this);
             this.tags.add(tag);
+        }
+    }
+
+    public void updateReferences(List<Reference> newReferences) {
+        this.references.clear();
+        for (Reference reference : newReferences) {
+            reference.setTil(this);
+            this.references.add(reference);
         }
     }
 
