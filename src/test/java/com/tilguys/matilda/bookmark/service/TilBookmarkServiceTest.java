@@ -1,6 +1,5 @@
 package com.tilguys.matilda.bookmark.service;
 
-
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -43,7 +42,7 @@ class TilBookmarkServiceTest {
     private TilService tilService;
 
     @Autowired
-    private EntityManager em;  // EntityManager 추가
+    private EntityManager em;
 
     @BeforeEach
     void setUp() {
@@ -53,8 +52,7 @@ class TilBookmarkServiceTest {
     @Test
     void toggleBookmark() {
         TilUser member = new TilUser(null, ProviderInfo.GITHUB, "asdf", Role.USER, "asdf", "asdfasdf");
-        Til til = new Til(null, member, "Asdf", "asdf", LocalDate.now(),
-                true, false, new ArrayList<>(), new ArrayList<>());
+        Til til = new Til(null, member, "Asdf", "asdf", LocalDate.now(), true, false, new ArrayList<>());
         em.persist(member);
         em.persist(til);
         em.flush();
@@ -75,8 +73,8 @@ class TilBookmarkServiceTest {
     @Test
     void removeBookmark() {
         TilUser member = new TilUser(null, ProviderInfo.GITHUB, "asdf", Role.USER, "asdf", "asdfasdf");
-        Til til = new Til(null, member, "Asdf", "asdf", LocalDate.now(),
-                true, false, new ArrayList<>(), new ArrayList<>());
+        Til til = new Til(null, member, "Asdf", "asdf", LocalDate.now(), true, false, new ArrayList<>());
+
         em.persist(member);
         em.persist(til);
         em.flush();
