@@ -30,7 +30,7 @@ public class TilReferenceParser {
 
             for (JsonNode referenceNode : referencesNode) {
                 String word = referenceNode.get("word").asText();
-                String referenceText = referenceNode.get("reference").asText();
+                String referenceText = referenceNode.get("info").asText();
 
                 Reference reference = Reference.builder()
                         .word(word.toLowerCase().trim())
