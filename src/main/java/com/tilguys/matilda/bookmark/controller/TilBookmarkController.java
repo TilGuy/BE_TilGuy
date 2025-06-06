@@ -38,6 +38,7 @@ public class TilBookmarkController {
         List<Til> userTils = tilBookmarkService.userBookmarkTils(simpleUserInfo.id());
 
         List<TilWithUserResponse> tilWithUserResponseList = userTils.stream()
+                .filter(Til::isNotDeleted)
                 .map(TilWithUserResponse::new)
                 .toList();
 
