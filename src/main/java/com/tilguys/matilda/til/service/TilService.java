@@ -52,9 +52,13 @@ public class TilService {
         TilUser user = userService.findById(userId);
         Til newTil = tilCreateDto.toEntity(user);
         Til til = tilRepository.save(newTil);
-        List<Tag> tags = tilTagService.extractTilTags(til.getContent())
+
+        String tilResponseJson = tilTagService.requestTilTagResponseJson(til.getContent());
+
+        List<Tag> tags = tilTagService.extractTilTags(tilResponseJson)
                 .stream()
                 .toList();
+        
         til.updateTags(tags);
         List<Reference> references = tilReferenceService.extractTilReference(til.getContent());
         til.updateReferences(references);
