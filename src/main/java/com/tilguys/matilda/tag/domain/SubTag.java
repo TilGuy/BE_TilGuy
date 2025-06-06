@@ -3,19 +3,32 @@ package com.tilguys.matilda.tag.domain;
 import com.tilguys.matilda.common.BaseEntity;
 import com.tilguys.matilda.til.domain.Tag;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Tag extends BaseEntity {
-public class SubTag {
+public class SubTag extends BaseEntity {
 
-    private final Tag tag;
-    private final String subTag;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotNull
+    @Getter
+    private String subTag;
+
+    @ManyToOne
+    private Tag tag;
 
     public SubTag(Tag tag, String subTag) {
         this.tag = tag;

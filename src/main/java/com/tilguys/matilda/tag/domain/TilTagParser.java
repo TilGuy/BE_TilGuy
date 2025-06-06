@@ -3,6 +3,7 @@ package com.tilguys.matilda.tag.domain;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,14 +52,14 @@ public class TilTagParser {
             JsonNode tagsNode = argsNode.get("subTags");
 
             // 반환할 태그 세트 생성
-            Set<SubTag> tagSet = new HashSet<>();
+            List<SubTag> subTags = new ArrayList<>();
 
             // JsonNode 배열을 순회하면서 태그 추가
-            for (JsonNode tagNode : tagsNode) {
-                tagSet.add(tagNode.asText().toLowerCase());
-            }
+//            for (JsonNode tagNode : tagsNode) {
+//                subTags.add(new SubTag(tagNode.asText()));
+//            }
 
-            return tagSet;
+            return subTags;
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Failed to process tag extraction response", e);
         }
