@@ -1,8 +1,10 @@
 package com.tilguys.matilda.tag.service;
 
 import com.tilguys.matilda.common.external.OpenAIClient;
+import com.tilguys.matilda.tag.domain.SubTag;
 import com.tilguys.matilda.tag.domain.TilTagGenerator;
 import com.tilguys.matilda.tag.domain.TilTagParser;
+import com.tilguys.matilda.tag.domain.TilTags;
 import com.tilguys.matilda.tag.repository.TagRepository;
 import com.tilguys.matilda.til.domain.Tag;
 import java.time.LocalDate;
@@ -28,17 +30,24 @@ public class TilTagService {
         this.openAIClient = openAIClient;
     }
 
-    public List<Tag> extractTilTags(String tilContent) {
-        String responseJson = openAIClient.callOpenAI(
+    public String requestTilTagResponseJson(String tilContent) {
+        return openAIClient.callOpenAI(
                 tagGenerator.createPrompt(tilContent),
                 tagGenerator.createFunctionDefinition()
         );
+    }
 
+    public List<Tag> extractTilTags(String responseJson) {
         Set<String> tags = tagParser.parseTags(responseJson);
         return tags.stream()
                 .map(Tag::new)
                 .toList()
                 .subList(0, Math.min(5, tags.size()));
+    }
+
+    public List<SubTag> extractSubTilTags(String responseJson, TilTags coreTags) {
+        List<SubTag> subTags = tagParser.parseSubTags(responseJson, coreTags);
+        return subTags.subList(0, Math.min(5, subTags.size()));
     }
 
     public List<Tag> getRecentWroteTags(LocalDate recent) {
