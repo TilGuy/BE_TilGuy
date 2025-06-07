@@ -1,11 +1,11 @@
 package com.tilguys.matilda.til.service;
 
 import static com.tilguys.matilda.user.TilUserFixture.createTilUserFixture;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.domain.TilFixture;
-import com.tilguys.matilda.til.dto.TilWithUserResponses;
+import com.tilguys.matilda.til.dto.PagedTilResponse;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.repository.UserRepository;
@@ -39,10 +39,10 @@ public class TilServiceIntegrationTest {
         int pageSize = 10;
 
         // when
-        TilWithUserResponses result = tilService.getPublicTils(pageNumber, pageSize);
+        PagedTilResponse result = tilService.getPublicTils(pageNumber, pageSize);
 
         // then
-        assertThat(result.tilWithUsers()).hasSize(10);
+        assertThat(result.tils().size()).isEqualTo(10L);
     }
 
     private void createAndSaveTils(TilUser tilUser, int count) {

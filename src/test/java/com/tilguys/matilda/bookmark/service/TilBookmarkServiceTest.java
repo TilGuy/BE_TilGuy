@@ -52,7 +52,8 @@ class TilBookmarkServiceTest {
     @Test
     void toggleBookmark() {
         TilUser member = new TilUser(null, ProviderInfo.GITHUB, "asdf", Role.USER, "asdf", "asdfasdf");
-        Til til = new Til(null, member, "Asdf", "asdf", LocalDate.now(), true, false, new ArrayList<>());
+        Til til = new Til(null, member, "Asdf", "asdf", LocalDate.now(), true, false, new ArrayList<>(),
+                new ArrayList<>());
         em.persist(member);
         em.persist(til);
         em.flush();
@@ -73,7 +74,8 @@ class TilBookmarkServiceTest {
     @Test
     void removeBookmark() {
         TilUser member = new TilUser(null, ProviderInfo.GITHUB, "asdf", Role.USER, "asdf", "asdfasdf");
-        Til til = new Til(null, member, "Asdf", "asdf", LocalDate.now(), true, false, new ArrayList<>());
+        Til til = new Til(null, member, "Asdf", "asdf", LocalDate.now(), true, false, new ArrayList<>(),
+                new ArrayList<>());
 
         em.persist(member);
         em.persist(til);
