@@ -7,7 +7,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,22 +16,17 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SubTag extends BaseEntity {
+public class TagRelation extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @Getter
-    private String subTag;
-
-    @Getter
     @ManyToOne
+    @Getter
     private Tag tag;
 
-    public SubTag(Tag tag, String subTag) {
-        this.tag = tag;
-        this.subTag = subTag;
-    }
+    @ManyToOne
+    @Getter
+    private Tag otherTag;
 }

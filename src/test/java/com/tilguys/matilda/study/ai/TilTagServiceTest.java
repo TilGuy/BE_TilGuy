@@ -1,8 +1,13 @@
 package com.tilguys.matilda.study.ai;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import com.tilguys.matilda.tag.domain.TilTags;
+import com.tilguys.matilda.tag.repository.SubTagRepository;
+import com.tilguys.matilda.tag.repository.TagRepository;
 import com.tilguys.matilda.tag.service.TilTagService;
+import com.tilguys.matilda.til.domain.Tag;
+import java.util.List;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -19,14 +24,14 @@ class TilTagServiceTest {
 
     @Autowired
     private TilTagService tilTagService;
+    @Autowired
+    private TagRepository tagRepository;
+    @Autowired
+    private SubTagRepository subTagRepository;
 
     @Test
-    void gpt_실제_할당량_소모_요청_테스트() {
-        String tilContent = "## `DTO` 계층 분리 트레이드 오프\n"
-                + "                \"1.다음의 TIL을 내용을 기반으로 TIL 내용에서 핵심으로 생각되는 태그들을 추출해주세요. 2.억지로 채우는것보다 핵심적인 내용만 채우는게 중요하고 최소 3개입니다: 4. (최대 5개) 다음의 태그들 중에서 가장 연관성이 높은것들로 태그를 분류해야합니다. 태그들: 자바,스프링부트,JPA,데이터베이스,MySQL,테스트,서버 관리, https,ci/cd,aws,모니터링,로깅,객체지향,디자인패턴,리팩터링,클린코드,시스템아키텍쳐,동시성,성능최적화,확장성,깃,코드리뷰,페어프로그래밍,팀프로젝트,애자일,api,설계,문서화,자료구조,알고리즘,네트워크,운영체제,소프트스킬,회고,학습법 \n"
-                + "B. 서브태그들을 추가해주세요 서브태그는 핵심 태그들에 대한 세부 태그들입니다. ex)스프링 - di과 같은 방식 최대한 TIL에서 뽑아낼 수 있는 최대 5개 뽑아내야함.\""
-                + ""
-                + "- 계층 분리 방법 목록\n"
+    void 서브_태그_테스트() {
+        String tilContent = "- 계층 분리 방법 목록\n"
                 + "    - `Presentation`\n"
                 + "    - `Application`\n"
                 + "    - DTO 독립 배치\n"
@@ -51,6 +56,11 @@ class TilTagServiceTest {
                 + "- 또한, 무분별한 분리는 오히려, **SRP 원칙을 해칠 수 있다.**\n"
                 + "- 적절한 `Getter` 사용은 옳다.\n"
                 + "    -  상태 타입이 객체냐 자료 구조이냐 다르다.";
-        assertThat(tilTagService.extractTilTags(tilContent)).hasSizeGreaterThan(0);
+        String responseJson = tilTagService.requestTilTagResponseJson(tilContent);
+        List<Tag> tags = tilTagService.extractTilTags(responseJson);
+        tilTagService.saveAll(tags);
+        TilTags tilTags = new TilTags(tags);
+        tilTagService.createSubTags(responseJson, tilTags);
+        assertThat(subTagRepository.count()).isGreaterThan(0L);
     }
 }

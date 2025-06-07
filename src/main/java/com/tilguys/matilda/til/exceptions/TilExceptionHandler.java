@@ -18,6 +18,12 @@ public class TilExceptionHandler {
         return createErrorResponse(e, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler({Exception.class})
+    public ProblemDetail handleException(Exception e) {
+        log.debug("error occur : {}", e.getMessage());
+        return createErrorResponse(e, HttpStatus.BAD_REQUEST);
+    }
+
     private ProblemDetail createErrorResponse(Exception e, HttpStatus status) {
         return createErrorResponse(e, status, e.getMessage());
     }
