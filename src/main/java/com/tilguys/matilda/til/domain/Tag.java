@@ -20,6 +20,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Tag extends BaseEntity {
 
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -36,4 +37,5 @@ public class Tag extends BaseEntity {
     public Tag(String tagString) {
         this.tagString = tagString;
     }
+
 }

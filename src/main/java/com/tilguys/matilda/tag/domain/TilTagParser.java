@@ -55,9 +55,12 @@ public class TilTagParser {
             List<SubTag> subTags = new ArrayList<>();
 
             // JsonNode 배열을 순회하면서 태그 추가
-//            for (JsonNode tagNode : tagsNode) {
-//                subTags.add(new SubTag(tagNode.asText()));
-//            }
+            for (JsonNode node : tagsNode) {
+                String coreTagName = node.get("coreTag").asText();
+                String subTagName = node.get("subTag").asText();
+
+                subTags.add(new SubTag(coreTags.findTag(coreTagName), subTagName));
+            }
 
             return subTags;
         } catch (JsonProcessingException e) {
