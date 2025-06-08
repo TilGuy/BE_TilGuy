@@ -10,20 +10,42 @@ import lombok.Getter;
 
 @Getter
 public class KeywordTags {
+    
     private final Map<String, List<String>> keywordTagMap = new HashMap<>();
+    private final Map<String, List<Long>> tagTilIdMap;
     private final Map<String, List<String>> tagRelationMap;
 
     public KeywordTags(List<Tag> tags, List<SubTag> subTags, Map<Tag, List<Tag>> tagRelationMap) {
         initiateCoreTag(tags);
 
         for (SubTag subTag : subTags) {
+            if (subTag.getTag() == null) {
+                continue;
+            }
             String coreTagString = subTag.getTag().getTagString();
             List<String> keywordTags = keywordTagMap.getOrDefault(coreTagString, new ArrayList<>());
             keywordTags.add(subTag.getSubTag());
             keywordTagMap.put(coreTagString, keywordTags);
         }
         this.tagRelationMap = convertToStringTagRelation(tagRelationMap);
+        this.tagTilIdMap = convertToTagTilId(tagRelationMap);
     }
+
+    private Map<String, List<Long>> convertToTagTilId(Map<Tag, List<Tag>> tagRelationMap) {
+        Map<String, List<Long>> tagTilIds = new HashMap<>();
+
+        for (Tag tag : tagRelationMap.keySet()) {
+            List<Tag> otherTags = tagRelationMap.get(tag);
+            List<Long> tilIds = new ArrayList<>();
+            for (Tag otherTag : otherTags) {
+                tilIds.add(otherTag.getId());
+            }
+            tagTilIds.put(tag.getTagString(), tilIds);
+        }
+
+        return tagTilIds;
+    }
+
 
     private Map<String, List<String>> convertToStringTagRelation(Map<Tag, List<Tag>> tagRelationMap) {
         Map<String, List<String>> relationTags = new HashMap<>();
