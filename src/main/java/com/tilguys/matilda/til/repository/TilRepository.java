@@ -2,6 +2,7 @@ package com.tilguys.matilda.til.repository;
 
 import com.tilguys.matilda.til.domain.Til;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,4 +17,6 @@ public interface TilRepository extends JpaRepository<Til, Long> {
     List<Til> findByTilUserId(final Long userId);
 
     boolean existsByDateAndTilUserIdAndIsDeletedFalse(LocalDate date, Long userId);
+
+    List<Til> findByCreatedAtGreaterThanEqual(LocalDateTime recent);
 }
