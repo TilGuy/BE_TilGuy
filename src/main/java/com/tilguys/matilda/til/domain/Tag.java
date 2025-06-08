@@ -38,4 +38,7 @@ public class Tag extends BaseEntity {
         this.tagString = tagString;
     }
 
+    public Til getTil() {
+        return til;
+    }
 }
