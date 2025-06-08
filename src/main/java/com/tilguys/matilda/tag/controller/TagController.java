@@ -1,10 +1,12 @@
 package com.tilguys.matilda.tag.controller;
 
+import com.tilguys.matilda.tag.domain.SubTag;
+import com.tilguys.matilda.tag.service.TagRelationService;
 import com.tilguys.matilda.tag.service.TilTagService;
 import com.tilguys.matilda.til.domain.Tag;
-import com.tilguys.matilda.til.dto.TagsResponse;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,13 +20,15 @@ public class TagController {
 
     private static final int TAG_GET_START_DAY = 7;
     private final TilTagService tilTagService;
+    private final TagRelationService tagRelationService;
 
     @GetMapping("/recent")
-    public ResponseEntity<List<String>> getRecentTags() {
+    public ResponseEntity<KeywordTags> getRecentTags() {
         LocalDate startDay = LocalDate.now().minusDays(TAG_GET_START_DAY);
         List<Tag> tags = tilTagService.getRecentWroteTags(startDay);
-        TagsResponse tagsResponse = new TagsResponse(tags);
-        List<String> tagStrings = tagsResponse.getTags();
-        return ResponseEntity.ok(tagStrings);
+        List<SubTag> subTags = tilTagService.getRecentSubTags(startDay);
+        Map<Tag, List<Tag>> tagRelationMap = tagRelationService.getRecentRelationTagMap();
+        KeywordTags keywordTag = new KeywordTags(tags, subTags, tagRelationMap);
+        return ResponseEntity.ok(keywordTag);
     }
 }

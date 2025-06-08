@@ -1,6 +1,7 @@
 package com.tilguys.matilda.til.service;
 
 import com.tilguys.matilda.reference.service.TilReferenceService;
+import com.tilguys.matilda.tag.domain.TilTags;
 import com.tilguys.matilda.tag.service.TilTagService;
 import com.tilguys.matilda.til.domain.Reference;
 import com.tilguys.matilda.til.domain.Tag;
@@ -15,6 +16,7 @@ import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.service.TilUserService;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -52,13 +54,19 @@ public class TilService {
         TilUser user = userService.findById(userId);
         Til newTil = tilCreateDto.toEntity(user);
         Til til = tilRepository.save(newTil);
-        List<Tag> tags = tilTagService.extractTilTags(til.getContent())
+
+        String tilResponseJson = tilTagService.requestTilTagResponseJson(til.getContent());
+
+        List<Tag> tags = tilTagService.extractTilTags(tilResponseJson)
                 .stream()
                 .toList();
+
         til.updateTags(tags);
         List<Reference> references = tilReferenceService.extractTilReference(til.getContent());
         til.updateReferences(references);
 
+        TilTags tilTags = new TilTags(tags);
+        tilTagService.createSubTags(tilResponseJson, tilTags);
         return til;
     }
 
@@ -120,5 +128,10 @@ public class TilService {
             tils.add(getTilByTilId(tilId));
         }
         return Collections.unmodifiableList(tils);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Til> getRecentWroteTil(LocalDateTime startTime) {
+        return tilRepository.findByCreatedAtGreaterThanEqual(startTime);
     }
 }

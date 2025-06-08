@@ -1,8 +1,11 @@
 package com.tilguys.matilda.tag.service;
 
 import com.tilguys.matilda.common.external.OpenAIClient;
+import com.tilguys.matilda.tag.domain.SubTag;
 import com.tilguys.matilda.tag.domain.TilTagGenerator;
 import com.tilguys.matilda.tag.domain.TilTagParser;
+import com.tilguys.matilda.tag.domain.TilTags;
+import com.tilguys.matilda.tag.repository.SubTagRepository;
 import com.tilguys.matilda.tag.repository.TagRepository;
 import com.tilguys.matilda.til.domain.Tag;
 import java.time.LocalDate;
@@ -10,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TilTagService {
@@ -18,22 +22,25 @@ public class TilTagService {
     private final TilTagGenerator tagGenerator;
     private final TilTagParser tagParser;
     private final TagRepository tagRepository;
-
+    private final SubTagRepository subTagRepository;
 
     public TilTagService(@Autowired OpenAIClient openAIClient,
-                         TagRepository tagRepository) {
+                         TagRepository tagRepository, SubTagRepository subTagRepository) {
         this.tagRepository = tagRepository;
+        this.subTagRepository = subTagRepository;
         this.tagGenerator = new TilTagGenerator();
         this.tagParser = new TilTagParser();
         this.openAIClient = openAIClient;
     }
 
-    public List<Tag> extractTilTags(String tilContent) {
-        String responseJson = openAIClient.callOpenAI(
+    public String requestTilTagResponseJson(String tilContent) {
+        return openAIClient.callOpenAI(
                 tagGenerator.createPrompt(tilContent),
                 tagGenerator.createFunctionDefinition()
         );
+    }
 
+    public List<Tag> extractTilTags(String responseJson) {
         Set<String> tags = tagParser.parseTags(responseJson);
         return tags.stream()
                 .map(Tag::new)
@@ -41,7 +48,26 @@ public class TilTagService {
                 .subList(0, Math.min(5, tags.size()));
     }
 
+    public List<SubTag> extractSubTilTags(String responseJson, TilTags coreTags) {
+        List<SubTag> subTags = tagParser.parseSubTags(responseJson, coreTags);
+        return subTags.subList(0, Math.min(25, subTags.size()));
+    }
+
+    public void createSubTags(String tilResponseJson, TilTags tilTags) {
+        List<SubTag> subTags = extractSubTilTags(tilResponseJson, tilTags);
+        subTagRepository.saveAll(subTags);
+    }
+
+    @Transactional
+    public void saveAll(List<Tag> tags) {
+        tagRepository.saveAll(tags);
+    }
+
     public List<Tag> getRecentWroteTags(LocalDate recent) {
         return tagRepository.findByCreatedAtGreaterThanEqual(recent.atStartOfDay());
+    }
+
+    public List<SubTag> getRecentSubTags(LocalDate recent) {
+        return subTagRepository.findByCreatedAtGreaterThanEqual(recent.atStartOfDay());
     }
 }

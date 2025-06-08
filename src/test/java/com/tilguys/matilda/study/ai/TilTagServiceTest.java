@@ -1,8 +1,13 @@
 package com.tilguys.matilda.study.ai;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import com.tilguys.matilda.tag.domain.TilTags;
+import com.tilguys.matilda.tag.repository.SubTagRepository;
+import com.tilguys.matilda.tag.repository.TagRepository;
 import com.tilguys.matilda.tag.service.TilTagService;
+import com.tilguys.matilda.til.domain.Tag;
+import java.util.List;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -19,11 +24,14 @@ class TilTagServiceTest {
 
     @Autowired
     private TilTagService tilTagService;
+    @Autowired
+    private TagRepository tagRepository;
+    @Autowired
+    private SubTagRepository subTagRepository;
 
     @Test
-    void gpt_실제_할당량_소모_요청_테스트() {
-        String tilContent = "## `DTO` 계층 분리 트레이드 오프\n"
-                + "- 계층 분리 방법 목록\n"
+    void 서브_태그_테스트() {
+        String tilContent = "- 계층 분리 방법 목록\n"
                 + "    - `Presentation`\n"
                 + "    - `Application`\n"
                 + "    - DTO 독립 배치\n"
@@ -48,6 +56,11 @@ class TilTagServiceTest {
                 + "- 또한, 무분별한 분리는 오히려, **SRP 원칙을 해칠 수 있다.**\n"
                 + "- 적절한 `Getter` 사용은 옳다.\n"
                 + "    -  상태 타입이 객체냐 자료 구조이냐 다르다.";
-        assertThat(tilTagService.extractTilTags(tilContent)).hasSizeGreaterThan(0);
+        String responseJson = tilTagService.requestTilTagResponseJson(tilContent);
+        List<Tag> tags = tilTagService.extractTilTags(responseJson);
+        tilTagService.saveAll(tags);
+        TilTags tilTags = new TilTags(tags);
+        tilTagService.createSubTags(responseJson, tilTags);
+        assertThat(subTagRepository.count()).isGreaterThan(0L);
     }
 }
