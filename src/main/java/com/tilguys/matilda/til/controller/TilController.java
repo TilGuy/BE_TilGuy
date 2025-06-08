@@ -8,6 +8,7 @@ import com.tilguys.matilda.til.dto.TilDatesResponse;
 import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
 import com.tilguys.matilda.til.dto.TilUpdateRequest;
+import com.tilguys.matilda.til.dto.TilWithUserResponse;
 import com.tilguys.matilda.til.service.RecentTilService;
 import com.tilguys.matilda.til.service.TilService;
 import java.time.LocalDate;
@@ -92,5 +93,11 @@ public class TilController {
     @GetMapping("/recent")
     public ResponseEntity<?> getRecentTils() {
         return ResponseEntity.ok(recentTilService.getRecentTils());
+    }
+
+    @GetMapping("/{tilId}")
+    public ResponseEntity<?> getTilById(@PathVariable final Long tilId) {
+        Til til = tilService.getTilByTilId(tilId);
+        return ResponseEntity.ok(new TilWithUserResponse(til));
     }
 }
