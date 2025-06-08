@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
 
@@ -34,7 +35,7 @@ public class KeywordTags {
 
     private Map<String, List<Long>> convertToTagTilId(Map<Tag, List<Tag>> tagRelationMap) {
         Map<String, List<Long>> tagTilIds = new HashMap<>();
-        List<Tag> allCoreTags = getAllCoreTags(tagRelationMap);
+        Set<Tag> allCoreTags = getAllCoreTags(tagRelationMap);
 
         for (Tag tag : allCoreTags) {
             List<Long> tilIds = tagTilIds.getOrDefault(tag.getTagString(), new ArrayList<>());
@@ -45,10 +46,12 @@ public class KeywordTags {
         return tagTilIds;
     }
 
-    private List<Tag> getAllCoreTags(Map<Tag, List<Tag>> tagRelationMap) {
-        return tagRelationMap.values().stream()
+    private Set<Tag> getAllCoreTags(Map<Tag, List<Tag>> tagRelationMap) {
+        Set<Tag> allCoreTags = tagRelationMap.values().stream()
                 .flatMap(List::stream)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
+        allCoreTags.addAll(tagRelationMap.keySet());
+        return allCoreTags;
     }
 
     private Map<String, List<String>> convertToStringTagRelation(Map<Tag, List<Tag>> tagRelationMap) {
