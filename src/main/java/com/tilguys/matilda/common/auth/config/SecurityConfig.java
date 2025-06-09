@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -69,13 +70,16 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .formLogin(FormLoginConfigurer::disable)
                 .addFilterBefore(prevLoginFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> request
+                        .requestMatchers(HttpMethod.GET, "/api/til/**").permitAll()
+
                         .requestMatchers(
                                 "/api/oauth/login",
                                 "/api/til/recent",
                                 "/api/user/profileUrl/**",
-                                "/api/tags/recent",
-                                "/actuator/health"
+                                "/actuator/health",
+                                "/api/tags/recent"
                         )
+
                         .permitAll()
                         .anyRequest()
                         .hasAnyAuthority(PERMITTED_ROLES));
