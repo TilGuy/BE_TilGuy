@@ -64,22 +64,21 @@ jobs:
           exit
           EOF
 
-
       - name: Health Check
         run: |
           echo "Waiting for server to be ready..."
-
+          
           for i in {1..10}
           do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.OCI_HOST }}:8080/actuator/health || true)
+            STATUS=$(curl -s --max-time 3 -o /dev/null -w "%{http_code}" http://${{ secrets.OCI_HOST }}:8080/actuator/health || true)
             if [ "$STATUS" == "200" ]; then
               echo "✅ Health check passed"
               exit 0
             else
-              echo "⏳ Waiting for server... attempt $i"
+              echo "⏳ Waiting for server... attempt $i (status=$STATUS)"
               sleep 5
             fi
           done
-
+          
           echo "❌ Health check failed after multiple attempts"
           exit 1
