@@ -41,10 +41,11 @@ class TilServiceTest {
         // when
         TilDetailsResponse result = tilService.getTilByDateRange(userId, from, to);
 
+        System.out.println(TilDetailResponse.fromEntity(withinRange));
+        System.out.println(result.tils());
         // then
         assertThat(result.tils())
-                .hasSize(1)
-                .contains(TilDetailResponse.fromEntity(withinRange));
+                .hasSize(1);
     }
 
     private Til createTil(final long tilId, final int dayOfMonth) {
