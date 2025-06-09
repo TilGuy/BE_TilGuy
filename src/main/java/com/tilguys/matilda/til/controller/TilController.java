@@ -2,6 +2,7 @@ package com.tilguys.matilda.til.controller;
 
 import com.tilguys.matilda.common.auth.SimpleUserInfo;
 import com.tilguys.matilda.slack.service.SlackService;
+import com.tilguys.matilda.tag.service.TagRelationService;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilCreateRequest;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
@@ -35,6 +36,7 @@ public class TilController {
     private final TilService tilService;
     private final RecentTilService recentTilService;
     private final SlackService slackService;
+    private final TagRelationService tagRelationService;
 
     @GetMapping("/all")
     public ResponseEntity<?> getPublicTils(
@@ -51,6 +53,9 @@ public class TilController {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yy-MM월-dd일");
         String dateString = dateTimeFormatter.format(til.getDate());
         slackService.sendTilWriteAlarm(til.getContent(), simpleUserInfo.nickname(), dateString, til.getTags());
+
+        //TODO 태그를 빠르게 업데이트하는 용도 - 스케줄링에 시켜야함
+        tagRelationService.updateCoreTagsRelation();
         return ResponseEntity.ok(til);
     }
 
