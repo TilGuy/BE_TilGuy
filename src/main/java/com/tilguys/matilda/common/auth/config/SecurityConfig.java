@@ -76,7 +76,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 "/api/oauth/login",
                                 "/api/til/recent",
                                 "/api/user/profileUrl/**",
-                                "/actuator/health",
+                                "/api/actuator/health",
                                 "/api/tags/recent"
                         )
 
