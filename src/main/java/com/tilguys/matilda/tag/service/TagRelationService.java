@@ -52,6 +52,10 @@ public class TagRelationService {
 
         Map<Tag, List<Tag>> tagMap = new HashMap<>();
         for (TagRelation tagRelation : tagRelations) {
+            if (!tagRelation.getTag().getTil().isNotDeleted()) {
+                continue;
+            }
+
             List<Tag> relationTags = tagMap.getOrDefault(tagRelation.getTag(), new ArrayList<>());
             relationTags.add(tagRelation.getOtherTag());
             tagMap.put(tagRelation.getTag(), relationTags);
