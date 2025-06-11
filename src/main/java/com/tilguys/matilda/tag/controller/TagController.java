@@ -25,9 +25,21 @@ public class TagController {
     @GetMapping("/recent")
     public ResponseEntity<KeywordTags> getRecentTags() {
         LocalDate startDay = LocalDate.now().minusDays(TAG_GET_START_DAY);
-        List<Tag> tags = tilTagService.getRecentWroteTags(startDay);
-        List<SubTag> subTags = tilTagService.getRecentSubTags(startDay);
+        List<Tag> tags = tilTagService.getRecentWroteTags(startDay).stream()
+                .filter(tag -> tag.getTil().isNotDeleted())
+                .toList();
+
+        List<SubTag> subTags = tilTagService.getRecentSubTags(startDay).stream()
+                .filter(subTag -> subTag.getTag() != null && subTag.getTag().getTil() != null && subTag.getTag()
+                        .getTil().isNotDeleted())
+                .toList();
         Map<Tag, List<Tag>> tagRelationMap = tagRelationService.getRecentRelationTagMap();
+
+        for (Tag tag : tagRelationMap.keySet()) {
+            if (!tag.getTil().isNotDeleted()) {
+                tagRelationMap.remove(tag);
+            }
+        }
         KeywordTags keywordTag = new KeywordTags(tags, subTags, tagRelationMap);
         return ResponseEntity.ok(keywordTag);
     }
