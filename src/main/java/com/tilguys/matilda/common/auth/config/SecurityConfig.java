@@ -77,7 +77,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 "/api/til/recent",
                                 "/api/user/profileUrl/**",
                                 "/actuator/**",
-                                "/api/tags/recent"
+                                "/error"
                         ).permitAll()
                         .anyRequest()
                         .hasAnyAuthority(PERMITTED_ROLES));
