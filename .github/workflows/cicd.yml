@@ -70,7 +70,7 @@ jobs:
           
           for i in {1..10}
           do
-            STATUS=$(curl -s --max-time 3 -o /dev/null -w "%{http_code}" http://${{ secrets.OCI_HOST }}/api/actuator/health || true)
+            STATUS=$(curl -s --max-time 3 -o /dev/null -w "%{http_code}" http://${{ secrets.OCI_HOST }}/actuator/health || true)
             if [ "$STATUS" == "200" ]; then
               echo "✅ Health check passed"
               exit 0
