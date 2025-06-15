@@ -20,7 +20,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +30,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -60,6 +63,11 @@ public class TilService {
         List<Tag> tags = tilTagService.extractTilTags(tilResponseJson)
                 .stream()
                 .toList();
+
+        String tagResults = tags.stream()
+                .map(Tag::getTagString)
+                .collect(Collectors.joining(","));
+        log.debug("{}=> {} => 추출된 태그 =>{}", til.getContent(), tilResponseJson, tagResults);
 
         til.updateTags(tags);
         List<Reference> references = tilReferenceService.extractTilReference(til.getContent());
