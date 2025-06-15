@@ -57,6 +57,8 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.OCI_USER }}@${{ secrets.OCI_HOST }} << 'EOF'
           cd /home/matilda-backend
           unzip -o build-artifacts.zip
+          
+          ./stop-server.sh
           # nohup을 사용하여 서버를 백그라운드에서 실행하고 stdout/stderr를 파일로 리다이렉션
           nohup ./start-server.sh > server.log 2>&1 &
           # 즉시 종료되도록 명시적인 종료 코드 추가

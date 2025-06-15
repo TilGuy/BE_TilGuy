@@ -7,8 +7,6 @@ import com.tilguys.matilda.user.ProviderInfo;
 import com.tilguys.matilda.user.Role;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.repository.UserRepository;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -31,9 +29,8 @@ class UserControllerTest {
     @Autowired
     private UserRepository userRepository;
 
-    @BeforeEach
-    void setUp() {
-        // 테스트 데이터 설정
+    @Test
+    void 프로필_이미지_테스트() throws Exception {
         TilUser user = TilUser.builder()
                 .avatarUrl("https://avatars.githubusercontent.com/u/101252011?v=4")
                 .identifier("praisebak")
@@ -41,18 +38,8 @@ class UserControllerTest {
                 .providerInfo(ProviderInfo.GITHUB)
                 .role(Role.USER).build();
 
-        userRepository.save(user);
-    }
-
-    @AfterEach
-    void tearDown() {
-        userRepository.deleteAll();
-    }
-
-    @Test
-    void 프로필_이미지_테스트() throws Exception {
-        // 실제 API 호출
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/user/profileUrl/1"))
+        TilUser savedUser = userRepository.save(user);
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/user/profileUrl/" + savedUser.getId()))
                 .andExpect(status().isOk())
                 .andExpect(content().json("{\"avatarUrl\":\"https://avatars.githubusercontent.com/u/101252011?v=4\"}"));
     }
