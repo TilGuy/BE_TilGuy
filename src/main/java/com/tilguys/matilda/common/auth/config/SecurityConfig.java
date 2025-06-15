@@ -77,7 +77,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 "/api/til/recent",
                                 "/api/user/profileUrl/**",
                                 "/api/actuator/health",
-                                "/api/tags/recent"
+                                "/api/tags/recent",
+                                "/error"
                         )
 
                         .permitAll()
