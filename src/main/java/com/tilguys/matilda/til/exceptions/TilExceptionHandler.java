@@ -15,13 +15,14 @@ public class TilExceptionHandler {
     @ExceptionHandler({IllegalArgumentException.class})
     public ProblemDetail handleServiceLogicException(IllegalArgumentException e) {
         log.warn("IllegalArgumentException occurred: {}", e.getMessage());
+        log.error("error occur : {}", e.getMessage());
         return createErrorResponse(e, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({Exception.class})
     public ProblemDetail handleException(Exception e) {
-        log.debug("error occur : {}", e.getMessage());
-        return createErrorResponse(e, HttpStatus.BAD_REQUEST);
+        log.error("error occur : {}", e.getMessage());
+        return createErrorResponse(e, HttpStatus.BAD_REQUEST, "예기치 못한 예외가 발생하였습니다. 잠시 뒤 요청해주세요.");
     }
 
     private ProblemDetail createErrorResponse(Exception e, HttpStatus status) {
