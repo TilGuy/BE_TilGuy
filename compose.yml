@@ -7,6 +7,8 @@ services:
     volumes:
       - ./server-logs:/app/logs
     container_name: "matilda"
+    networks:
+      - monitoring
 
   mysql:
     image: mysql:8.2.0
@@ -19,3 +21,29 @@ services:
       - '3309:3306'
     volumes:
       - ./matilda-data:/var/lib/mysql
+
+  matilda-prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+    container_name: "matilda-prometheus"
+    networks:
+      - monitoring
+
+  matilda-grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=matilda
+    container_name: "matilda-grafana"
+    networks:
+      - monitoring
+    depends_on:
+      - matilda-prometheus
+
+networks:
+  monitoring:
+    driver: bridge
