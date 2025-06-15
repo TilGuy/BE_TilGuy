@@ -20,13 +20,17 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -60,6 +64,11 @@ public class TilService {
                 .stream()
                 .toList();
 
+        String tagResults = tags.stream()
+                .map(Tag::getTagString)
+                .collect(Collectors.joining(","));
+        log.debug("{}=> {} => 추출된 태그 =>{}", til.getContent(), tilResponseJson, tagResults);
+
         til.updateTags(tags);
         List<Reference> references = tilReferenceService.extractTilReference(til.getContent());
         til.updateReferences(references);
@@ -67,6 +76,14 @@ public class TilService {
         TilTags tilTags = new TilTags(tags);
         tilTagService.createSubTags(tilResponseJson, tilTags);
         return til;
+    }
+
+    public Page<TilDetailResponse> getTilByPagination(final int page, final int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Til> tilPage = tilRepository.findAll(pageable);
+
+        return tilPage.map(TilDetailResponse::fromEntity);
     }
 
     public TilDatesResponse getAllTilDatesByUserId(final Long userId) {
