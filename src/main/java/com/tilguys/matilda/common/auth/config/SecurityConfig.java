@@ -76,11 +76,9 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 "/api/oauth/login",
                                 "/api/til/recent",
                                 "/api/user/profileUrl/**",
-                                "/api/actuator/health",
+                                "/actuator/**",
                                 "/api/tags/recent"
-                        )
-
-                        .permitAll()
+                        ).permitAll()
                         .anyRequest()
                         .hasAnyAuthority(PERMITTED_ROLES));
         return http.build();
