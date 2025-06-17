@@ -28,6 +28,7 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
     container_name: "matilda-prometheus"
     networks:
       - monitoring
@@ -43,7 +44,13 @@ services:
       - monitoring
     depends_on:
       - matilda-prometheus
+    volumes:
+      - grafana-data:/var/lib/grafana
 
 networks:
   monitoring:
     driver: bridge
+
+volumes:
+  grafana-data:
+  prometheus-data:
