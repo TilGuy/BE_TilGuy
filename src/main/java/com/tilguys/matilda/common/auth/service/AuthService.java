@@ -20,12 +20,12 @@ public class AuthService {
 
     private final UserService userService;
 
-    public void signup(String identifier) {
-        userService.signup(identifier);
+    public void signup(String identifier, String nickname) {
+        userService.signup(identifier, nickname);
     }
 
     public void loginProcessByGithubInfo(GithubUserInfo gitHubUserInfo) {
-        signup(gitHubUserInfo.identifier());
+        signup(gitHubUserInfo.identifier(), gitHubUserInfo.nickname());
         updateUserProfile(gitHubUserInfo);
 
         TilUser userByIdentifier = userService.findUserByIdentifier(gitHubUserInfo.identifier())
