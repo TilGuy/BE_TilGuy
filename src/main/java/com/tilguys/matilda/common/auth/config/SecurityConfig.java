@@ -74,6 +74,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 
                         .requestMatchers(
                                 "/api/oauth/login",
+                                "/api/oauth/logout",
                                 "/api/til/recent",
                                 "/api/user/profileUrl/**",
                                 "/actuator/**",
