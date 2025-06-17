@@ -71,7 +71,6 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .addFilterBefore(prevLoginFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(HttpMethod.GET, "/api/til/**").permitAll()
-
                         .requestMatchers(
                                 "/api/oauth/login",
                                 "/api/oauth/logout",
@@ -80,6 +79,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 "/actuator/**",
                                 "/error"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/til/range").hasAnyAuthority(PERMITTED_ROLES)
                         .anyRequest()
                         .hasAnyAuthority(PERMITTED_ROLES));
         return http.build();
