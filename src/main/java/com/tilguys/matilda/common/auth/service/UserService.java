@@ -27,12 +27,16 @@ public class UserService {
         return userRepository.findByIdentifier(userIdentifier);
     }
 
-    public void signup(String identifier) {
+    public void signup(String identifier, String nickname) {
+        if (nickname == null) {
+            nickname = identifier;
+        }
         if (userRepository.existsByIdentifier(identifier)) {
             return;
         }
         TilUser tilUser = TilUser.builder()
                 .identifier(identifier)
+                .nickname(nickname)
                 .providerInfo(ProviderInfo.GITHUB)
                 .role(Role.USER)
                 .build();
