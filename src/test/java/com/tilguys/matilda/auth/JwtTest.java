@@ -7,7 +7,6 @@ import com.tilguys.matilda.common.auth.Jwt;
 import com.tilguys.matilda.user.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -22,15 +21,10 @@ class JwtTest {
 
     @Autowired
     private Jwt jwt;
-
-    @BeforeAll
-    void initUp(@Autowired UserRepository userRepository) {
-
-    }
-
+    
     @Test
     @WithMockCustomUser(identifier = 1L)
-    static void 로그인시_깃허브_아이디를_담은_JWT를_반환한다(@Autowired UserRepository userRepository) {
+    void 로그인시_깃허브_아이디를_담은_JWT를_반환한다(@Autowired UserRepository userRepository) {
         userRepository.count();
 
         Cookie jwtCookie = jwt.createJwtCookie();
