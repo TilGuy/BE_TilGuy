@@ -64,7 +64,7 @@ tasks.named('test') {
 }
 
 jacocoTestReport {
-    dependsOn test // 테스
+    dependsOn test
     reports {
         xml.required.set(true)
         html.required.set(true)
