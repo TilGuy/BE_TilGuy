@@ -31,9 +31,9 @@ public class OAuthController {
 
     @GetMapping("/logout")
     public ResponseEntity<?> logout(@AuthenticationPrincipal Long id) {
-        Cookie jwt = new Cookie(Jwt.getCookieName(), null);
-        jwt.setMaxAge(0); // 쿠키의 expiration 타임을 0으로 하여 없앤다.
-        jwt.setPath("/"); // 모든 경로에서 삭제 됬음을 알린다.
+        Cookie jwtRemoveCookie = new Cookie(Jwt.getCookieName(), null);
+        jwtRemoveCookie.setMaxAge(0);
+        jwtRemoveCookie.setPath("/");
         userRefreshTokenService.deleteRefreshTokenByUserId(id);
         return ResponseEntity.ok(ResponseEntity.accepted().build());
     }
