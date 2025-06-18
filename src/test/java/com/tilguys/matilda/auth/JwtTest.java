@@ -30,7 +30,7 @@ class JwtTest {
 
     @Test
     @WithMockCustomUser(identifier = 1L)
-    static void 로그인시_깃허브_아이디를_담은_JWT를_반환한다(@Autowired UserRepository userRepository) {
+    void 로그인시_깃허브_아이디를_담은_JWT를_반환한다(@Autowired UserRepository userRepository) {
         userRepository.count();
 
         Cookie jwtCookie = jwt.createJwtCookie();
