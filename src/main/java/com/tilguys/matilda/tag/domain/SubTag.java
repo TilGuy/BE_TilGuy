@@ -25,14 +25,14 @@ public class SubTag extends BaseEntity {
 
     @NotNull
     @Getter
-    private String subTag;
+    private String subTagContent;
 
     @Getter
     @ManyToOne
     private Tag tag;
 
-    public SubTag(Tag tag, String subTag) {
+    public SubTag(Tag tag, String subTagContent) {
         this.tag = tag;
-        this.subTag = subTag;
+        this.subTagContent = subTagContent;
     }
 }
