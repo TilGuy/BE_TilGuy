@@ -2,6 +2,7 @@ package com.tilguys.matilda.common.auth.service;
 
 import com.tilguys.matilda.common.auth.GithubUserInfo;
 import com.tilguys.matilda.common.auth.exception.OAuthFailException;
+import io.jsonwebtoken.lang.Assert;
 import java.util.Collections;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,6 +35,7 @@ public class GithubAuthService {
         ResponseEntity<Map> response = restTemplate.exchange(tokenUrl, HttpMethod.POST, entity,
                 Map.class);
         Map<String, Object> map = response.getBody();
+        Assert.notNull(map, "깃허브에서 받은 응답이 유효하지 않습니다.");
         return extractAccessToken(map);
     }
 
