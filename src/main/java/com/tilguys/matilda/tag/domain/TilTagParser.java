@@ -35,7 +35,7 @@ public class TilTagParser {
 
             return tagSet;
         } catch (JsonProcessingException e) {
-            throw new OpenAIException("Failed to process tag extraction response", e);
+            throw new OpenAIException("Failed to process tag extraction response");
         }
     }
 
@@ -65,7 +65,7 @@ public class TilTagParser {
 
             return subTags;
         } catch (JsonProcessingException e) {
-            throw new OpenAIException("Failed to process tag extraction response", e);
+            throw new OpenAIException("Failed to process tag extraction response");
         }
     }
 }
