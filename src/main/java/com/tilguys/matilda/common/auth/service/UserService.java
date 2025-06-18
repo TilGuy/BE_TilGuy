@@ -19,7 +19,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     public void validateExistUser(String identifier) {
-        if (userRepository.existsByIdentifier(identifier)) {
+        if (!userRepository.existsByIdentifier(identifier)) {
             throw new NotExistUserException();
         }
     }
