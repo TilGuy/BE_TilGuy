@@ -2,6 +2,7 @@ package com.tilguys.matilda.common.auth.service;
 
 import com.tilguys.matilda.common.auth.GithubUserInfo;
 import com.tilguys.matilda.common.auth.exception.OAuthFailException;
+import com.tilguys.matilda.common.auth.service.dto.GitHubOAuthTokenResponse;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
@@ -32,11 +33,11 @@ public class GithubAuthService {
         HttpHeaders headers = oauthHttpHeader();
         HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Map> response = restTemplate.exchange(tokenUrl, HttpMethod.POST, entity,
-                Map.class);
-        Map<String, Object> map = response.getBody();
-        Objects.requireNonNull(map, "깃허브에서 받은 응답이 유효하지 않습니다.");
-        return extractAccessToken(map);
+        ResponseEntity<GitHubOAuthTokenResponse> response = restTemplate.exchange(tokenUrl, HttpMethod.POST, entity,
+                GitHubOAuthTokenResponse.class);
+        GitHubOAuthTokenResponse responseBody = response.getBody();
+        Objects.requireNonNull(responseBody, "깃허브에서 받은 응답이 유효하지 않습니다.");
+        return extractAccessToken(responseBody);
     }
 
     private static HttpHeaders oauthHttpHeader() {
@@ -52,8 +53,8 @@ public class GithubAuthService {
                 "&code=" + code;
     }
 
-    private String extractAccessToken(Map<String, Object> responseBody) {
-        String accessToken = (String) responseBody.get("access_token");
+    private String extractAccessToken(GitHubOAuthTokenResponse response) {
+        String accessToken = response.getAccessToken();
         if (accessToken == null) {
             throw new OAuthFailException("access token을 가져오는데 실패하였습니다.");
         }
