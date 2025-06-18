@@ -17,7 +17,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.transaction.Transactional;
 import java.security.Key;
 import java.time.LocalDateTime;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -61,11 +60,6 @@ class JwtMvcTest {
     @BeforeEach
     void setup() {
         this.expireCreateJwt = new Jwt(new TestJwtTokenCookieCreateStrategy(jwtKey), jwtKey, authService);
-    }
-
-    @BeforeAll
-    static void initUp(@Autowired UserRepository userRepository) {
-        userRepository.save(new TilUser(null, ProviderInfo.GITHUB, "testUser", Role.USER, "testUser", "testUser"));
     }
 
     @Test
