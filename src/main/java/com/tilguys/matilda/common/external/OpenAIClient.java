@@ -13,6 +13,8 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class OpenAIClient {
 
+    private static final String FUNCTION = "function";
+
     private final String apiUrl;
     private final String apiKey;
     private final RestTemplate restTemplate = new RestTemplate();
@@ -25,8 +27,8 @@ public class OpenAIClient {
 
     public String callOpenAI(List<Map<String, Object>> messages, Map<String, Object> functionDefinition) {
         Map<String, Object> tool = Map.of(
-                "type", "function",
-                "function", functionDefinition
+                "type", FUNCTION,
+                FUNCTION, functionDefinition
         );
 
         Map<String, Object> body = Map.of(
@@ -34,8 +36,8 @@ public class OpenAIClient {
                 "messages", messages,
                 "tools", List.of(tool),
                 "tool_choice", Map.of(
-                        "type", "function",
-                        "function", Map.of(
+                        "type", FUNCTION,
+                        FUNCTION, Map.of(
                                 "name", functionDefinition.get("name")
                         )
                 )
