@@ -17,6 +17,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.transaction.Transactional;
 import java.security.Key;
 import java.time.LocalDateTime;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -62,9 +63,14 @@ class JwtMvcTest {
         this.expireCreateJwt = new Jwt(new TestJwtTokenCookieCreateStrategy(jwtKey), jwtKey, authService);
     }
 
+    @BeforeAll
+    static void initUp(@Autowired UserRepository userRepository) {
+        userRepository.save(new TilUser(null, ProviderInfo.GITHUB, "testUser", Role.USER, "testUser", "testUser"));
+    }
+
     @Test
     void 유효한_JWT_토큰이_없으면_로그인_제외_권한_부족이다() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/oauth/logout"))
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/til"))
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 
@@ -72,7 +78,7 @@ class JwtMvcTest {
     @WithMockCustomUser(identifier = 1L)
     void 만료된_JWT_토큰일시_403_발생할_수_있다() throws Exception {
         Cookie jwtCookie = expireCreateJwt.createJwtCookie();
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/oauth/logout")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/til")
                         .cookie(jwtCookie))
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
@@ -119,7 +125,7 @@ class JwtMvcTest {
                 .providerInfo(ProviderInfo.GITHUB)
                 .role(Role.USER).build();
         TilUser savedUser = userRepository.save(user);
-        
+
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(new SimpleUserInfo(
                 savedUser.getId(), savedUser.getNickname()), authService.createAuthentication(savedUser)));
 
