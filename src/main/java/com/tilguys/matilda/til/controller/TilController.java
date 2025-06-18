@@ -54,7 +54,7 @@ public class TilController {
         String dateString = dateTimeFormatter.format(til.getDate());
         slackService.sendTilWriteAlarm(til.getContent(), simpleUserInfo.nickname(), dateString, til.getTags());
 
-        //TODO 태그를 빠르게 업데이트하는 용도 - 스케줄링에 시켜야함
+        //Performance 성능개선 태그를 빠르게 업데이트하는 용도 - 스케줄링에 시켜야함
         tagRelationService.updateCoreTagsRelation();
         return ResponseEntity.ok(til);
     }
