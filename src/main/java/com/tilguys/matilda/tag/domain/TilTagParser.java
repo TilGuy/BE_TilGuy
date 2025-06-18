@@ -3,6 +3,7 @@ package com.tilguys.matilda.tag.domain;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tilguys.matilda.common.external.exception.OpenAIException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -34,7 +35,7 @@ public class TilTagParser {
 
             return tagSet;
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to process tag extraction response", e);
+            throw new OpenAIException("Failed to process tag extraction response", e);
         }
     }
 
@@ -64,7 +65,7 @@ public class TilTagParser {
 
             return subTags;
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to process tag extraction response", e);
+            throw new OpenAIException("Failed to process tag extraction response", e);
         }
     }
 }
