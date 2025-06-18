@@ -5,6 +5,8 @@ import java.util.Map;
 
 public class TilReferenceGenerator {
 
+    private static final String DESCRIPTION = "description";
+
     public List<Map<String, Object>> createPrompt(String tilContent) {
         Map<String, Object> userMessage = Map.of(
                 "role", "user",
@@ -29,11 +31,11 @@ public class TilReferenceGenerator {
                 "properties", Map.of(
                         "word", Map.of(
                                 "type", "string",
-                                "description", "TIL에서 추출한 핵심 기술 용어나 개념"
+                                DESCRIPTION, "TIL에서 추출한 핵심 기술 용어나 개념"
                         ),
                         "info", Map.of(
                                 "type", "string",
-                                "description", "해당 용어에 대한 간단한 설명, 정의, 또는 참고할 만한 공식 문서나 학습 자료의 정보"
+                                DESCRIPTION, "해당 용어에 대한 간단한 설명, 정의, 또는 참고할 만한 공식 문서나 학습 자료의 정보"
                         )
                 ),
                 "required", List.of("word", "info")
@@ -44,7 +46,7 @@ public class TilReferenceGenerator {
                 "properties", Map.of(
                         "references", Map.of(
                                 "type", "array",
-                                "description", "TIL에서 추출한 핵심 용어와 참조 정보의 목록",
+                                DESCRIPTION, "TIL에서 추출한 핵심 용어와 참조 정보의 목록",
                                 "items", referenceObject
                         )
                 ),
@@ -53,7 +55,7 @@ public class TilReferenceGenerator {
 
         return Map.of(
                 "name", "extractTilReferences",
-                "description", "TIL 내용에서 핵심 기술 용어를 추출하고 각각에 대한 참조 정보를 제공합니다.",
+                DESCRIPTION, "TIL 내용에서 핵심 기술 용어를 추출하고 각각에 대한 참조 정보를 제공합니다.",
                 "parameters", parameters
         );
     }
