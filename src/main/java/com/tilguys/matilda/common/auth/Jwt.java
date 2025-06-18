@@ -24,7 +24,7 @@ public class Jwt {
     private static final String AUTHORITIES_KEY = "Authorization";
     private static final String CLAIMS_USER_ID = "userId";
     private static final String NICKNAME_KEY = "nickname";
-    private static final long REFRESH_TOKEN_TIME = 60 * 60 * 24 * 7;
+    private static final long REFRESH_TOKEN_TIME = (long) 60 * 60 * 24 * 7;
 
     private final JwtCookieCreateStrategy jwtCookieCreateStrategy;
     private final Key key;
