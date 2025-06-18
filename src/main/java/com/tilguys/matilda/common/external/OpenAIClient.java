@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 public class OpenAIClient {
 
     private static final String FUNCTION = "function";
+
     private final String apiUrl;
     private final String apiKey;
     private final RestTemplate restTemplate = new RestTemplate();

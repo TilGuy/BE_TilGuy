@@ -5,6 +5,8 @@ import java.util.Map;
 
 public class TilTagGenerator {
 
+    private static final String STRING_TYPE = "string";
+
     public List<Map<String, Object>> createPrompt(String tilContent) {
         Map<String, Object> userMessage = Map.of(
                 "role", "user",
@@ -19,13 +21,14 @@ public class TilTagGenerator {
     }
 
     public Map<String, Object> createFunctionDefinition() {
+
         Map<String, Object> parameters = Map.of(
                 "type", "object",
                 "properties", Map.of(
                         "tags", Map.of(
                                 "type", "array",
                                 "description", "Til 내용을 분석한뒤 분류된 핵심 태그들",
-                                "items", Map.of("type", "string")
+                                "items", Map.of("type", STRING_TYPE)
                         ),
                         "subTags", Map.of(
                                 "type", "array",
@@ -34,12 +37,12 @@ public class TilTagGenerator {
                                         "type", "object",
                                         "properties", Map.of(
                                                 "coreTag", Map.of(
-                                                        "type", "string",
+                                                        "type", STRING_TYPE,
                                                         "description",
                                                         "서브 태그가 속한 핵심 태그. 핵심태그는 요청 A에 의한 ai가 생성한 태그들임(프로퍼티상 tags라는 키)"
                                                 ),
                                                 "subTag", Map.of(
-                                                        "type", "string",
+                                                        "type", STRING_TYPE,
                                                         "description", "서브 태그"
                                                 )
                                         ),

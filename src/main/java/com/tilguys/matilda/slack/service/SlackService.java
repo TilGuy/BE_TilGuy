@@ -19,7 +19,8 @@ public class SlackService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     // 웹훅 URL 대신 Slack API URL 사용
-    private final String SLACK_API_URL = "https://slack.com/api/chat.postMessage";
+    @Value("${slack.post.message.url}")
+    private String slackPostMessageApiUrl;
 
     // 슬랙 OAuth 토큰 추가 필요
     @Value("${slack.bot.token}")
@@ -46,6 +47,6 @@ public class SlackService {
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, headers);
 
-        restTemplate.postForEntity(SLACK_API_URL, entity, String.class);
+        restTemplate.postForEntity(slackPostMessageApiUrl, entity, String.class);
     }
 }
