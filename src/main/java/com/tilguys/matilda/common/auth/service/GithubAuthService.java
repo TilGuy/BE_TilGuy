@@ -69,6 +69,7 @@ public class GithubAuthService {
 
         RestTemplate restTemplate = new RestTemplate();
         Map<String, String> body = restTemplate.exchange(userInfoUrl, HttpMethod.GET, entity, Map.class).getBody();
+        Assert.notNull(body, "깃허브에서 유저 정보를 가져오는데 실패하였습니다.");
 
         String identifier = body.get("login");
         String avatarUrl = body.get("avatar_url");
