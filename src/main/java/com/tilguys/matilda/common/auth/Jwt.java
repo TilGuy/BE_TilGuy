@@ -68,9 +68,8 @@ public class Jwt {
     public Long resolveUserIdWhenJwtExpired(ExpiredJwtException e) {
         Object idObject = e.getClaims().get(Jwt.getClaimsUserId());
 
-        // Number로 캐스팅 후 longValue() 메서드 사용
-        if (idObject instanceof Number) {
-            return ((Number) idObject).longValue();
+        if (idObject instanceof Number userId) {
+            return userId.longValue();
         }
         throw new InvalidJwtToken("jwt id는 숫자여야합니다.");
     }
