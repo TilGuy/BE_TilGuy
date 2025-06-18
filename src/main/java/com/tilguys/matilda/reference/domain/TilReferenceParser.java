@@ -3,6 +3,7 @@ package com.tilguys.matilda.reference.domain;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tilguys.matilda.common.external.exception.OpenAIException;
 import com.tilguys.matilda.til.domain.Reference;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -43,9 +44,9 @@ public class TilReferenceParser {
             return new ArrayList<>(referenceSet);
 
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to process reference extraction response: " + e.getMessage(), e);
+            throw new OpenAIException("Failed to process reference extraction response: " + e.getMessage());
         } catch (NullPointerException e) {
-            throw new RuntimeException("Unexpected response structure from OpenAI API", e);
+            throw new OpenAIException("Unexpected response structure from OpenAI API" + e.getMessage());
         }
     }
 }
