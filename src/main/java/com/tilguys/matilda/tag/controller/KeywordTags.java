@@ -27,7 +27,7 @@ public class KeywordTags {
             }
             String coreTagString = subTag.getTag().getTagString();
             List<String> keywordTags = keywordTagMap.getOrDefault(coreTagString, new ArrayList<>());
-            keywordTags.add(subTag.getSubTag());
+            keywordTags.add(subTag.getSubTagContent());
             keywordTagMap.put(coreTagString, keywordTags);
         }
         this.tagRelationMap = convertToStringTagRelation(tagRelationMap);
