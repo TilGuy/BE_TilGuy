@@ -2,6 +2,7 @@ package com.tilguys.matilda.tag.domain;
 
 import com.tilguys.matilda.common.BaseEntity;
 import com.tilguys.matilda.til.domain.Tag;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,6 +26,7 @@ public class SubTag extends BaseEntity {
 
     @NotNull
     @Getter
+    @Column(name = "sub_tag")
     private String subTagContent;
 
     @Getter
