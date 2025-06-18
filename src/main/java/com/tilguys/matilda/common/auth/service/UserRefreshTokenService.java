@@ -2,6 +2,7 @@ package com.tilguys.matilda.common.auth.service;
 
 import com.tilguys.matilda.common.auth.Jwt;
 import com.tilguys.matilda.common.auth.UserRefreshToken;
+import com.tilguys.matilda.common.auth.exception.NotExistUserException;
 import com.tilguys.matilda.common.auth.repository.UserRefreshTokenRepository;
 import com.tilguys.matilda.user.TilUser;
 import java.time.LocalDateTime;
@@ -22,7 +23,7 @@ public class UserRefreshTokenService {
 
     public void addRefreshToken(String identifier) {
         userService.validateExistUser(identifier);
-        TilUser tilUser = userService.findUserByIdentifier(identifier).get();
+        TilUser tilUser = userService.findUserByIdentifier(identifier).orElseThrow(NotExistUserException::new);
         long refreshTokenAliveSecond = Jwt.getRefreshTokenAliveSecond();
         LocalDateTime newExpireDate = LocalDateTime.now().plusSeconds(refreshTokenAliveSecond);
         UserRefreshToken refreshToken = createAllUpdateRefreshToken(tilUser, newExpireDate);
