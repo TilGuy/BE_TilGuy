@@ -10,7 +10,8 @@ public class SlackAlarmBlock {
     private static final String WRITER_FORMAT = "작성자: *%s*";
     private static final String CONTENT_FORMAT = "📖 내용 요약: %s\n";
     private static final String TAG_FORMAT = "🏷️ 태그 : %s\n";
-    
+    private static final String MARK_DOWN_TYPE = "mrkdwn";
+
     private final List<Map<String, Object>> blocks = new ArrayList<>();
 
     public SlackAlarmBlock(String content, String nickname, String dateString, List<String> tags) {
@@ -29,7 +30,7 @@ public class SlackAlarmBlock {
                 "type", "context",
                 "elements", List.of(
                         Map.of(
-                                "type", "mrkdwn",
+                                "type", MARK_DOWN_TYPE,
                                 "text", String.format(WRITER_FORMAT, nickname)
                         )
                 )
@@ -39,7 +40,7 @@ public class SlackAlarmBlock {
                 "type", "section",
                 "fields", List.of(
                         Map.of(
-                                "type", "mrkdwn",
+                                "type", MARK_DOWN_TYPE,
                                 "text", String.format(CONTENT_FORMAT, content)
                         )
                 )
@@ -50,7 +51,7 @@ public class SlackAlarmBlock {
                 "type", "section",
                 "fields", List.of(
                         Map.of(
-                                "type", "mrkdwn",
+                                "type", MARK_DOWN_TYPE,
                                 "text", String.format(TAG_FORMAT, tagString)
                         )
                 )

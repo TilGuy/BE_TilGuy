@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -26,7 +27,7 @@ public class KeywordTags {
             }
             String coreTagString = subTag.getTag().getTagString();
             List<String> keywordTags = keywordTagMap.getOrDefault(coreTagString, new ArrayList<>());
-            keywordTags.add(subTag.getSubTag());
+            keywordTags.add(subTag.getSubTagContent());
             keywordTagMap.put(coreTagString, keywordTags);
         }
         this.tagRelationMap = convertToStringTagRelation(tagRelationMap);
@@ -57,13 +58,14 @@ public class KeywordTags {
     private Map<String, List<String>> convertToStringTagRelation(Map<Tag, List<Tag>> tagRelationMap) {
         Map<String, List<String>> relationTags = new HashMap<>();
 
-        for (Tag tag : tagRelationMap.keySet()) {
-            List<Tag> otherTags = tagRelationMap.get(tag);
+        for (Entry<Tag, List<Tag>> tags : tagRelationMap.entrySet()) {
+            Tag key = tags.getKey();
+            List<Tag> otherTags = tags.getValue();
             List<String> otherStringTags = new ArrayList<>();
             for (Tag otherTag : otherTags) {
                 otherStringTags.add(otherTag.getTagString());
             }
-            relationTags.put(tag.getTagString(), otherStringTags);
+            relationTags.put(key.getTagString(), otherStringTags);
         }
         return relationTags;
     }
