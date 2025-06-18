@@ -31,32 +31,52 @@ public class PrevLoginFilter extends OncePerRequestFilter {
     private final AuthService authService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
         try {
             clearSecurityContext();
 
-            Cookie[] cookies = request.getCookies();
-            if (cookies == null) {
-                filterChain.doFilter(request, response);
+            String token = extractToken(request, response, filterChain);
+            if (token == null) {
                 return;
             }
-
-            String token = jwt.getTokenFromCookie(cookies);
-            if (token.isEmpty()) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-            try {
-                resolveJwtToken(token);
-            } catch (ExpiredJwtException e) {
-                clearJwtToken(response);
-                Long id = jwt.resolveUserIdWhenJwtExpired(e);
-                userRefreshTokenReLogin(id, response);
-            }
+            resolveJwtToken(response, token);
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             log.error(e.getMessage());
+        }
+    }
+
+    private String extractToken(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws IOException, ServletException {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            filterChain.doFilter(request, response);
+            return null;
+        }
+
+        String token = jwt.getTokenFromCookie(cookies);
+        if (token.isEmpty()) {
+            filterChain.doFilter(request, response);
+            return null;
+        }
+        return token;
+    }
+
+    private void resolveJwtToken(HttpServletResponse response, String token) {
+        try {
+            Long userId = jwt.getUserIdFromToken(token);
+            Optional<TilUser> userByIdentifier = userService.findById(userId);
+            if (userByIdentifier.isEmpty()) {
+                clearSecurityContext();
+                return;
+            }
+
+            Authentication authentication = authService.createAuthentication(userByIdentifier.get());
+            setSecurityContext(authentication);
+        } catch (ExpiredJwtException e) {
+            clearJwtToken(response);
+            Long id = jwt.resolveUserIdWhenJwtExpired(e);
+            userRefreshTokenReLogin(id, response);
         }
     }
 
@@ -64,27 +84,15 @@ public class PrevLoginFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(null);
     }
 
+    private void setSecurityContext(Authentication authentication) {
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
     private static void clearJwtToken(HttpServletResponse response) {
         Cookie jwt = new Cookie(Jwt.getCookieName(), null);
         jwt.setMaxAge(0); // 쿠키의 expiration 타임을 0으로 하여 없앤다.
         jwt.setPath("/"); // 모든 경로에서 삭제 됬음을 알린다.
         response.addCookie(jwt);
-    }
-
-    private void setSecurityContext(Authentication authentication) {
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
-
-    private void resolveJwtToken(String token) {
-        Long userId = jwt.getUserIdFromToken(token);
-        Optional<TilUser> userByIdentifier = userService.findById(userId);
-        if (userByIdentifier.isEmpty()) {
-            clearSecurityContext();
-            return;
-        }
-
-        Authentication authentication = authService.createAuthentication(userByIdentifier.get());
-        setSecurityContext(authentication);
     }
 
     private void userRefreshTokenReLogin(Long id, HttpServletResponse response) {
