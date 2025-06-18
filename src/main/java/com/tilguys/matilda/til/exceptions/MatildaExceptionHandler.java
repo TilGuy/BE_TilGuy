@@ -1,6 +1,5 @@
 package com.tilguys.matilda.til.exceptions;
 
-import com.tilguys.matilda.til.controller.TilController;
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -9,8 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
-@RestControllerAdvice(assignableTypes = {TilController.class})
-public class TilExceptionHandler {
+@RestControllerAdvice
+public class MatildaExceptionHandler {
 
     @ExceptionHandler({IllegalArgumentException.class})
     public ProblemDetail handleServiceLogicException(IllegalArgumentException e) {
