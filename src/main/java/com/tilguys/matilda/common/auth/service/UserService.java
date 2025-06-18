@@ -19,8 +19,9 @@ public class UserService {
     private final UserRepository userRepository;
 
     public void validateExistUser(String identifier) {
-        userRepository.findByIdentifier(identifier)
-                .orElseThrow(NotExistUserException::new);
+        if (userRepository.existsByIdentifier(identifier)) {
+            throw new NotExistUserException();
+        }
     }
 
     public Optional<TilUser> findUserByIdentifier(String userIdentifier) {
