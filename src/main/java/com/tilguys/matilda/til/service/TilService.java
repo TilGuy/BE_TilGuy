@@ -95,8 +95,9 @@ public class TilService {
         return new TilDatesResponse(all);
     }
 
-    public void updateTil(final Long tilId, final TilUpdateRequest tilUpdateDto) {
+    public void updateTil(Long tilId, TilUpdateRequest tilUpdateDto) {
         Til til = getTilByTilId(tilId);
+        validateDeleted(til);
         til.update(
                 tilUpdateDto.content(),
                 tilUpdateDto.isPublic(),
@@ -141,5 +142,11 @@ public class TilService {
     @Transactional(readOnly = true)
     public List<Til> getRecentWroteTil(LocalDateTime startTime) {
         return tilRepository.findByCreatedAtGreaterThanEqual(startTime);
+    }
+
+    private void validateDeleted(Til til) {
+        if (til.isDeleted()) {
+            throw new IllegalArgumentException("삭제된 TIL은 수정할 수 없습니다.");
+        }
     }
 }
