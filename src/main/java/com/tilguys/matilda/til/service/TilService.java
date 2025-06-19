@@ -66,7 +66,6 @@ public class TilService {
         String tagResults = tags.stream()
                 .map(Tag::getTagString)
                 .collect(Collectors.joining(","));
-
         log.debug("{}=> {} => 추출된 태그 =>{}", til.getContent(), tilResponseJson, tagResults);
 
         til.updateTags(tags);
@@ -97,6 +96,7 @@ public class TilService {
 
     public void updateTil(final Long tilId, final TilDefinitionRequest tilUpdateDto, final long userId) {
         Til til = getTilByTilId(tilId);
+        validateDeleted(til);
         LocalDate targetDate = tilUpdateDto.date();
         boolean exists = tilRepository.existsByDateAndTilUserIdAndIsDeletedFalse(targetDate, userId);
         if (exists && !targetDate.equals(til.getDate())) {
@@ -146,5 +146,11 @@ public class TilService {
     @Transactional(readOnly = true)
     public List<Til> getRecentWroteTil(LocalDateTime startTime) {
         return tilRepository.findByCreatedAtGreaterThanEqual(startTime);
+    }
+
+    private void validateDeleted(Til til) {
+        if (til.isDeleted()) {
+            throw new IllegalArgumentException("삭제된 TIL은 수정할 수 없습니다.");
+        }
     }
 }
