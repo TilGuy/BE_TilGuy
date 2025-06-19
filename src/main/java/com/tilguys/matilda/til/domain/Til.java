@@ -53,9 +53,11 @@ public class Til extends BaseEntity {
     @Column(name = "date")
     private LocalDate date;
 
+    @Getter
     @Column(name = "is_public")
     private boolean isPublic;
 
+    @Getter
     @Column(name = "is_deleted")
     private boolean isDeleted;
 
