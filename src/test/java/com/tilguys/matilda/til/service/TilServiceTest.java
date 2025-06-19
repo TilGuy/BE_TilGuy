@@ -1,56 +1,83 @@
 package com.tilguys.matilda.til.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.tilguys.matilda.til.domain.Til;
-import com.tilguys.matilda.til.dto.TilDetailsResponse;
+import com.tilguys.matilda.til.dto.TilUpdateRequest;
 import com.tilguys.matilda.til.repository.TilRepository;
 import java.time.LocalDate;
-import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
-@ExtendWith(MockitoExtension.class)
-@ActiveProfiles("test")
+@SpringBootTest
 class TilServiceTest {
 
-    @Mock
-    private TilRepository tilRepository;
-
-    @InjectMocks
+    @Autowired
     private TilService tilService;
 
+    @Autowired
+    private TilRepository tilRepository;
+
     @Test
-    void 날짜_범위에_포함되는_TIL만_반환한다() {
+    void 정상적으로_TIL이_업데이트된다() {
         // given
-        Long userId = 1L;
-        LocalDate from = LocalDate.of(2025, 2, 10);
-        LocalDate to = LocalDate.of(2025, 2, 14);
+        Til til = createTestTilFixture();
+        til = tilRepository.save(til);
 
-        Til outOfRange = createTil(1L, 9);
-        Til withinRange = createTil(2L, 12);
-
-        List<Til> tils = List.of(outOfRange, withinRange);
-        when(tilRepository.findByTilUserId(userId))
-                .thenReturn(tils);
+        TilUpdateRequest request = new TilUpdateRequest(
+                "new content", LocalDate.of(2024, 6, 2), true, "new title"
+        );
 
         // when
-        TilDetailsResponse result = tilService.getTilByDateRange(userId, from, to);
+        tilService.updateTil(til.getTilId(), request);
 
         // then
-        assertThat(result.tils())
-                .hasSize(1);
+        Til updated = tilRepository.findById(til.getTilId()).orElseThrow();
+        assertThat(updated.getContent()).isEqualTo("new content");
+        assertThat(updated.isPublic()).isTrue();
+        assertThat(updated.getDate()).isEqualTo(LocalDate.of(2024, 6, 2));
+        assertThat(updated.getTitle()).isEqualTo("new title");
     }
 
-    private Til createTil(final long tilId, final int dayOfMonth) {
+    @Test
+    void 존재하지_않는_TIL을_업데이트하면_예외가_발생한다() {
+        // given
+        Long notExistId = 9999L;
+        TilUpdateRequest request = new TilUpdateRequest(
+                "content", LocalDate.now(), true, "title"
+        );
+
+        // when & then
+        assertThatThrownBy(() -> tilService.updateTil(notExistId, request))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void 삭제된_TIL은_업데이트되지_않는다() {
+        // given
+        Til til = createTestTilFixture();
+
+        til.markAsDeleted();
+        tilRepository.save(til);
+
+        TilUpdateRequest request = new TilUpdateRequest(
+                "new content", LocalDate.of(2024, 6, 2), true, "new title"
+        );
+
+        // when && then
+        assertThatThrownBy(() -> tilService.updateTil(til.getTilId(), request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("삭제된 TIL은 수정할 수 없습니다.");
+    }
+
+    private Til createTestTilFixture() {
         return Til.builder()
-                .tilId(tilId)
-                .date(LocalDate.of(2025, 2, dayOfMonth))
+                .content("content")
+                .date(LocalDate.of(2024, 6, 1))
+                .title("title")
+                .isPublic(false)
                 .build();
     }
 }
