@@ -24,12 +24,11 @@ public class TilTagGenerator {
             B. 위에서 추출한 각 핵심 태그에 대해 TIL과 관련된 서브 태그를 최대 5개씩 생성해 주세요. **실제 TIL 내용과 연관성이 있어야 하며, 의미 없는 일반 키워드는 제외**합니다.""";
 
     public List<Map<String, Object>> createPrompt(String tilContent) {
-        List<Map<String, Object>> messages = List.of(
+
+        return List.of(
                 Map.of("role", "system", "content", "당신은 TIL 내용을 분석하여 관련 태그를 추출하고, 태그별로 서브태그를 만드는 전문가입니다."),
                 Map.of("role", "user", "content", TAG_GENERATE_PROMPT.formatted(tilContent))
         );
-
-        return messages;
     }
 
     public Map<String, Object> createFunctionDefinition() {
