@@ -60,7 +60,7 @@ public class TilTagService {
     }
 
     @Transactional
-    public List<SubTag> saveSubTags(String tilResponseJson, TilTags tilTags) {
+    public List<SubTag> createSubTags(String tilResponseJson, TilTags tilTags) {
         List<SubTag> subTags = extractSubTilTags(tilResponseJson, tilTags);
         return subTagRepository.saveAll(subTags);
     }
