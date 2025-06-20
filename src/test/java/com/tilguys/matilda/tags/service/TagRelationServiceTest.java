@@ -100,8 +100,6 @@ class TagRelationServiceTest {
 
         tagRelationService.updateCoreTagsRelation();
 
-        Map<Tag, List<Tag>> recentRelationTagMap = tagRelationService.getRecentRelationTagMap();
-
         assertThat(tagRelationService.getRecentRelationTagMap().keySet().size()).isEqualTo(tags.size());
     }
 
