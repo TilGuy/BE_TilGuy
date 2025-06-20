@@ -27,7 +27,7 @@ class TilTagServiceTest {
     private TagRepository tagRepository;
     @Autowired
     private SubTagRepository subTagRepository;
-    
+
     @Test
     @Disabled
     void 서브_태그_실제_호출_테스트() {
@@ -61,7 +61,7 @@ class TilTagServiceTest {
         String responseJson = tilTagService.requestTilTagResponseJson(tilContent);
         List<Tag> tags = tilTagService.saveTilTags(responseJson);
         TilTags tilTags = new TilTags(tags);
-        tilTagService.saveSubTags(responseJson, tilTags);
+        tilTagService.createSubTags(responseJson, tilTags);
         assertThat(subTagRepository.count()).isGreaterThan(0L);
     }
 }

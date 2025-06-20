@@ -130,7 +130,7 @@ class TilTagServiceTest {
         List<Tag> tags = tilTagService.saveTilTags(tagResponseJson);
         TilTags tilTags = new TilTags(tags);
 
-        List<SubTag> subTags = tilTagService.saveSubTags(tagResponseJson, tilTags);
+        List<SubTag> subTags = tilTagService.createSubTags(tagResponseJson, tilTags);
 
         assertThat(subTags.size()).isEqualTo(10L);
     }
@@ -140,7 +140,7 @@ class TilTagServiceTest {
         List<Tag> tags = tilTagService.saveTilTags(tagResponseJson);
         TilTags tilTags = new TilTags(tags);
 
-        List<SubTag> subTags = tilTagService.saveSubTags(tagResponseJson, tilTags);
+        List<SubTag> subTags = tilTagService.createSubTags(tagResponseJson, tilTags);
 
         List<SubTag> recentSubTags = tilTagService.getRecentSubTags(LocalDate.from(LocalDateTime.now().minusDays(7L)));
 
@@ -152,7 +152,7 @@ class TilTagServiceTest {
         List<Tag> tags = tilTagService.saveTilTags(tagResponseJson);
         TilTags tilTags = new TilTags(tags);
 
-        List<SubTag> subTags = tilTagService.saveSubTags(tagResponseJson, tilTags);
+        List<SubTag> subTags = tilTagService.createSubTags(tagResponseJson, tilTags);
 
         assertThat(tagRepository.count()).isEqualTo(tags.size());
         assertThat(subTagRepository.count()).isEqualTo(subTags.size());
