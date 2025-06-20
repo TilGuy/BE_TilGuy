@@ -19,7 +19,6 @@ import org.springframework.test.context.ActiveProfiles;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @SpringBootTest
 @ActiveProfiles("test")
-@Disabled
 class TilTagServiceTest {
 
     @Autowired
@@ -28,9 +27,10 @@ class TilTagServiceTest {
     private TagRepository tagRepository;
     @Autowired
     private SubTagRepository subTagRepository;
-
+    
     @Test
-    void 서브_태그_테스트() {
+    @Disabled
+    void 서브_태그_실제_호출_테스트() {
         String tilContent = """
                 - 계층 분리 방법 목록
                     - `Presentation`
@@ -59,10 +59,9 @@ class TilTagServiceTest {
                     -  상태 타입이 객체냐 자료 구조이냐 다르다.
                 """;
         String responseJson = tilTagService.requestTilTagResponseJson(tilContent);
-        List<Tag> tags = tilTagService.extractTilTags(responseJson);
-        tilTagService.saveAll(tags);
+        List<Tag> tags = tilTagService.saveTilTags(responseJson);
         TilTags tilTags = new TilTags(tags);
-        tilTagService.createSubTags(responseJson, tilTags);
+        tilTagService.saveSubTags(responseJson, tilTags);
         assertThat(subTagRepository.count()).isGreaterThan(0L);
     }
 }
