@@ -55,6 +55,9 @@ public class TilTagParser {
             // 반환할 태그 세트 생성
             List<SubTag> subTags = new ArrayList<>();
 
+            if (tagsNode == null) {
+                return new ArrayList<>();
+            }
             // JsonNode 배열을 순회하면서 태그 추가
             for (JsonNode node : tagsNode) {
                 String coreTagName = node.get("coreTag").asText();

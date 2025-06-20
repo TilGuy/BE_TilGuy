@@ -75,7 +75,7 @@ public class TilService {
         til.updateReferences(references);
 
         TilTags tilTags = new TilTags(tags);
-        tilTagService.saveSubTags(tilResponseJson, tilTags);
+        tilTagService.createSubTags(tilResponseJson, tilTags);
         return til;
     }
 
