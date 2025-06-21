@@ -7,7 +7,6 @@ import com.tilguys.matilda.tag.repository.SubTagRepository;
 import com.tilguys.matilda.tag.repository.TagRelationRepository;
 import com.tilguys.matilda.tag.repository.TagRepository;
 import com.tilguys.matilda.tag.service.TagRelationService;
-import com.tilguys.matilda.tag.service.TilTagService;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilCreateRequest;
@@ -20,14 +19,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-@ExtendWith(MockitoExtension.class)
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
@@ -35,10 +31,6 @@ class TagRelationServiceTest {
 
     @Autowired
     private TagRelationService tagRelationService;
-
-    @Autowired
-    private TilTagService tilTagService;
-
     @Autowired
     private TagRelationRepository tagRelationRepository;
     @Autowired
