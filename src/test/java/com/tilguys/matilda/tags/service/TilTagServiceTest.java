@@ -2,6 +2,7 @@ package com.tilguys.matilda.tags.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import com.tilguys.matilda.common.external.OpenAIClient;
 import com.tilguys.matilda.tag.domain.SubTag;
@@ -87,7 +88,7 @@ class TilTagServiceTest {
     public TilTagServiceTest(@Autowired TagRepository tagRepository,
                              @Autowired SubTagRepository subTagRepository) {
         OpenAIClient openAIClient = Mockito.mock(OpenAIClient.class);
-        Mockito.when(openAIClient.callOpenAI(any(), any())).thenReturn(tagResponseJson);
+        when(openAIClient.callOpenAI(any(), any())).thenReturn(tagResponseJson);
         this.tilTagService = new TilTagService(openAIClient, tagRepository, subTagRepository);
     }
 
@@ -136,7 +137,7 @@ class TilTagServiceTest {
     }
 
     @Test
-    void 최근_서브태그를_가져올_수_있다() {
+    void 날짜_이후로_생성된_서브태그를_가져올_수_있다() {
         List<Tag> tags = tilTagService.saveTilTags(tagResponseJson);
         TilTags tilTags = new TilTags(tags);
 

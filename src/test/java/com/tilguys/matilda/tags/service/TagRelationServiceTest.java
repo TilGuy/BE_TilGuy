@@ -31,10 +31,13 @@ class TagRelationServiceTest {
 
     @Autowired
     private TagRelationService tagRelationService;
+
     @Autowired
     private TagRelationRepository tagRelationRepository;
+
     @Autowired
     private SubTagRepository subTagRepository;
+
     @Autowired
     private TagRepository tagRepository;
 
