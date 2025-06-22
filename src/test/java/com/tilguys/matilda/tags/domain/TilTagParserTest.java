@@ -22,8 +22,7 @@ class TilTagParserTest {
         TilTagParser tilTagParser = new TilTagParser();
         Assertions.assertAll(
                 () -> assertThatThrownBy(() -> tilTagParser.parseTags("not json")),
-                () -> assertThatThrownBy(() -> tilTagParser.parseSubTags("not json",
-                        new TilTags(new ArrayList<>()))).doesNotThrowAnyException()
+                () -> assertThatThrownBy(() -> tilTagParser.parseSubTags("not json", new TilTags(new ArrayList<>())))
         );
     }
 }
