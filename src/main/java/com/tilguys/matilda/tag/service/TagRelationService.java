@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TagRelationService {
 
     private static final Long TAG_GET_START_DAY = 7L;
+    private static final Long TAG_RELATION_RENEW_PERIOD = 3L;
 
     private final TagRelationRepository tagRelationRepository;
     private final TilService tilService;
@@ -29,7 +30,7 @@ public class TagRelationService {
 
     @Transactional
     public void updateCoreTagsRelation() {
-        LocalDateTime startDateTime = LocalDate.now().minusDays(TAG_GET_START_DAY).atStartOfDay();
+        LocalDateTime startDateTime = LocalDate.now().minusDays(TAG_RELATION_RENEW_PERIOD).atStartOfDay();
         List<Til> recentWroteTil = tilService.getRecentWroteTil(startDateTime);
 
         for (Til til : recentWroteTil) {
@@ -50,7 +51,7 @@ public class TagRelationService {
     }
 
     public Map<Tag, List<Tag>> getRecentRelationTagMap() {
-        LocalDateTime startDateTime = LocalDate.now().minusDays(TAG_GET_START_DAY).atStartOfDay();
+        LocalDateTime startDateTime = LocalDate.now().minusDays(TAG_RELATION_RENEW_PERIOD).atStartOfDay();
         List<TagRelation> tagRelations = tagRelationRepository.findByCreatedAtGreaterThanEqual(startDateTime);
 
         Map<Tag, List<Tag>> tagMap = new HashMap<>();
