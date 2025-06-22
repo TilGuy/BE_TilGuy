@@ -1,0 +1,16 @@
+# docker-compose.matilda-green.yml
+services:
+  matilda-green:
+    build: .
+    image: matilda
+    ports:
+      - "9999:9999"
+    volumes:
+      - ./server-logs:/app/logs
+    container_name: "matilda-green"
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    external: true
