@@ -40,7 +40,13 @@ public class TilTagService {
         );
     }
 
-    public List<Tag> extractTilTags(String responseJson) {
+    @Transactional
+    public List<Tag> saveTilTags(String responseJson) {
+        List<Tag> tags = extractTilTags(responseJson);
+        return tagRepository.saveAll(tags);
+    }
+
+    private List<Tag> extractTilTags(String responseJson) {
         Set<String> tags = tagParser.parseTags(responseJson);
         return tags.stream()
                 .map(Tag::new)
@@ -48,19 +54,15 @@ public class TilTagService {
                 .subList(0, Math.min(5, tags.size()));
     }
 
-    public List<SubTag> extractSubTilTags(String responseJson, TilTags coreTags) {
+    private List<SubTag> extractSubTilTags(String responseJson, TilTags coreTags) {
         List<SubTag> subTags = tagParser.parseSubTags(responseJson, coreTags);
         return subTags.subList(0, Math.min(25, subTags.size()));
     }
 
-    public void createSubTags(String tilResponseJson, TilTags tilTags) {
-        List<SubTag> subTags = extractSubTilTags(tilResponseJson, tilTags);
-        subTagRepository.saveAll(subTags);
-    }
-
     @Transactional
-    public void saveAll(List<Tag> tags) {
-        tagRepository.saveAll(tags);
+    public List<SubTag> createSubTags(String tilResponseJson, TilTags tilTags) {
+        List<SubTag> subTags = extractSubTilTags(tilResponseJson, tilTags);
+        return subTagRepository.saveAll(subTags);
     }
 
     public List<Tag> getRecentWroteTags(LocalDate recent) {

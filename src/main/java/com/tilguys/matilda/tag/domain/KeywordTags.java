@@ -1,6 +1,5 @@
-package com.tilguys.matilda.tag.controller;
+package com.tilguys.matilda.tag.domain;
 
-import com.tilguys.matilda.tag.domain.SubTag;
 import com.tilguys.matilda.til.domain.Tag;
 import java.util.ArrayList;
 import java.util.HashMap;
