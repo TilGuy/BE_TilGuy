@@ -1,0 +1,15 @@
+services:
+  matilda-blue:
+    build: .
+    image: matilda
+    ports:
+      - "9998:9999"
+    volumes:
+      - ./server-logs:/app/logs
+    container_name: "matilda-blue"
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    external: true
