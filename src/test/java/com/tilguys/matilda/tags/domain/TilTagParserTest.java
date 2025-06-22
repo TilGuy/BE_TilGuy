@@ -21,7 +21,7 @@ class TilTagParserTest {
     void 요청이_json이_아니면_유효하지_않으면_예외가_발생한다() {
         TilTagParser tilTagParser = new TilTagParser();
         Assertions.assertAll(
-                () -> assertThatThrownBy(() -> tilTagParser.parseTags("not json")).doesNotThrowAnyException(),
+                () -> assertThatThrownBy(() -> tilTagParser.parseTags("not json")),
                 () -> assertThatThrownBy(() -> tilTagParser.parseSubTags("not json",
                         new TilTags(new ArrayList<>()))).doesNotThrowAnyException()
         );
