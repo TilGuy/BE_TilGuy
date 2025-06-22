@@ -96,4 +96,21 @@ class TilBookmarkServiceTest {
         tilBookmarkService.toggleBookmark(new ToggleTilBookmarkRequest(til.getTilId()), member.getId());
         assertThat(tilBookmarkRepository.findByTilUser_id(findUser.getId())).hasSize(0);
     }
+
+    @Test
+    void userBookmarkTils() {
+        TilUser member = new TilUser(null, ProviderInfo.GITHUB, "asdf", Role.USER, "asdf", "asdfasdf");
+        Til til = new Til(null, member, "Asdf", "asdf", LocalDate.now(), true, false, new ArrayList<>(),
+                new ArrayList<>());
+
+        em.persist(member);
+        em.persist(til);
+        em.flush();
+
+        when(tilService.getTilsByIds(List.of(til.getTilId()))).thenReturn(List.of(til));
+
+        tilBookmarkRepository.save(new TilBookmark(null, til, member));
+
+        assertThat(tilBookmarkService.userBookmarkTils(member.getId()).size()).isEqualTo(1L);
+    }
 }
