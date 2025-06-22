@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.tilguys.matilda.til.domain.Til;
-import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
 import com.tilguys.matilda.til.repository.TilRepository;
 import java.time.LocalDate;
@@ -43,8 +42,6 @@ class TilServiceTest {
         // when
         TilDetailsResponse result = tilService.getTilByDateRange(userId, from, to);
 
-        System.out.println(TilDetailResponse.fromEntity(withinRange));
-        System.out.println(result.tils());
         // then
         assertThat(result.tils())
                 .hasSize(1);
