@@ -40,7 +40,10 @@ public class TagRelationService {
 
     private void createTagsRelation(List<Tag> recentWroteTags) {
         for (int i = 0; i < recentWroteTags.size(); i++) {
-            for (int j = i + 1; j < recentWroteTags.size(); j++) {
+            for (int j = 0; j < recentWroteTags.size(); j++) {
+                if (i == j) {
+                    continue;
+                }
                 tagRelationRepository.save(new TagRelation(null, recentWroteTags.get(i), recentWroteTags.get(j)));
             }
         }

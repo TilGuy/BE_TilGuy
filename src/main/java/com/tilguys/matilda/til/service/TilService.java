@@ -60,13 +60,14 @@ public class TilService {
 
         String tilResponseJson = tilTagService.requestTilTagResponseJson(til.getContent());
 
-        List<Tag> tags = tilTagService.extractTilTags(tilResponseJson)
+        List<Tag> tags = tilTagService.saveTilTags(tilResponseJson)
                 .stream()
                 .toList();
 
         String tagResults = tags.stream()
                 .map(Tag::getTagString)
                 .collect(Collectors.joining(","));
+
         log.debug("{}=> {} => 추출된 태그 =>{}", til.getContent(), tilResponseJson, tagResults);
 
         til.updateTags(tags);
