@@ -9,16 +9,17 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class TilReferenceParser {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     public List<Reference> parseReferences(String responseJson) {
         try {
             JsonNode root = objectMapper.readTree(responseJson);
 
-            // OpenAI 응답 구조: choices[0].message.tool_calls[0].function.arguments
             String arguments = root.path("choices").get(0)
                     .path("message").path("tool_calls").get(0)
                     .path("function").path("arguments").asText();
