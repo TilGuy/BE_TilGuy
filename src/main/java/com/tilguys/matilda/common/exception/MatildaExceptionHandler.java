@@ -1,9 +1,12 @@
 package com.tilguys.matilda.common.exception;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -16,6 +19,26 @@ public class MatildaExceptionHandler {
         log.warn("IllegalArgumentException occurred: {}", e.getMessage());
         log.error("error occur : {}", e.getMessage());
         return createErrorResponse(e, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ProblemDetail handleValidationException(MethodArgumentNotValidException e) {
+        log.warn("Validation failed: {}", e.getMessage());
+
+        List<String> errors = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(FieldError::getDefaultMessage)
+                .toList();
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                errors.getFirst()
+        );
+        problemDetail.setTitle("ValidationException");
+        problemDetail.setProperty("timestamp", LocalDateTime.now());
+        problemDetail.setProperty("validationErrors", errors);
+        return problemDetail;
     }
 
     @ExceptionHandler({Exception.class})
