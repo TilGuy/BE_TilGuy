@@ -48,7 +48,7 @@ public class TilReferenceParser {
             return new ArrayList<>(referenceSet);
 
         } catch (JsonProcessingException e) {
-            throw new OpenAIException("Failed to process JSON: " + e.getMessage());
+            throw new OpenAIException("Failed to process reference extraction response: " + e.getMessage());
         } catch (Exception e) {
             throw new OpenAIException("Unexpected error parsing response: " + e.getMessage());
         }
