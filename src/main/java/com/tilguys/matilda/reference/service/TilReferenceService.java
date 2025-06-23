@@ -16,8 +16,8 @@ public class TilReferenceService {
     private final TilReferenceGenerator tilReferenceGenerator;
     private final TilReferenceParser tilReferenceParser;
 
-    public TilReferenceService(@Value(value = "${openai.api.key}") String apiKey,
-                               @Value(value = "${openai.api.url}") String apiUrl,
+    public TilReferenceService(@Value("${openai.api.key}") String apiKey,
+                               @Value("${openai.api.url}") String apiUrl,
                                ObjectMapper objectMapper
     ) {
         this.openAIClient = new OpenAIClient(apiKey, apiUrl);
