@@ -56,7 +56,7 @@ public class TilController {
 
         //Performance 성능개선 태그를 빠르게 업데이트하는 용도 - 스케줄링에 시켜야함
         tagRelationService.updateCoreTagsRelation();
-        return ResponseEntity.ok(til);
+        return ResponseEntity.ok(TilDetailResponse.fromEntity(til));
     }
 
     @DeleteMapping("/{id}")
@@ -65,13 +65,13 @@ public class TilController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{tilId}")
+    @PutMapping("/{id}")
     public ResponseEntity<?> updateTil(
-            @PathVariable final Long tilId,
+            @PathVariable final Long id,
             @Valid @RequestBody final TilDefinitionRequest request,
             @AuthenticationPrincipal final SimpleUserInfo simpleUserInfo
     ) {
-        tilService.updateTil(tilId, request, simpleUserInfo.id());
+        tilService.updateTil(id, request, simpleUserInfo.id());
         return ResponseEntity.ok().build();
     }
 
