@@ -17,6 +17,9 @@ public class TilReferenceParser {
     private final ObjectMapper objectMapper;
 
     public List<Reference> parseReferences(String responseJson) {
+        if (responseJson == null || responseJson.trim().isEmpty()) {
+            throw new OpenAIException("Response JSON is null or empty");
+        }
         try {
             JsonNode root = objectMapper.readTree(responseJson);
 
@@ -45,9 +48,9 @@ public class TilReferenceParser {
             return new ArrayList<>(referenceSet);
 
         } catch (JsonProcessingException e) {
-            throw new OpenAIException("Failed to process reference extraction response: " + e.getMessage());
-        } catch (NullPointerException e) {
-            throw new OpenAIException("Unexpected response structure from OpenAI API" + e.getMessage());
+            throw new OpenAIException("Failed to process JSON: " + e.getMessage());
+        } catch (Exception e) {
+            throw new OpenAIException("Unexpected error parsing response: " + e.getMessage());
         }
     }
 }
