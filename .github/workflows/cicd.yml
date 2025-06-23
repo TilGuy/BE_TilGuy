@@ -27,7 +27,7 @@ jobs:
 
       - name: Create zip file
         run: |
-          zip -r build/build-artifacts.zip build/libs/* Dockerfile compose.yml start-server.sh prometheus/prometheus.yml
+          zip -r build/build-artifacts.zip build/libs/* Dockerfile compose.yml start-server.sh prometheus/prometheus.yml compose-matilda-blue.yml compose-matilda-green.yml compose-infra-only.yml 
 
       - name: set mode for tar
         run: chmod 775 build/build-artifacts.zip
@@ -58,7 +58,6 @@ jobs:
           cd /home/matilda-backend
           unzip -o build-artifacts.zip
           
-          ./stop-server.sh
           # nohup을 사용하여 서버를 백그라운드에서 실행하고 stdout/stderr를 파일로 리다이렉션
           nohup ./start-server.sh > server.log 2>&1 &
           # 즉시 종료되도록 명시적인 종료 코드 추가
