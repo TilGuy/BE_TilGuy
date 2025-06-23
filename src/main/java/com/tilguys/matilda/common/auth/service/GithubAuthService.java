@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -69,7 +70,13 @@ public class GithubAuthService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         RestTemplate restTemplate = new RestTemplate();
-        Map<String, String> body = restTemplate.exchange(userInfoUrl, HttpMethod.GET, entity, Map.class).getBody();
+        Map<String, String> body = restTemplate.exchange(
+                userInfoUrl,
+                HttpMethod.GET,
+                entity,
+                new ParameterizedTypeReference<Map<String, String>>() {
+                }
+        ).getBody();
         Objects.requireNonNull(body, "깃허브에서 유저 정보를 가져오는데 실패하였습니다.");
 
         String identifier = body.get("login");
