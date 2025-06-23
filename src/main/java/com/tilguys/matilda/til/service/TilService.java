@@ -96,16 +96,16 @@ public class TilService {
     }
 
     public void updateTil(final Long tilId, final TilDefinitionRequest tilUpdateDto, final long userId) {
-        boolean exists = tilRepository.existsByDateAndTilUserIdAndIsDeletedFalse(tilUpdateDto.date(), userId);
-        if (exists) {
-            throw new IllegalArgumentException("같은 날에 작성된 게시물이 존재합니다!");
-        }
         Til til = getTilByTilId(tilId);
-
+        LocalDate targetDate = tilUpdateDto.date();
+        boolean exists = tilRepository.existsByDateAndTilUserIdAndIsDeletedFalse(targetDate, userId);
+        if (exists && !targetDate.equals(til.getDate())) {
+            throw new IllegalArgumentException("해당 날짜에 이미 작성된 게시물이 존재합니다!");
+        }
         til.update(
                 tilUpdateDto.content(),
                 tilUpdateDto.isPublic(),
-                tilUpdateDto.date(),
+                targetDate,
                 tilUpdateDto.title()
         );
     }
