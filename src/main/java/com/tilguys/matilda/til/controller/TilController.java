@@ -4,14 +4,14 @@ import com.tilguys.matilda.common.auth.SimpleUserInfo;
 import com.tilguys.matilda.slack.service.SlackService;
 import com.tilguys.matilda.tag.service.TagRelationService;
 import com.tilguys.matilda.til.domain.Til;
-import com.tilguys.matilda.til.dto.TilCreateRequest;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
+import com.tilguys.matilda.til.dto.TilDefinitionRequest;
 import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
-import com.tilguys.matilda.til.dto.TilUpdateRequest;
 import com.tilguys.matilda.til.dto.TilWithUserResponse;
 import com.tilguys.matilda.til.service.RecentTilService;
 import com.tilguys.matilda.til.service.TilService;
+import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +47,7 @@ public class TilController {
     }
 
     @PostMapping
-    public ResponseEntity<?> saveTil(@RequestBody final TilCreateRequest createRequest,
+    public ResponseEntity<?> saveTil(@Valid @RequestBody final TilDefinitionRequest createRequest,
                                      @AuthenticationPrincipal final SimpleUserInfo simpleUserInfo) {
         Til til = tilService.createTil(createRequest, simpleUserInfo.id());
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yy-MM월-dd일");
@@ -68,9 +68,10 @@ public class TilController {
     @PutMapping("/{tilId}")
     public ResponseEntity<?> updateTil(
             @PathVariable final Long tilId,
-            @RequestBody final TilUpdateRequest request
+            @Valid @RequestBody final TilDefinitionRequest request,
+            @AuthenticationPrincipal final SimpleUserInfo simpleUserInfo
     ) {
-        tilService.updateTil(tilId, request);
+        tilService.updateTil(tilId, request, simpleUserInfo.id());
         return ResponseEntity.ok().build();
     }
 
