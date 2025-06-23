@@ -25,7 +25,7 @@ until curl -s http://localhost:$NEW_PORT/actuator/health | grep -q '"status":"UP
 done
 
 # Nginx 포트 전환
-sudo sed -i "s/127.0.0.1:$CURRENT_PORT/127.0.0.1:$NEW_PORT/" /etc/nginx/conf.d/service.conf
+sudo sed -i "s/127.0.0.1:$CURRENT_PORT/127.0.0.1:$NEW_PORT/" /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo nginx -s reload
 
 # 이전 컨테이너 종료
