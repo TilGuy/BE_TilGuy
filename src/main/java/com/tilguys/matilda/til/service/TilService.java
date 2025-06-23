@@ -7,11 +7,10 @@ import com.tilguys.matilda.til.domain.Reference;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.PagedTilResponse;
-import com.tilguys.matilda.til.dto.TilCreateRequest;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
+import com.tilguys.matilda.til.dto.TilDefinitionRequest;
 import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
-import com.tilguys.matilda.til.dto.TilUpdateRequest;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.service.TilUserService;
@@ -48,7 +47,7 @@ public class TilService {
     }
 
     @Transactional
-    public Til createTil(final TilCreateRequest tilCreateDto, final long userId) {
+    public Til createTil(final TilDefinitionRequest tilCreateDto, final long userId) {
         boolean exists = tilRepository.existsByDateAndTilUserIdAndIsDeletedFalse(tilCreateDto.date(), userId);
         if (exists) {
             throw new IllegalArgumentException("같은 날에 작성된 게시물이 존재합니다!");
@@ -96,8 +95,13 @@ public class TilService {
         return new TilDatesResponse(all);
     }
 
-    public void updateTil(final Long tilId, final TilUpdateRequest tilUpdateDto) {
+    public void updateTil(final Long tilId, final TilDefinitionRequest tilUpdateDto, final long userId) {
+        boolean exists = tilRepository.existsByDateAndTilUserIdAndIsDeletedFalse(tilUpdateDto.date(), userId);
+        if (exists) {
+            throw new IllegalArgumentException("같은 날에 작성된 게시물이 존재합니다!");
+        }
         Til til = getTilByTilId(tilId);
+
         til.update(
                 tilUpdateDto.content(),
                 tilUpdateDto.isPublic(),
