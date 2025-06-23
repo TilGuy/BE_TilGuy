@@ -68,9 +68,10 @@ public class TilController {
     @PutMapping("/{tilId}")
     public ResponseEntity<?> updateTil(
             @PathVariable final Long tilId,
-            @RequestBody final TilUpdateRequest request
+            @RequestBody final TilUpdateRequest request,
+            @AuthenticationPrincipal final SimpleUserInfo simpleUserInfo
     ) {
-        tilService.updateTil(tilId, request);
+        tilService.updateTil(tilId, request, simpleUserInfo.id());
         return ResponseEntity.ok().build();
     }
 
