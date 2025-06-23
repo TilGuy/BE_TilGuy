@@ -10,6 +10,12 @@ jobs:
   test-and-analyze:
     name: Test, Build and Analyze
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+      issues: read
+      actions: read
 
     steps:
       - uses: actions/checkout@v4
@@ -52,6 +58,7 @@ jobs:
         with:
           files: |
             build/test-results/**/*.xml
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and analyze with SonarCloud
         env:
