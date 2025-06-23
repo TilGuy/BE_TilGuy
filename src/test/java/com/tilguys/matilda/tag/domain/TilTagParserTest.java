@@ -1,9 +1,7 @@
-package com.tilguys.matilda.tags.domain;
+package com.tilguys.matilda.tag.domain;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
-import com.tilguys.matilda.tag.domain.TilTagParser;
-import com.tilguys.matilda.tag.domain.TilTags;
 import java.util.ArrayList;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayNameGeneration;
