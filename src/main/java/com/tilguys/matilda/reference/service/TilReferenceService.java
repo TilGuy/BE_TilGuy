@@ -1,5 +1,6 @@
 package com.tilguys.matilda.reference.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tilguys.matilda.common.external.OpenAIClient;
 import com.tilguys.matilda.reference.domain.TilReferenceGenerator;
 import com.tilguys.matilda.reference.domain.TilReferenceParser;
@@ -16,10 +17,12 @@ public class TilReferenceService {
     private final TilReferenceParser tilReferenceParser;
 
     public TilReferenceService(@Value(value = "${openai.api.key}") String apiKey,
-                               @Value(value = "${openai.api.url}") String apiUrl) {
+                               @Value(value = "${openai.api.url}") String apiUrl,
+                               ObjectMapper objectMapper
+    ) {
         this.openAIClient = new OpenAIClient(apiKey, apiUrl);
         this.tilReferenceGenerator = new TilReferenceGenerator();
-        this.tilReferenceParser = new TilReferenceParser();
+        this.tilReferenceParser = new TilReferenceParser(objectMapper);
     }
 
     public List<Reference> extractTilReference(String tilContent) {
