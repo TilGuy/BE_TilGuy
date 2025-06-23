@@ -19,7 +19,7 @@ public class TilReferenceGenerator {
                         최대 5개까지 선별해주세요. 
                         각 항목은 용어와 해당 용어에 대한 간단한 설명을 포함해야 합니다. 
                         설명은 반드시 한국어로 작성해야합니다: 
-                        """ + tilContent
+                        """ + "\n" + tilContent
         );
         return List.of(userMessage);
     }
