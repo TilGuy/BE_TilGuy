@@ -9,7 +9,7 @@ import com.tilguys.matilda.tag.repository.TagRepository;
 import com.tilguys.matilda.tag.service.TagRelationService;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
-import com.tilguys.matilda.til.dto.TilCreateRequest;
+import com.tilguys.matilda.til.dto.TilDefinitionRequest;
 import com.tilguys.matilda.til.service.TilService;
 import com.tilguys.matilda.user.ProviderInfo;
 import com.tilguys.matilda.user.Role;
@@ -50,7 +50,7 @@ class TagRelationServiceTest {
     @Test
     void 주어진_태그들로_태그_관계를_업데이트할_수_있다() {
         TilUser tilUser = userRepository.save(new TilUser(null, ProviderInfo.GITHUB, "tmp", Role.USER, "asdf", "asdf"));
-        Til til = tilService.createTil(new TilCreateRequest("title", "content", LocalDate.now(), true),
+        Til til = tilService.createTil(new TilDefinitionRequest("title", "content", LocalDate.now(), true),
                 tilUser.getId());
 
         Tag aTag = new Tag(null, "A", til);
@@ -76,7 +76,7 @@ class TagRelationServiceTest {
     @Test
     void 최근_태그관계들을_가져올_수_있다() {
         TilUser tilUser = userRepository.save(new TilUser(null, ProviderInfo.GITHUB, "tmp", Role.USER, "asdf", "asdf"));
-        Til til = tilService.createTil(new TilCreateRequest("title", "content", LocalDate.now(), true),
+        Til til = tilService.createTil(new TilDefinitionRequest("title", "content", LocalDate.now(), true),
                 tilUser.getId());
 
         Tag aTag = new Tag(null, "A", til);
@@ -101,7 +101,7 @@ class TagRelationServiceTest {
     @Test
     void 삭제된_TIL의_관계들은_가져오지_않는다() {
         TilUser tilUser = userRepository.save(new TilUser(null, ProviderInfo.GITHUB, "tmp", Role.USER, "asdf", "asdf"));
-        Til til = tilService.createTil(new TilCreateRequest("title", "content", LocalDate.now(), true),
+        Til til = tilService.createTil(new TilDefinitionRequest("title", "content", LocalDate.now(), true),
                 tilUser.getId());
 
         Tag aTag = new Tag(null, "A", til);
