@@ -1,9 +1,7 @@
-package com.tilguys.matilda.tags.domain;
+package com.tilguys.matilda.tag.domain;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-import com.tilguys.matilda.tag.domain.KeywordTags;
-import com.tilguys.matilda.tag.domain.SubTag;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.user.ProviderInfo;
