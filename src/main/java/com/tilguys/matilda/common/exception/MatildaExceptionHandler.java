@@ -1,4 +1,4 @@
-package com.tilguys.matilda.til.exceptions;
+package com.tilguys.matilda.common.exception;
 
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
