@@ -3,7 +3,7 @@ plugins {
     id 'jacoco'
     id 'org.springframework.boot' version '3.4.3'
     id 'io.spring.dependency-management' version '1.1.7'
-    id "org.sonarqube" version "6.2.0.5505"
+    id "org.sonarqube" version "5.1.0.4882"
 }
 
 group = 'com.tilguys'
@@ -17,7 +17,7 @@ java {
 
 sonar {
     properties {
-        property "sonar.projectKey", "TilGuy_BE_TilGuy"
+        property "sonar.projectKey", "BE_TilGuy"
         property "sonar.organization", "matilda"
         property "sonar.host.url", "https://sonarcloud.io"
         property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
@@ -49,20 +49,18 @@ dependencies {
     implementation group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
     implementation group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.2'
 
-    implementation 'junit:junit:4.13.1'
     implementation 'com.mysql:mysql-connector-j'
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-
-    testImplementation "org.mockito:mockito-inline:5.2.0"
+    testImplementation 'org.mockito:mockito-inline:5.2.0'
     testImplementation 'com.h2database:h2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'io.micrometer:micrometer-registry-prometheus'
