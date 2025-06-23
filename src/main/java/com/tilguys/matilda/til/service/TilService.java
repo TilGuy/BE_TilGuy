@@ -96,8 +96,13 @@ public class TilService {
         return new TilDatesResponse(all);
     }
 
-    public void updateTil(final Long tilId, final TilUpdateRequest tilUpdateDto) {
+    public void updateTil(final Long tilId, final TilUpdateRequest tilUpdateDto, final long userId) {
+        boolean exists = tilRepository.existsByDateAndTilUserIdAndIsDeletedFalse(tilUpdateDto.date(), userId);
+        if (exists) {
+            throw new IllegalArgumentException("같은 날에 작성된 게시물이 존재합니다!");
+        }
         Til til = getTilByTilId(tilId);
+
         til.update(
                 tilUpdateDto.content(),
                 tilUpdateDto.isPublic(),
