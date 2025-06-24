@@ -13,6 +13,7 @@ import com.tilguys.matilda.til.domain.Reference;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.PagedTilResponse;
+import com.tilguys.matilda.til.dto.TilDatesResponse;
 import com.tilguys.matilda.til.dto.TilDefinitionRequest;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.ProviderInfo;
@@ -142,6 +143,54 @@ class TilServiceTest {
             assertThat(response.tils().get(0).id()).isEqualTo(til3.getTilId());
             assertThat(response.tils().get(1).id()).isEqualTo(til2.getTilId());
             assertThat(response.tils().get(2).id()).isEqualTo(til1.getTilId());
+        }
+    }
+
+    @Nested
+    class TIL_날짜_조회_테스트 {
+
+        @Test
+        void 사용자의_TIL이_존재하면_날짜_목록을_반환한다() {
+            // given
+            LocalDate date1 = LocalDate.of(2024, 6, 1);
+            LocalDate date2 = LocalDate.of(2024, 6, 2);
+            Til til1 = createTestTilFixture(true, false, date1);
+            Til til2 = createTestTilFixture(true, false, date2);
+            tilRepository.saveAll(List.of(til1, til2));
+
+            // when
+            TilDatesResponse response = tilService.getAllTilDatesByUserId(tilUser.getId());
+
+            // then
+            assertThat(response.dates()).hasSize(2);
+            assertThat(response.dates()).contains(date1, date2);
+        }
+
+        @Test
+        void 사용자의_TIL이_없으면_빈_목록을_반환한다() {
+            // when
+            TilDatesResponse response = tilService.getAllTilDatesByUserId(tilUser.getId());
+
+            // then
+            assertThat(response.dates()).isEmpty();
+        }
+
+        @Test
+        void 삭제된_TIL의_날짜는_반환되지_않는다() {
+            // given
+            LocalDate date1 = LocalDate.of(2024, 6, 1);
+            LocalDate date2 = LocalDate.of(2024, 6, 2);
+            Til til1 = createTestTilFixture(true, false, date1);
+            Til til2 = createTestTilFixture(true, true, date2);
+            tilRepository.saveAll(List.of(til1, til2));
+
+            // when
+            TilDatesResponse response = tilService.getAllTilDatesByUserId(tilUser.getId());
+
+            // then
+            assertThat(response.dates()).hasSize(1);
+            assertThat(response.dates()).contains(date1);
+            assertThat(response.dates()).doesNotContain(date2);
         }
     }
 
