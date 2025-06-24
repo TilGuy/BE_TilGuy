@@ -71,7 +71,6 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .addFilterBefore(prevLoginFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(HttpMethod.GET, "/api/til/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/share/**").permitAll()
                         .requestMatchers(
                                 "/api/oauth/login",
                                 "/api/oauth/logout",
