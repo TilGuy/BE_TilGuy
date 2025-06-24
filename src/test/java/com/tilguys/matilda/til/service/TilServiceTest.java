@@ -22,6 +22,7 @@ import com.tilguys.matilda.user.Role;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.repository.UserRepository;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +32,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -46,6 +48,9 @@ class TilServiceTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @MockitoBean
     private TilTagService tilTagService;
@@ -505,6 +510,44 @@ class TilServiceTest {
         }
     }
 
+    @Nested
+    class 최근_작성된_TIL_조회_테스트 {
+
+        @Test
+        void 주어진_시간_이후_작성된_TIL이_존재하면_해당_TIL만_반환된다() {
+            // given
+            LocalDateTime startTime = LocalDateTime.of(2024, 6, 1, 0, 0);
+            Long tilId1 = 1L;
+            Long tilId2 = 2L;
+            LocalDateTime dateTime1 = LocalDateTime.of(2024, 6, 2, 10, 0);
+            LocalDateTime dateTime2 = LocalDateTime.of(2024, 5, 30, 10, 0);
+            insertTilFixtureWithDateTime(tilId1, dateTime1);
+            insertTilFixtureWithDateTime(tilId2, dateTime2);
+
+            // when
+            List<Til> result = tilService.getRecentWroteTil(startTime);
+
+            // then
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getTilId()).isEqualTo(tilId1);
+        }
+
+        @Test
+        void 주어진_시간_이후_작성된_TIL이_없으면_빈_목록이_반환된다() {
+            // given
+            LocalDateTime startTime = LocalDateTime.of(2024, 6, 1, 0, 0);
+            Long tilId = 1L;
+            LocalDateTime dateTime = LocalDateTime.of(2024, 5, 30, 10, 0);
+            insertTilFixtureWithDateTime(tilId, dateTime);
+
+            // when
+            List<Til> result = tilService.getRecentWroteTil(startTime);
+
+            // then
+            assertThat(result).isEmpty();
+        }
+    }
+
     private Til createTestTilFixture() {
         return createTestTilFixture(false, false, LocalDate.of(2024, 6, 1));
     }
@@ -518,5 +561,12 @@ class TilServiceTest {
                 .isPublic(isPublic)
                 .isDeleted(isDeleted)
                 .build();
+    }
+
+    private void insertTilFixtureWithDateTime(Long tilId, LocalDateTime dateTime) {
+        jdbcTemplate.update(
+                "INSERT INTO til (til_id, user_id, title, content, date, is_public, is_deleted, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                tilId, tilUser.getId(), "제목", "내용", dateTime.toLocalDate(), true, false, dateTime
+        );
     }
 }
