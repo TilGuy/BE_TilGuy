@@ -4,9 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.tilguys.matilda.til.domain.Til;
+import com.tilguys.matilda.til.dto.PagedTilResponse;
 import com.tilguys.matilda.til.dto.TilDefinitionRequest;
 import com.tilguys.matilda.til.repository.TilRepository;
+import com.tilguys.matilda.user.ProviderInfo;
+import com.tilguys.matilda.user.Role;
+import com.tilguys.matilda.user.TilUser;
+import com.tilguys.matilda.user.repository.UserRepository;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +24,104 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class TilServiceTest {
 
+    private static TilUser tilUser;
+
     @Autowired
     private TilService tilService;
 
     @Autowired
     private TilRepository tilRepository;
+
+    @BeforeAll
+    static void beforeAll(@Autowired UserRepository userRepository) {
+        tilUser = TilUser.builder()
+                .providerInfo(ProviderInfo.GITHUB)
+                .role(Role.USER)
+                .nickname("test")
+                .identifier("test")
+                .build();
+        userRepository.save(tilUser);
+    }
+
+    @AfterEach
+    void tearDown() {
+        tilRepository.deleteAll();
+    }
+
+    @Nested
+    class 공개_TIL_조회_테스트 {
+
+        @Test
+        void 공개되고_삭제되지_않은_TIL만_반환된다() {
+            // given
+            Til publicTil1 = createTestTilFixture(true, false, LocalDate.now());
+            Til publicTil2 = createTestTilFixture(true, false, LocalDate.now().minusDays(1));
+            Til publicTil3 = createTestTilFixture(true, false, LocalDate.now().minusDays(2));
+            Til privateTil = createTestTilFixture(false, false, LocalDate.now());
+            Til deletedTil = createTestTilFixture(true, true, LocalDate.now());
+            tilRepository.saveAll(List.of(publicTil1, publicTil2, publicTil3, privateTil, deletedTil));
+
+            // when
+            PagedTilResponse response = tilService.getPublicTils(0, 10);
+
+            // then
+            assertThat(response).isNotNull();
+            assertThat(response.tils()).hasSize(3);
+            assertThat(response.hasNext()).isFalse();
+            assertThat(response.currentPage()).isEqualTo(0);
+        }
+
+        @Test
+        void 페이지네이션이_정상적으로_작동한다() {
+            // given
+            List<Til> publicTils = new ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+                publicTils.add(createTestTilFixture(true, false, LocalDate.now().minusDays(i)));
+            }
+            tilRepository.saveAll(publicTils);
+
+            // when
+            PagedTilResponse response = tilService.getPublicTils(0, 2);
+
+            // then
+            assertThat(response.tils()).hasSize(2);
+            assertThat(response.hasNext()).isTrue();
+            assertThat(response.currentPage()).isEqualTo(0);
+        }
+
+        @Test
+        void 공개된_TIL이_없으면_빈_목록이_반환된다() {
+            // given
+            Til privateTil = createTestTilFixture(false, false, LocalDate.now());
+            Til deletedTil = createTestTilFixture(true, true, LocalDate.now());
+            tilRepository.saveAll(List.of(privateTil, deletedTil));
+
+            // when
+            PagedTilResponse response = tilService.getPublicTils(0, 10);
+
+            // then
+            assertThat(response.tils()).isEmpty();
+            assertThat(response.hasNext()).isFalse();
+        }
+
+        @Test
+        void 날짜_기준_내림차순으로_정렬된다() {
+            // given
+            Til til1 = createTestTilFixture(true, false, LocalDate.now().minusDays(2));
+            Til til2 = createTestTilFixture(true, false, LocalDate.now().minusDays(1));
+            Til til3 = createTestTilFixture(true, false, LocalDate.now());
+            tilRepository.saveAll(List.of(til1, til2, til3));
+
+            // when
+            PagedTilResponse response = tilService.getPublicTils(0, 10);
+
+            // then
+            assertThat(response.tils()).hasSize(3);
+            assertThat(response.tils().get(0).id()).isEqualTo(til3.getTilId());
+            assertThat(response.tils().get(1).id()).isEqualTo(til2.getTilId());
+            assertThat(response.tils().get(2).id()).isEqualTo(til1.getTilId());
+        }
+    }
 
     @Nested
     class TIL_업데이트_테스트 {
@@ -81,11 +183,17 @@ class TilServiceTest {
     }
 
     private Til createTestTilFixture() {
+        return createTestTilFixture(false, false, LocalDate.of(2024, 6, 1));
+    }
+
+    private Til createTestTilFixture(boolean isPublic, boolean isDeleted, LocalDate date) {
         return Til.builder()
+                .tilUser(tilUser)
                 .content("content")
-                .date(LocalDate.of(2024, 6, 1))
+                .date(date)
                 .title("title")
-                .isPublic(false)
+                .isPublic(isPublic)
+                .isDeleted(isDeleted)
                 .build();
     }
 }
