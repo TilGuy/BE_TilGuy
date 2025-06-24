@@ -351,6 +351,26 @@ class TilServiceTest {
         }
 
         @Test
+        void 업데이트_날짜에_이미_게시물이_존재하면_예외가_발생한다() {
+            // given
+            long userId = tilUser.getId();
+            LocalDate existingDate = LocalDate.of(2024, 6, 2);
+            LocalDate targetDate = LocalDate.of(2024, 6, 2);
+            Til existingTil = createTestTilFixture(true, false, existingDate);
+            Til tilToUpdate = createTestTilFixture(true, false, LocalDate.of(2024, 6, 1)); // 다른 날짜
+            tilRepository.saveAll(List.of(existingTil, tilToUpdate));
+
+            TilDefinitionRequest request = new TilDefinitionRequest(
+                    "new title", "new content", targetDate, true
+            );
+
+            // when && then
+            assertThatThrownBy(() -> tilService.updateTil(tilToUpdate.getTilId(), request, userId))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("해당 날짜에 이미 작성된 게시물이 존재합니다!");
+        }
+
+        @Test
         void 삭제된_TIL은_업데이트되지_않는다() {
             // given
             Til til = createTestTilFixture();
@@ -529,7 +549,7 @@ class TilServiceTest {
 
             // then
             assertThat(result).hasSize(1);
-            assertThat(result.get(0).getTilId()).isEqualTo(tilId1);
+            assertThat(result.getFirst().getTilId()).isEqualTo(tilId1);
         }
 
         @Test
