@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@RequestMapping("/share")
+@RequestMapping("/api/til")
 @Controller
 @RequiredArgsConstructor
 public class TilShareController {
@@ -23,7 +23,7 @@ public class TilShareController {
     @Value("${frontend.url}")
     private String frontendUrl;
 
-    @GetMapping("/{id}")
+    @GetMapping("/share/{id}")
     public String shareTil(@PathVariable Long id,
                            HttpServletRequest request,
                            Model model) {
@@ -37,11 +37,10 @@ public class TilShareController {
             model.addAttribute("til", response);
             model.addAttribute("frontendUrl", frontendUrl);
             model.addAttribute("description", createDescription(response.content()));
-            model.addAttribute("imageUrl", getImageUrl());
 
             return "share/og-template";
         } else {
-            return "redirect:" + frontendUrl + "/all-tils?tilId=" + id;
+            return "redirect:" + frontendUrl + "/all-tils/" + id;
         }
     }
 
@@ -66,9 +65,5 @@ public class TilShareController {
         return content.length() > 150
                 ? content.substring(0, 150) + "..."
                 : content;
-    }
-
-    private String getImageUrl() {
-        return frontendUrl + "/assets/matilda-default-og.png";
     }
 }
