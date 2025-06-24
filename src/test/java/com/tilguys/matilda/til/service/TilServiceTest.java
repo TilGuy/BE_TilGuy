@@ -15,6 +15,7 @@ import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.PagedTilResponse;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
 import com.tilguys.matilda.til.dto.TilDefinitionRequest;
+import com.tilguys.matilda.til.dto.TilDetailsResponse;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.ProviderInfo;
 import com.tilguys.matilda.user.Role;
@@ -388,6 +389,118 @@ class TilServiceTest {
 
             // when && then
             assertThatThrownBy(() -> tilService.deleteTil(nonExistentId))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+    }
+
+    @Nested
+    class 날짜_범위별_TIL_조회_테스트 {
+
+        @Test
+        void 날짜_범위_내에_TIL이_존재하면_해당_TIL만_반환된다() {
+            // given
+            LocalDate from = LocalDate.of(2024, 6, 1);
+            LocalDate to = LocalDate.of(2024, 6, 3);
+            Til til1 = createTestTilFixture(true, false, LocalDate.of(2024, 6, 2));
+            Til til2 = createTestTilFixture(true, false, LocalDate.of(2024, 6, 4)); // 범위 밖
+            tilRepository.saveAll(List.of(til1, til2));
+
+            // when
+            TilDetailsResponse response = tilService.getTilByDateRange(tilUser.getId(), from, to);
+
+            // then
+            assertThat(response.tils()).hasSize(1);
+        }
+
+        @Test
+        void 날짜_범위_내에_TIL이_없으면_빈_목록이_반환된다() {
+            // given
+            LocalDate from = LocalDate.of(2024, 6, 1);
+            LocalDate to = LocalDate.of(2024, 6, 3);
+            Til til = createTestTilFixture(true, false, LocalDate.of(2024, 6, 4)); // 범위 밖
+            tilRepository.save(til);
+
+            // when
+            TilDetailsResponse response = tilService.getTilByDateRange(tilUser.getId(), from, to);
+
+            // then
+            assertThat(response.tils()).isEmpty();
+        }
+
+        @Test
+        void 삭제된_TIL은_반환되지_않는다() {
+            // given
+            LocalDate from = LocalDate.of(2024, 6, 1);
+            LocalDate to = LocalDate.of(2024, 6, 3);
+            Til til1 = createTestTilFixture(true, false, LocalDate.of(2024, 6, 2));
+            Til til2 = createTestTilFixture(true, true, LocalDate.of(2024, 6, 2)); // 삭제됨
+            tilRepository.saveAll(List.of(til1, til2));
+
+            // when
+            TilDetailsResponse response = tilService.getTilByDateRange(tilUser.getId(), from, to);
+
+            // then
+            assertThat(response.tils()).hasSize(1);
+            assertThat(response.tils().stream().noneMatch(detail -> detail.tilId().equals(til2.getTilId()))).isTrue();
+        }
+    }
+
+    @Nested
+    class TIL_ID로_TIL_조회_테스트 {
+
+        @Test
+        void TIL_ID가_존재하면_해당_TIL이_반환된다() {
+            // given
+            Til til = createTestTilFixture(true, false, LocalDate.now());
+            til = tilRepository.save(til);
+
+            // when
+            Til result = tilService.getTilByTilId(til.getTilId());
+
+            // then
+            assertThat(result).isNotNull();
+            assertThat(result.getTilId()).isEqualTo(til.getTilId());
+        }
+
+        @Test
+        void TIL_ID가_존재하지_않으면_예외가_발생한다() {
+            // given
+            long nonExistentId = 9999L;
+
+            // when && then
+            assertThatThrownBy(() -> tilService.getTilByTilId(nonExistentId))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+    }
+
+    @Nested
+    class 여러_TIL_ID로_TIL_조회_테스트 {
+
+        @Test
+        void 모든_ID에_해당하는_TIL이_존재하면_목록이_반환된다() {
+            // given
+            Til til1 = createTestTilFixture(true, false, LocalDate.now());
+            Til til2 = createTestTilFixture(true, false, LocalDate.now());
+            tilRepository.saveAll(List.of(til1, til2));
+            List<Long> tilIds = List.of(til1.getTilId(), til2.getTilId());
+
+            // when
+            List<Til> result = tilService.getTilsByIds(tilIds);
+
+            // then
+            assertThat(result).hasSize(2);
+            assertThat(result).containsExactly(til1, til2);
+        }
+
+        @Test
+        void 일부_ID가_존재하지_않으면_예외가_발생한다() {
+            // given
+            Til til = createTestTilFixture(true, false, LocalDate.now());
+            til = tilRepository.save(til);
+            List<Long> tilIds = List.of(til.getTilId(), 9999L); // 존재하지 않는 ID 포함
+
+            // when && then
+            assertThatThrownBy(() -> tilService.getTilsByIds(tilIds))
                     .isInstanceOf(IllegalArgumentException.class);
         }
     }
