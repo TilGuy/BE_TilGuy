@@ -15,7 +15,6 @@ import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -79,13 +78,6 @@ public class TilController {
     public ResponseEntity<?> getAllTilDates(@AuthenticationPrincipal final SimpleUserInfo simpleUserInfo) {
         TilDatesResponse datesForUser = tilService.getAllTilDatesByUserId(simpleUserInfo.id());
         return ResponseEntity.ok(datesForUser);
-    }
-
-    @GetMapping("/main")
-    public ResponseEntity<?> getMainTil(@RequestParam(defaultValue = "0") final int page,
-                                        @RequestParam(defaultValue = "10") final int size) {
-        Page<TilDetailResponse> tilPage = tilService.getTilByPagination(page, size);
-        return ResponseEntity.ok(tilPage);
     }
 
     @GetMapping("/range")
