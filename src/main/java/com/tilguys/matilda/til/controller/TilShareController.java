@@ -1,10 +1,16 @@
 package com.tilguys.matilda.til.controller;
 
 import com.tilguys.matilda.til.domain.Til;
+import com.tilguys.matilda.til.dto.ReferencesResponse;
+import com.tilguys.matilda.til.dto.TagsResponse;
 import com.tilguys.matilda.til.dto.TilWithUserResponse;
 import com.tilguys.matilda.til.service.TilService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -36,7 +42,7 @@ public class TilShareController {
 
             model.addAttribute("til", response);
             model.addAttribute("frontendUrl", frontendUrl);
-            model.addAttribute("description", createDescription(response.content()));
+            model.addAttribute("description", createDescription(response));
 
             return "share/og-template";
         } else {
@@ -61,9 +67,36 @@ public class TilShareController {
                 .anyMatch(lowerUserAgent::contains);
     }
 
-    private String createDescription(String content) {
-        return content.length() > 150
-                ? content.substring(0, 150) + "..."
-                : content;
+    private String createDescription(TilWithUserResponse til) {
+        String name = "✏️ 작성자: " + til.nickname();
+        return Stream.of(
+                        name,
+                        formatTags(til.tags()),
+                        formatReferences(til.references()),
+                        truncateContent(til.content())
+                )
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining("\n"));
+    }
+
+    private String formatTags(TagsResponse tags) {
+        return Optional.ofNullable(tags)
+                .filter(t -> !t.getTags().isEmpty())
+                .map(t -> "🏷️ 태그: #" + String.join(" #", t.getTags()))
+                .orElse(null);
+    }
+
+    private String formatReferences(ReferencesResponse references) {
+        return Optional.ofNullable(references)
+                .filter(r -> !r.getWords().isEmpty())
+                .map(r -> "📚 학습 단어: " + r.getWords())
+                .orElse(null);
+    }
+
+    private String truncateContent(String content) {
+        int maxLength = 100;
+        return content.length() > maxLength
+                ? "\n" + content.substring(0, maxLength) + "..."
+                : "\n" + content;
     }
 }
