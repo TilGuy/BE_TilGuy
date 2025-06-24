@@ -146,9 +146,6 @@
     <!-- 날짜 (제목) -->
     <div class="date-info" th:text="${til.title}">날짜</div>
 
-    <!-- 내용 미리보기 -->
-    <div class="content-preview" th:text="${description}">TIL 내용 미리보기</div>
-
     <!-- 태그 목록 -->
     <div class="tags" th:if="${til.tags != null and #lists.size(til.tags.tags) > 0}">
         <div class="tags-title">🏷️ 태그</div>
