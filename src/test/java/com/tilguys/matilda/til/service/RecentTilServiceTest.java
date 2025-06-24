@@ -27,7 +27,7 @@ class RecentTilServiceTest {
     private static TilUser tilUser;
 
     @Autowired
-    private RecentTilService resentTilService;
+    private RecentTilService recentTilService;
 
     @Autowired
     private TilRepository tilRepository;
@@ -65,7 +65,7 @@ class RecentTilServiceTest {
         }
 
         // when
-        List<TilWithUserResponse> result = resentTilService.getRecentTils();
+        List<TilWithUserResponse> result = recentTilService.getRecentTils();
 
         // then
         assertThat(result).hasSize(expectedSize);
@@ -74,7 +74,7 @@ class RecentTilServiceTest {
     @Test
     void 최근_TIL_없으면_빈_리스트를_반환한다() {
         // when
-        List<TilWithUserResponse> result = resentTilService.getRecentTils();
+        List<TilWithUserResponse> result = recentTilService.getRecentTils();
 
         // then
         assertThat(result).hasSize(0);
@@ -96,7 +96,7 @@ class RecentTilServiceTest {
         insertTilFixtureWithDateTime(tilId3, dateTime3);
 
         // when
-        List<Long> result = resentTilService.getRecentTils().stream()
+        List<Long> result = recentTilService.getRecentTils().stream()
                 .map(TilWithUserResponse::id)
                 .toList();
 
