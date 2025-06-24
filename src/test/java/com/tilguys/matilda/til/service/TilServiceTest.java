@@ -45,7 +45,7 @@ class TilServiceTest {
 
     @Autowired
     private UserRepository userRepository;
-    
+
     @MockitoBean
     private TilTagService tilTagService;
 
@@ -143,113 +143,6 @@ class TilServiceTest {
             assertThat(response.tils().get(0).id()).isEqualTo(til3.getTilId());
             assertThat(response.tils().get(1).id()).isEqualTo(til2.getTilId());
             assertThat(response.tils().get(2).id()).isEqualTo(til1.getTilId());
-        }
-    }
-
-    @Nested
-    class TIL_날짜_조회_테스트 {
-
-        @Test
-        void 사용자의_TIL이_존재하면_날짜_목록을_반환한다() {
-            // given
-            LocalDate date1 = LocalDate.of(2024, 6, 1);
-            LocalDate date2 = LocalDate.of(2024, 6, 2);
-            Til til1 = createTestTilFixture(true, false, date1);
-            Til til2 = createTestTilFixture(true, false, date2);
-            tilRepository.saveAll(List.of(til1, til2));
-
-            // when
-            TilDatesResponse response = tilService.getAllTilDatesByUserId(tilUser.getId());
-
-            // then
-            assertThat(response.dates()).hasSize(2);
-            assertThat(response.dates()).contains(date1, date2);
-        }
-
-        @Test
-        void 사용자의_TIL이_없으면_빈_목록을_반환한다() {
-            // when
-            TilDatesResponse response = tilService.getAllTilDatesByUserId(tilUser.getId());
-
-            // then
-            assertThat(response.dates()).isEmpty();
-        }
-
-        @Test
-        void 삭제된_TIL의_날짜는_반환되지_않는다() {
-            // given
-            LocalDate date1 = LocalDate.of(2024, 6, 1);
-            LocalDate date2 = LocalDate.of(2024, 6, 2);
-            Til til1 = createTestTilFixture(true, false, date1);
-            Til til2 = createTestTilFixture(true, true, date2);
-            tilRepository.saveAll(List.of(til1, til2));
-
-            // when
-            TilDatesResponse response = tilService.getAllTilDatesByUserId(tilUser.getId());
-
-            // then
-            assertThat(response.dates()).hasSize(1);
-            assertThat(response.dates()).contains(date1);
-            assertThat(response.dates()).doesNotContain(date2);
-        }
-    }
-
-    @Nested
-    class TIL_업데이트_테스트 {
-
-        @Test
-        void 정상적으로_TIL이_업데이트된다() {
-            // given
-            long userId = 1L;
-            Til til = createTestTilFixture();
-            til = tilRepository.save(til);
-
-            TilDefinitionRequest request = new TilDefinitionRequest(
-                    "new title", "new content", LocalDate.of(2024, 6, 2), true
-            );
-
-            // when
-            tilService.updateTil(til.getTilId(), request, userId);
-
-            // then
-            Til updated = tilRepository.findById(til.getTilId()).orElseThrow();
-            assertThat(updated.getContent()).isEqualTo("new content");
-            assertThat(updated.isPublic()).isTrue();
-            assertThat(updated.getDate()).isEqualTo(LocalDate.of(2024, 6, 2));
-            assertThat(updated.getTitle()).isEqualTo("new title");
-        }
-
-        @Test
-        void 존재하지_않는_TIL을_업데이트하면_예외가_발생한다() {
-            // given
-            long notExistId = 9999L;
-            long userId = 1L;
-            TilDefinitionRequest request = new TilDefinitionRequest(
-                    "title", "content", LocalDate.now(), true
-            );
-
-            // when && then
-            assertThatThrownBy(() -> tilService.updateTil(notExistId, request, userId))
-                    .isInstanceOf(IllegalArgumentException.class);
-        }
-
-        @Test
-        void 삭제된_TIL은_업데이트되지_않는다() {
-            // given
-            Til til = createTestTilFixture();
-            long userId = 1L;
-
-            til.markAsDeleted();
-            tilRepository.save(til);
-
-            TilDefinitionRequest request = new TilDefinitionRequest(
-                    "new title", "new content", LocalDate.of(2024, 6, 2), true
-            );
-
-            // when && then
-            assertThatThrownBy(() -> tilService.updateTil(til.getTilId(), request, userId))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("삭제된 TIL은 수정할 수 없습니다.");
         }
     }
 
@@ -361,6 +254,141 @@ class TilServiceTest {
             // then
             assertThat(createdTil.getReferences()).hasSize(2);
             assertThat(createdTil.getReferences()).containsExactlyElementsOf(mockReferences);
+        }
+    }
+
+    @Nested
+    class TIL_날짜_조회_테스트 {
+
+        @Test
+        void 사용자의_TIL이_존재하면_날짜_목록을_반환한다() {
+            // given
+            LocalDate date1 = LocalDate.of(2024, 6, 1);
+            LocalDate date2 = LocalDate.of(2024, 6, 2);
+            Til til1 = createTestTilFixture(true, false, date1);
+            Til til2 = createTestTilFixture(true, false, date2);
+            tilRepository.saveAll(List.of(til1, til2));
+
+            // when
+            TilDatesResponse response = tilService.getAllTilDatesByUserId(tilUser.getId());
+
+            // then
+            assertThat(response.dates()).hasSize(2);
+            assertThat(response.dates()).contains(date1, date2);
+        }
+
+        @Test
+        void 사용자의_TIL이_없으면_빈_목록을_반환한다() {
+            // when
+            TilDatesResponse response = tilService.getAllTilDatesByUserId(tilUser.getId());
+
+            // then
+            assertThat(response.dates()).isEmpty();
+        }
+
+        @Test
+        void 삭제된_TIL의_날짜는_반환되지_않는다() {
+            // given
+            LocalDate date1 = LocalDate.of(2024, 6, 1);
+            LocalDate date2 = LocalDate.of(2024, 6, 2);
+            Til til1 = createTestTilFixture(true, false, date1);
+            Til til2 = createTestTilFixture(true, true, date2);
+            tilRepository.saveAll(List.of(til1, til2));
+
+            // when
+            TilDatesResponse response = tilService.getAllTilDatesByUserId(tilUser.getId());
+
+            // then
+            assertThat(response.dates()).hasSize(1);
+            assertThat(response.dates()).contains(date1);
+            assertThat(response.dates()).doesNotContain(date2);
+        }
+    }
+
+    @Nested
+    class TIL_업데이트_테스트 {
+
+        @Test
+        void 정상적으로_TIL이_업데이트된다() {
+            // given
+            long userId = 1L;
+            Til til = createTestTilFixture();
+            til = tilRepository.save(til);
+
+            TilDefinitionRequest request = new TilDefinitionRequest(
+                    "new title", "new content", LocalDate.of(2024, 6, 2), true
+            );
+
+            // when
+            tilService.updateTil(til.getTilId(), request, userId);
+
+            // then
+            Til updated = tilRepository.findById(til.getTilId()).orElseThrow();
+            assertThat(updated.getContent()).isEqualTo("new content");
+            assertThat(updated.isPublic()).isTrue();
+            assertThat(updated.getDate()).isEqualTo(LocalDate.of(2024, 6, 2));
+            assertThat(updated.getTitle()).isEqualTo("new title");
+        }
+
+        @Test
+        void 존재하지_않는_TIL을_업데이트하면_예외가_발생한다() {
+            // given
+            long notExistId = 9999L;
+            long userId = 1L;
+            TilDefinitionRequest request = new TilDefinitionRequest(
+                    "title", "content", LocalDate.now(), true
+            );
+
+            // when && then
+            assertThatThrownBy(() -> tilService.updateTil(notExistId, request, userId))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        @Test
+        void 삭제된_TIL은_업데이트되지_않는다() {
+            // given
+            Til til = createTestTilFixture();
+            long userId = 1L;
+
+            til.markAsDeleted();
+            tilRepository.save(til);
+
+            TilDefinitionRequest request = new TilDefinitionRequest(
+                    "new title", "new content", LocalDate.of(2024, 6, 2), true
+            );
+
+            // when && then
+            assertThatThrownBy(() -> tilService.updateTil(til.getTilId(), request, userId))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("삭제된 TIL은 수정할 수 없습니다.");
+        }
+    }
+
+    @Nested
+    class TIL_삭제_테스트 {
+
+        @Test
+        void 정상적으로_TIL이_삭제된다() {
+            // given
+            Til til = createTestTilFixture(true, false, LocalDate.now());
+            til = tilRepository.save(til);
+
+            // when
+            tilService.deleteTil(til.getTilId());
+
+            // then
+            Til deletedTil = tilRepository.findById(til.getTilId()).orElseThrow();
+            assertThat(deletedTil.isDeleted()).isTrue();
+        }
+
+        @Test
+        void 존재하지_않는_TIL_ID로_삭제_시도_시_예외가_발생한다() {
+            // given
+            long nonExistentId = 9999L;
+
+            // when && then
+            assertThatThrownBy(() -> tilService.deleteTil(nonExistentId))
+                    .isInstanceOf(IllegalArgumentException.class);
         }
     }
 
