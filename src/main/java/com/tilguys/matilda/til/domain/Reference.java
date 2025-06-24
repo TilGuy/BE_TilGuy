@@ -39,4 +39,3 @@ public class Reference {
     @JoinColumn(name = "til_id")
     private Til til;
 }
-
