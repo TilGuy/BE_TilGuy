@@ -101,12 +101,12 @@ public class TilService {
         );
     }
 
-    public void deleteTil(final Long tilId) {
+    public void deleteTil(final Long tilId, final Long userId) {
         if (!tilRepository.existsById(tilId)) {
             throw new IllegalArgumentException();
         }
         Til til = getTilByTilId(tilId);
-        til.markAsDeleted();
+        til.markAsDeletedBy(userId);
     }
 
     public TilDetailsResponse getTilByDateRange(final Long userId, final LocalDate from, final LocalDate to) {

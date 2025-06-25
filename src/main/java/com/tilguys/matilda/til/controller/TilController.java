@@ -59,8 +59,11 @@ public class TilController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> softDeleteTil(@PathVariable final Long id) {
-        tilService.deleteTil(id);
+    public ResponseEntity<?> softDeleteTil(
+            @PathVariable final Long id,
+            @AuthenticationPrincipal final SimpleUserInfo simpleUserInfo
+    ) {
+        tilService.deleteTil(id, simpleUserInfo.id());
         return ResponseEntity.noContent().build();
     }
 
