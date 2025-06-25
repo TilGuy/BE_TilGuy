@@ -99,7 +99,8 @@ class TagRelationServiceTest {
 
     @Test
     void 삭제된_TIL의_관계들은_가져오지_않는다() {
-        TilUser tilUser = userRepository.save(new TilUser(null, ProviderInfo.GITHUB, "tmp", Role.USER, "asdf", "asdf"));
+        TilUser tilUser = userRepository.save(
+                new TilUser(null, ProviderInfo.GITHUB, "tmp", Role.USER, "asdf", "asdf"));
         Til til = tilService.createTil(new TilDefinitionRequest("title", "content", LocalDate.now(), true),
                 tilUser.getId());
 
@@ -118,7 +119,7 @@ class TagRelationServiceTest {
 
         tagRelationService.updateCoreTagsRelation();
 
-        tilService.deleteTil(til.getTilId());
+        tilService.deleteTil(til.getTilId(), 1L);
         Map<Tag, List<Tag>> recentRelationTagMap = tagRelationService.getRecentRelationTagMap();
         assertThat(recentRelationTagMap.keySet().size()).isEqualTo(0L);
     }

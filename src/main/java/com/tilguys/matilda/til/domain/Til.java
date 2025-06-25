@@ -79,7 +79,10 @@ public class Til extends BaseEntity {
         this.title = title;
     }
 
-    public void markAsDeleted() {
+    public void markAsDeletedBy(final Long userId) {
+        if (!Objects.equals(this.tilUser.getId(), userId)) {
+            throw new IllegalArgumentException("작성자만 삭제 가능합니다.");
+        }
         this.isDeleted = true;
     }
 
