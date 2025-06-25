@@ -17,6 +17,7 @@ import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -53,9 +54,11 @@ public class Til extends BaseEntity {
     @Column(name = "date")
     private LocalDate date;
 
+    @Getter
     @Column(name = "is_public")
     private boolean isPublic;
 
+    @Getter
     @Column(name = "is_deleted")
     private boolean isDeleted;
 
@@ -105,5 +108,19 @@ public class Til extends BaseEntity {
 
     public boolean isNotDeleted() {
         return !isDeleted;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final Til til = (Til) o;
+        return Objects.equals(tilId, til.tilId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(tilId);
     }
 }
