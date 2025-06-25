@@ -1,0 +1,175 @@
+<!-- src/main/resources/templates/share/og-template.html -->
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" th:content="${til.title}"/>
+    <meta property="og:description" th:content="${description}"/>
+    <meta property="og:image" th:content="${imageUrl}"/>
+    <meta property="og:url" th:content="@{/share/{tilId}(tilId=${til.id})}"/>
+    <meta property="og:type" content="article"/>
+    <meta property="og:site_name" content="마틸다 TIL"/>
+
+    <!-- 기본 메타 태그 -->
+    <meta name="description" th:content="${description}"/>
+    <title th:text="${til.title} + ' - 마틸다 TIL'"></title>
+
+    <!-- 스타일링 -->
+    <style>
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #6A5ACD 0%, #5F9EA0 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 700px;
+            margin: 20px;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .author-info {
+            color: #6A5ACD;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .date-info {
+            color: #5F9EA0;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .content-preview {
+            color: #666;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            white-space: pre-line;
+        }
+
+        .tags {
+            margin-bottom: 1.5rem;
+        }
+
+        .tags-title {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #B39DDB;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin: 2px;
+        }
+
+        .references {
+            margin-bottom: 2rem;
+        }
+
+        .references-title {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .reference-word {
+            display: inline-block;
+            background: #81DEEA;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin: 2px;
+        }
+
+        .redirect-info {
+            color: #999;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #6A5ACD;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="logo">✏️</div>
+
+    <!-- 작성자 정보 -->
+    <div class="author-info">
+        <span>작성자: </span>
+        <strong th:text="${til.nickname}">작성자명</strong>
+    </div>
+
+    <!-- 날짜 (제목) -->
+    <div class="date-info" th:text="${til.title}">날짜</div>
+
+    <!-- 태그 목록 -->
+    <div class="tags" th:if="${til.tags != null and #lists.size(til.tags.tags) > 0}">
+        <div class="tags-title">🏷️ 태그</div>
+        <span class="tag" th:each="tag : ${til.tags.tags}" th:text="'#' + ${tag}"></span>
+    </div>
+
+    <!-- 학습 단어 (References) -->
+    <div class="references" th:if="${til.references != null and #lists.size(til.references.words) > 0}">
+        <div class="references-title">📚 학습 단어</div>
+        <span class="reference-word" th:each="word : ${til.references.words}" th:text="${word}"></span>
+    </div>
+
+    <div class="redirect-info">
+        <div class="loading"></div>
+        TIL 페이지로 이동 중...
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        setTimeout(function () {
+            window.location.href = /*[[${frontendUrl}]]*/ + '/all-tils?tilId=' + /*[[${til.id}]]*/ ;
+        }, 2000);
+        /*]]>*/
+    </script>
+</div>
+</body>
+</html>

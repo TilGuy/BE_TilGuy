@@ -1,4 +1,4 @@
-package com.tilguys.matilda.tags.service;
+package com.tilguys.matilda.tag.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -9,7 +9,6 @@ import com.tilguys.matilda.tag.domain.SubTag;
 import com.tilguys.matilda.tag.domain.TilTags;
 import com.tilguys.matilda.tag.repository.SubTagRepository;
 import com.tilguys.matilda.tag.repository.TagRepository;
-import com.tilguys.matilda.tag.service.TilTagService;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.repository.TilRepository;
