@@ -68,7 +68,7 @@ class TilServiceTest {
                 .nickname("test")
                 .identifier("test")
                 .build();
-        userRepository.save(tilUser);
+        tilUser = userRepository.save(tilUser);
     }
 
     @AfterEach
@@ -374,9 +374,8 @@ class TilServiceTest {
         void 삭제된_TIL은_업데이트되지_않는다() {
             // given
             Til til = createTestTilFixture();
-            long userId = 1L;
-
-            til.markAsDeleted();
+            long userId = tilUser.getId();
+            til.markAsDeletedBy(userId);
             tilRepository.save(til);
 
             TilDefinitionRequest request = new TilDefinitionRequest(
@@ -400,7 +399,7 @@ class TilServiceTest {
             til = tilRepository.save(til);
 
             // when
-            tilService.deleteTil(til.getTilId());
+            tilService.deleteTil(til.getTilId(), tilUser.getId());
 
             // then
             Til deletedTil = tilRepository.findById(til.getTilId()).orElseThrow();
@@ -413,7 +412,7 @@ class TilServiceTest {
             long nonExistentId = 9999L;
 
             // when && then
-            assertThatThrownBy(() -> tilService.deleteTil(nonExistentId))
+            assertThatThrownBy(() -> tilService.deleteTil(nonExistentId, 1L))
                     .isInstanceOf(IllegalArgumentException.class);
         }
     }
