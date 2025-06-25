@@ -2,6 +2,7 @@ package com.tilguys.matilda.til.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.tilguys.matilda.tag.repository.SubTagRepository;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilWithUserResponse;
 import com.tilguys.matilda.til.repository.TilRepository;
@@ -12,8 +13,8 @@ import com.tilguys.matilda.user.repository.UserRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -33,6 +34,9 @@ class RecentTilServiceTest {
     private TilRepository tilRepository;
 
     @Autowired
+    private SubTagRepository subTagRepository;
+
+    @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @BeforeAll
@@ -46,8 +50,9 @@ class RecentTilServiceTest {
         userRepository.save(tilUser);
     }
 
-    @AfterEach
+    @BeforeEach
     void tearDown() {
+        subTagRepository.deleteAll();
         tilRepository.deleteAll();
     }
 
