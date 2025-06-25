@@ -24,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,7 +65,6 @@ public class TilService {
         String tagResults = tags.stream()
                 .map(Tag::getTagString)
                 .collect(Collectors.joining(","));
-
         log.debug("{}=> {} => 추출된 태그 =>{}", til.getContent(), tilResponseJson, tagResults);
 
         til.updateTags(tags);
@@ -76,14 +74,6 @@ public class TilService {
         TilTags tilTags = new TilTags(tags);
         tilTagService.createSubTags(tilResponseJson, tilTags);
         return til;
-    }
-
-    public Page<TilDetailResponse> getTilByPagination(final int page, final int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        Page<Til> tilPage = tilRepository.findAll(pageable);
-
-        return tilPage.map(TilDetailResponse::fromEntity);
     }
 
     public TilDatesResponse getAllTilDatesByUserId(final Long userId) {
@@ -97,6 +87,7 @@ public class TilService {
 
     public void updateTil(final Long tilId, final TilDefinitionRequest tilUpdateDto, final long userId) {
         Til til = getTilByTilId(tilId);
+        validateDeleted(til);
         LocalDate targetDate = tilUpdateDto.date();
         boolean exists = tilRepository.existsByDateAndTilUserIdAndIsDeletedFalse(targetDate, userId);
         if (exists && !targetDate.equals(til.getDate())) {
@@ -146,5 +137,11 @@ public class TilService {
     @Transactional(readOnly = true)
     public List<Til> getRecentWroteTil(LocalDateTime startTime) {
         return tilRepository.findByCreatedAtGreaterThanEqual(startTime);
+    }
+
+    private void validateDeleted(Til til) {
+        if (til.isDeleted()) {
+            throw new IllegalArgumentException("삭제된 TIL은 수정할 수 없습니다.");
+        }
     }
 }
