@@ -110,11 +110,9 @@ public class TilService {
     }
 
     public TilDetailsResponse getTilByDateRange(final Long userId, final LocalDate from, final LocalDate to) {
-        List<Til> tils = tilRepository.findByTilUserId(userId);
+        List<Til> tils = tilRepository.findAllByTilUserIdAndDateBetweenAndIsDeleted(userId, from, to, false);
 
         List<TilDetailResponse> responseList = tils.stream()
-                .filter(til -> til.isWithinDateRange(from, to))
-                .filter(Til::isNotDeleted)
                 .map(TilDetailResponse::fromEntity)
                 .toList();
 
