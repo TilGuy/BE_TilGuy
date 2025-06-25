@@ -7,11 +7,10 @@ import com.tilguys.matilda.til.domain.Reference;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.PagedTilResponse;
-import com.tilguys.matilda.til.dto.TilCreateRequest;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
+import com.tilguys.matilda.til.dto.TilDefinitionRequest;
 import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
-import com.tilguys.matilda.til.dto.TilUpdateRequest;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.service.TilUserService;
@@ -25,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +46,7 @@ public class TilService {
     }
 
     @Transactional
-    public Til createTil(final TilCreateRequest tilCreateDto, final long userId) {
+    public Til createTil(final TilDefinitionRequest tilCreateDto, final long userId) {
         boolean exists = tilRepository.existsByDateAndTilUserIdAndIsDeletedFalse(tilCreateDto.date(), userId);
         if (exists) {
             throw new IllegalArgumentException("같은 날에 작성된 게시물이 존재합니다!");
@@ -67,7 +65,6 @@ public class TilService {
         String tagResults = tags.stream()
                 .map(Tag::getTagString)
                 .collect(Collectors.joining(","));
-
         log.debug("{}=> {} => 추출된 태그 =>{}", til.getContent(), tilResponseJson, tagResults);
 
         til.updateTags(tags);
@@ -79,14 +76,6 @@ public class TilService {
         return til;
     }
 
-    public Page<TilDetailResponse> getTilByPagination(final int page, final int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        Page<Til> tilPage = tilRepository.findAll(pageable);
-
-        return tilPage.map(TilDetailResponse::fromEntity);
-    }
-
     public TilDatesResponse getAllTilDatesByUserId(final Long userId) {
         List<LocalDate> all = tilRepository.findByTilUserId(userId).stream()
                 .filter(Til::isNotDeleted)
@@ -96,30 +85,34 @@ public class TilService {
         return new TilDatesResponse(all);
     }
 
-    public void updateTil(final Long tilId, final TilUpdateRequest tilUpdateDto) {
+    public void updateTil(final Long tilId, final TilDefinitionRequest tilUpdateDto, final long userId) {
         Til til = getTilByTilId(tilId);
+        validateDeleted(til);
+        LocalDate targetDate = tilUpdateDto.date();
+        boolean exists = tilRepository.existsByDateAndTilUserIdAndIsDeletedFalse(targetDate, userId);
+        if (exists && !targetDate.equals(til.getDate())) {
+            throw new IllegalArgumentException("해당 날짜에 이미 작성된 게시물이 존재합니다!");
+        }
         til.update(
                 tilUpdateDto.content(),
                 tilUpdateDto.isPublic(),
-                tilUpdateDto.date(),
+                targetDate,
                 tilUpdateDto.title()
         );
     }
 
-    public void deleteTil(final Long tilId) {
+    public void deleteTil(final Long tilId, final Long userId) {
         if (!tilRepository.existsById(tilId)) {
             throw new IllegalArgumentException();
         }
         Til til = getTilByTilId(tilId);
-        til.markAsDeleted();
+        til.markAsDeletedBy(userId);
     }
 
     public TilDetailsResponse getTilByDateRange(final Long userId, final LocalDate from, final LocalDate to) {
-        List<Til> tils = tilRepository.findByTilUserId(userId);
+        List<Til> tils = tilRepository.findAllByTilUserIdAndDateBetweenAndIsDeleted(userId, from, to, false);
 
         List<TilDetailResponse> responseList = tils.stream()
-                .filter(til -> til.isWithinDateRange(from, to))
-                .filter(Til::isNotDeleted)
                 .map(TilDetailResponse::fromEntity)
                 .toList();
 
@@ -142,5 +135,11 @@ public class TilService {
     @Transactional(readOnly = true)
     public List<Til> getRecentWroteTil(LocalDateTime startTime) {
         return tilRepository.findByCreatedAtGreaterThanEqual(startTime);
+    }
+
+    private void validateDeleted(Til til) {
+        if (til.isDeleted()) {
+            throw new IllegalArgumentException("삭제된 TIL은 수정할 수 없습니다.");
+        }
     }
 }

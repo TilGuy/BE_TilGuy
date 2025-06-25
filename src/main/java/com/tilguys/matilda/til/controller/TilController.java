@@ -4,18 +4,17 @@ import com.tilguys.matilda.common.auth.SimpleUserInfo;
 import com.tilguys.matilda.slack.service.SlackService;
 import com.tilguys.matilda.tag.service.TagRelationService;
 import com.tilguys.matilda.til.domain.Til;
-import com.tilguys.matilda.til.dto.TilCreateRequest;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
+import com.tilguys.matilda.til.dto.TilDefinitionRequest;
 import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
-import com.tilguys.matilda.til.dto.TilUpdateRequest;
 import com.tilguys.matilda.til.dto.TilWithUserResponse;
 import com.tilguys.matilda.til.service.RecentTilService;
 import com.tilguys.matilda.til.service.TilService;
+import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -47,7 +46,7 @@ public class TilController {
     }
 
     @PostMapping
-    public ResponseEntity<?> saveTil(@RequestBody final TilCreateRequest createRequest,
+    public ResponseEntity<?> saveTil(@Valid @RequestBody final TilDefinitionRequest createRequest,
                                      @AuthenticationPrincipal final SimpleUserInfo simpleUserInfo) {
         Til til = tilService.createTil(createRequest, simpleUserInfo.id());
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yy-MM월-dd일");
@@ -56,21 +55,25 @@ public class TilController {
 
         //Performance 성능개선 태그를 빠르게 업데이트하는 용도 - 스케줄링에 시켜야함
         tagRelationService.updateCoreTagsRelation();
-        return ResponseEntity.ok(til);
+        return ResponseEntity.ok(TilDetailResponse.fromEntity(til));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> softDeleteTil(@PathVariable final Long id) {
-        tilService.deleteTil(id);
+    public ResponseEntity<?> softDeleteTil(
+            @PathVariable final Long id,
+            @AuthenticationPrincipal final SimpleUserInfo simpleUserInfo
+    ) {
+        tilService.deleteTil(id, simpleUserInfo.id());
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{tilId}")
+    @PutMapping("/{id}")
     public ResponseEntity<?> updateTil(
-            @PathVariable final Long tilId,
-            @RequestBody final TilUpdateRequest request
+            @PathVariable final Long id,
+            @Valid @RequestBody final TilDefinitionRequest request,
+            @AuthenticationPrincipal final SimpleUserInfo simpleUserInfo
     ) {
-        tilService.updateTil(tilId, request);
+        tilService.updateTil(id, request, simpleUserInfo.id());
         return ResponseEntity.ok().build();
     }
 
@@ -78,13 +81,6 @@ public class TilController {
     public ResponseEntity<?> getAllTilDates(@AuthenticationPrincipal final SimpleUserInfo simpleUserInfo) {
         TilDatesResponse datesForUser = tilService.getAllTilDatesByUserId(simpleUserInfo.id());
         return ResponseEntity.ok(datesForUser);
-    }
-
-    @GetMapping("/main")
-    public ResponseEntity<?> getMainTil(@RequestParam(defaultValue = "0") final int page,
-                                        @RequestParam(defaultValue = "10") final int size) {
-        Page<TilDetailResponse> tilPage = tilService.getTilByPagination(page, size);
-        return ResponseEntity.ok(tilPage);
     }
 
     @GetMapping("/range")
