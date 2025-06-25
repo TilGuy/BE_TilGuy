@@ -16,6 +16,9 @@ public interface TilRepository extends JpaRepository<Til, Long> {
 
     List<Til> findByTilUserId(final Long userId);
 
+    List<Til> findAllByTilUserIdAndDateBetweenAndIsDeleted(Long tilUserId, LocalDate dateAfter, LocalDate dateBefore,
+                                                           boolean deleted);
+
     boolean existsByDateAndTilUserIdAndIsDeletedFalse(LocalDate date, Long userId);
 
     List<Til> findByCreatedAtGreaterThanEqual(LocalDateTime recent);
