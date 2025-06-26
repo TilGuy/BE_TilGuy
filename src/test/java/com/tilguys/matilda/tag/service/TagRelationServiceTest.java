@@ -94,7 +94,7 @@ class TagRelationServiceTest {
 
         tagRelationService.updateCoreTagsRelation();
 
-        assertThat(tagRelationService.getRecentRelationTagMap().keySet().size()).isEqualTo(tags.size());
+        assertThat(tagRelationService.getRecentRelationTagMap().size()).isEqualTo(tags.size());
     }
 
     @Test
@@ -119,7 +119,7 @@ class TagRelationServiceTest {
 
         tagRelationService.updateCoreTagsRelation();
 
-        tilService.deleteTil(til.getTilId(), 1L);
+        tilService.deleteTil(til.getTilId(), tilUser.getId());
         Map<Tag, List<Tag>> recentRelationTagMap = tagRelationService.getRecentRelationTagMap();
         assertThat(recentRelationTagMap.keySet().size()).isEqualTo(0L);
     }
