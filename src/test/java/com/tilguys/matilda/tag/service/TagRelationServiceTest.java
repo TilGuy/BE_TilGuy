@@ -74,6 +74,9 @@ class TagRelationServiceTest {
 
     @Test
     void 최근_태그관계들을_가져올_수_있다() {
+        subTagRepository.deleteAll();
+        tagRepository.deleteAll();
+
         TilUser tilUser = userRepository.save(new TilUser(null, ProviderInfo.GITHUB, "tmp", Role.USER, "asdf", "asdf"));
         Til til = tilService.createTil(new TilDefinitionRequest("title", "content", LocalDate.now(), true),
                 tilUser.getId());
@@ -99,6 +102,9 @@ class TagRelationServiceTest {
 
     @Test
     void 삭제된_TIL의_관계들은_가져오지_않는다() {
+        subTagRepository.deleteAll();
+        tagRepository.deleteAll();
+        tagRelationRepository.deleteAll();
         TilUser tilUser = userRepository.save(
                 new TilUser(null, ProviderInfo.GITHUB, "tmp", Role.USER, "asdf", "asdf"));
         Til til = tilService.createTil(new TilDefinitionRequest("title", "content", LocalDate.now(), true),
@@ -121,6 +127,6 @@ class TagRelationServiceTest {
 
         tilService.deleteTil(til.getTilId(), tilUser.getId());
         Map<Tag, List<Tag>> recentRelationTagMap = tagRelationService.getRecentRelationTagMap();
-        assertThat(recentRelationTagMap.keySet().size()).isEqualTo(0L);
+        assertThat(recentRelationTagMap.size()).isEqualTo(0L);
     }
 }
