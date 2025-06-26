@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class TagRelationService {
 
-    private static final Long TAG_GET_START_DAY = 7L;
     private static final Long TAG_RELATION_RENEW_PERIOD = 3L;
 
     private final TagRelationRepository tagRelationRepository;
