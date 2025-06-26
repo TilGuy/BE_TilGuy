@@ -23,7 +23,6 @@ public class TagController {
         LocalTime start = LocalTime.now();
         TilTagRelations recentTagRelations = recentTilTagsCache.getRecentTagRelations();
         log.debug("{}초 소요됨", LocalTime.now().toSecondOfDay() - start.toSecondOfDay());
-        System.out.println("초 소요됨 " + (LocalTime.now().toNanoOfDay() - start.toNanoOfDay()));
         return ResponseEntity.ok(recentTagRelations);
     }
 }
