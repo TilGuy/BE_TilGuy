@@ -50,6 +50,8 @@ public class TagScheduledJob {
                 .toList();
 
         Map<Tag, List<Tag>> tagRelationMap = tagRelationService.getRecentRelationTagMap();
+        log.info("crated tags size : {} subTags size : {} tagRelationMap size : {} ", tags.size(), subTags.size(),
+                tagRelationMap.size());
 
         return new TilTagRelations(tags, subTags, tagRelationMap);
     }
