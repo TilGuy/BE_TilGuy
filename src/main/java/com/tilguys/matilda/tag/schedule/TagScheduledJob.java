@@ -7,6 +7,7 @@ import com.tilguys.matilda.tag.domain.TilTagRelations;
 import com.tilguys.matilda.tag.service.TagRelationService;
 import com.tilguys.matilda.tag.service.TilTagService;
 import com.tilguys.matilda.til.domain.Tag;
+import jakarta.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,11 @@ public class TagScheduledJob {
         this.tagRelationService = tagRelationService;
         this.tilTagService = tilTagService;
         this.recentTilTagsCache = recentTilTagsCache;
+    }
+
+    @PostConstruct
+    public void init() {
+        updateRecentTagRelations();
     }
 
     @Scheduled(cron = "0 */5 * * * *")
