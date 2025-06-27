@@ -11,13 +11,13 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 
 @Getter
-public class KeywordTags {
+public class TilTagRelations {
 
     private final Map<String, List<String>> keywordTagMap = new HashMap<>();
     private final Map<String, List<Long>> tagTilIdMap;
     private final Map<String, List<String>> tagRelationMap;
 
-    public KeywordTags(List<Tag> tags, List<SubTag> subTags, Map<Tag, List<Tag>> tagRelationMap) {
+    public TilTagRelations(List<Tag> tags, List<SubTag> subTags, Map<Tag, List<Tag>> tagRelationMap) {
         initiateCoreTag(tags);
 
         for (SubTag subTag : subTags) {
