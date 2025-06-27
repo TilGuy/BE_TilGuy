@@ -6,7 +6,6 @@ import com.tilguys.matilda.tag.service.TilTagService;
 import com.tilguys.matilda.til.domain.Reference;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
-import com.tilguys.matilda.til.dto.PagedTilResponse;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
 import com.tilguys.matilda.til.dto.TilDefinitionRequest;
 import com.tilguys.matilda.til.dto.TilDetailResponse;
@@ -23,10 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -105,13 +101,6 @@ public class TilService {
         }
         Til til = getTilByTilId(tilId);
         til.markAsDeletedBy(userId);
-    }
-
-    @Transactional(readOnly = true)
-    public PagedTilResponse getPublicTils(int pageNumber, int pageSize) {
-        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, "date");
-        Page<Til> tilPage = tilRepository.findAllByIsPublicTrueAndIsDeletedFalse(pageRequest);
-        return new PagedTilResponse(tilPage);
     }
 
     @Transactional(readOnly = true)

@@ -5,10 +5,11 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.domain.TilFixture;
-import com.tilguys.matilda.til.dto.PagedTilResponse;
+import com.tilguys.matilda.til.dto.TilReadAllResponse;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.repository.UserRepository;
+import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,14 +36,13 @@ public class TilServiceIntegrationTest {
         userRepository.save(tilUser);
         createAndSaveTils(tilUser, 15);
 
-        int pageNumber = 0;
-        int pageSize = 10;
+        int pageSize = 12;
 
         // when
-        PagedTilResponse result = tilService.getPublicTils(pageNumber, pageSize);
+        List<TilReadAllResponse> result = tilService.getPublicTils(null, null, pageSize);
 
         // then
-        assertThat(result.tils().size()).isEqualTo(10L);
+        assertThat(result.size()).isEqualTo(12L);
     }
 
     private void createAndSaveTils(TilUser tilUser, int count) {
