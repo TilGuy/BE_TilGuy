@@ -1,10 +1,7 @@
 package com.tilguys.matilda.til.service;
 
 import com.tilguys.matilda.reference.service.TilReferenceService;
-import com.tilguys.matilda.tag.domain.TilTags;
 import com.tilguys.matilda.tag.service.TilTagService;
-import com.tilguys.matilda.til.domain.Reference;
-import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.PagedTilResponse;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
@@ -19,7 +16,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -47,6 +43,34 @@ public class TilService {
 
     @Transactional
     public Til createTil(final TilDefinitionRequest tilCreateDto, final long userId) {
+        //// 2. TIL 생성 서비스 (이벤트 발행)
+        //@Service
+        //public class TilService {
+        //
+        //    private final ApplicationEventPublisher eventPublisher;
+        //    private final TilRepository tilRepository;
+        //
+        //    public TilService(ApplicationEventPublisher eventPublisher, TilRepository tilRepository) {
+        //        this.eventPublisher = eventPublisher;
+        //        this.tilRepository = tilRepository;
+        //    }
+        //
+        //    public Til createTil(String content, Long userId) {
+        //        // TIL 저장
+        //        Til til = new Til(content, userId);
+        //        Til savedTil = tilRepository.save(til);
+        //
+        //        // 이벤트 발행
+        //        TilCreatedEvent event = new TilCreatedEvent(
+        //            savedTil.getId(),
+        //            savedTil.getContent(),
+        //            savedTil.getUserId()
+        //        );
+        //        eventPublisher.publishEvent(event);
+        //
+        //        return savedTil;
+        //    }
+        //}
         boolean exists = tilRepository.existsByDateAndTilUserIdAndIsDeletedFalse(tilCreateDto.date(), userId);
         if (exists) {
             throw new IllegalArgumentException("같은 날에 작성된 게시물이 존재합니다!");
@@ -54,26 +78,8 @@ public class TilService {
 
         TilUser user = userService.findById(userId);
         Til newTil = tilCreateDto.toEntity(user);
-        Til til = tilRepository.save(newTil);
-
-        String tilResponseJson = tilTagService.requestTilTagResponseJson(til.getContent());
-
-        List<Tag> tags = tilTagService.saveTilTags(tilResponseJson)
-                .stream()
-                .toList();
-
-        String tagResults = tags.stream()
-                .map(Tag::getTagString)
-                .collect(Collectors.joining(","));
-        log.debug("{}=> {} => 추출된 태그 =>{}", til.getContent(), tilResponseJson, tagResults);
-
-        til.updateTags(tags);
-        List<Reference> references = tilReferenceService.extractTilReference(til.getContent());
-        til.updateReferences(references);
-
-        TilTags tilTags = new TilTags(tags);
-        tilTagService.createSubTags(tilResponseJson, tilTags);
-        return til;
+        //이벤트 발행 필요
+        return tilRepository.save(newTil);
     }
 
     public TilDatesResponse getAllTilDatesByUserId(final Long userId) {
