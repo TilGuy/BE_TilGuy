@@ -2,7 +2,6 @@ package com.tilguys.matilda.til.controller;
 
 import com.tilguys.matilda.common.auth.SimpleUserInfo;
 import com.tilguys.matilda.slack.service.SlackService;
-import com.tilguys.matilda.tag.service.TagRelationService;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
 import com.tilguys.matilda.til.dto.TilDefinitionRequest;
@@ -13,8 +12,10 @@ import com.tilguys.matilda.til.service.RecentTilService;
 import com.tilguys.matilda.til.service.TilService;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,14 +36,18 @@ public class TilController {
     private final TilService tilService;
     private final RecentTilService recentTilService;
     private final SlackService slackService;
-    private final TagRelationService tagRelationService;
 
     @GetMapping("/all")
     public ResponseEntity<?> getPublicTils(
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime createdDate,
+            @RequestParam(required = false) Long tilId,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return ResponseEntity.ok(tilService.getPublicTils(page, size));
+        return ResponseEntity.ok(tilService.getPublicTils(
+                createdDate, tilId, size)
+        );
     }
 
     @PostMapping
@@ -52,7 +57,7 @@ public class TilController {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yy-MM월-dd일");
         String dateString = dateTimeFormatter.format(til.getDate());
         slackService.sendTilWriteAlarm(til.getContent(), simpleUserInfo.nickname(), dateString, til.getTags());
-        
+
         return ResponseEntity.ok(TilDetailResponse.fromEntity(til));
     }
 
