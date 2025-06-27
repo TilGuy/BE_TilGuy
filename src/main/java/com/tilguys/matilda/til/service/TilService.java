@@ -6,12 +6,12 @@ import com.tilguys.matilda.tag.service.TilTagService;
 import com.tilguys.matilda.til.domain.Reference;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
-import com.tilguys.matilda.til.dto.CursoredTilResponse;
 import com.tilguys.matilda.til.dto.PagedTilResponse;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
 import com.tilguys.matilda.til.dto.TilDefinitionRequest;
 import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
+import com.tilguys.matilda.til.dto.TilReadAllResponse;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.service.TilUserService;
@@ -115,13 +115,13 @@ public class TilService {
     }
 
     @Transactional(readOnly = true)
-    public List<CursoredTilResponse> getPublicTils(LocalDateTime cursorDate, Long cursorId, int size) {
+    public List<TilReadAllResponse> getPublicTils(LocalDateTime cursorDate, Long cursorId, int size) {
         List<Til> tils = tilRepository.findPublicTilsWithAllInfo(
                 cursorDate, cursorId, Pageable.ofSize(size)
         );
 
         return tils.stream()
-                .map(CursoredTilResponse::new)
+                .map(TilReadAllResponse::new)
                 .toList();
     }
 
