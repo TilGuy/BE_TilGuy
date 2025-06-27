@@ -10,10 +10,12 @@ import com.tilguys.matilda.til.domain.Tag;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class TagScheduledJob {
 
     private static final int TAG_GET_START_DAY = 7;
@@ -46,13 +48,9 @@ public class TagScheduledJob {
                 .filter(subTag -> subTag.getTag() != null && subTag.getTag().getTil() != null && subTag.getTag()
                         .getTil().isNotDeleted())
                 .toList();
+
         Map<Tag, List<Tag>> tagRelationMap = tagRelationService.getRecentRelationTagMap();
 
-        for (Tag tag : tagRelationMap.keySet()) {
-            if (!tag.getTil().isNotDeleted()) {
-                tagRelationMap.remove(tag);
-            }
-        }
         return new TilTagRelations(tags, subTags, tagRelationMap);
     }
 }
