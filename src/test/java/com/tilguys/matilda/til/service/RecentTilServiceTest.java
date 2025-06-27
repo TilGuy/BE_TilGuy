@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.tilguys.matilda.tag.repository.SubTagRepository;
 import com.tilguys.matilda.til.domain.Til;
-import com.tilguys.matilda.til.dto.TilWithUserResponse;
+import com.tilguys.matilda.til.dto.TilReadAllResponse;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.ProviderInfo;
 import com.tilguys.matilda.user.Role;
@@ -70,7 +70,7 @@ class RecentTilServiceTest {
         }
 
         // when
-        List<TilWithUserResponse> result = recentTilService.getRecentTils();
+        List<TilReadAllResponse> result = recentTilService.getRecentTils();
 
         // then
         assertThat(result).hasSize(expectedSize);
@@ -79,7 +79,7 @@ class RecentTilServiceTest {
     @Test
     void 최근_TIL_없으면_빈_리스트를_반환한다() {
         // when
-        List<TilWithUserResponse> result = recentTilService.getRecentTils();
+        List<TilReadAllResponse> result = recentTilService.getRecentTils();
 
         // then
         assertThat(result).hasSize(0);
@@ -102,7 +102,7 @@ class RecentTilServiceTest {
 
         // when
         List<Long> result = recentTilService.getRecentTils().stream()
-                .map(TilWithUserResponse::id)
+                .map(TilReadAllResponse::id)
                 .toList();
 
         // then
