@@ -70,7 +70,7 @@ class TagRelationServiceTest {
         subTagRepository.saveAll(subTags);
 
         long before = tagRelationRepository.count();
-        tagRelationService.updateCoreTagsRelation();
+        tagRelationService.renewCoreTagsRelation();
 
         assertThat(tagRelationRepository.count()).isNotEqualTo(before);
     }
@@ -100,7 +100,7 @@ class TagRelationServiceTest {
         tagRepository.saveAll(tags);
         subTagRepository.saveAll(subTags);
 
-        tagRelationService.updateCoreTagsRelation();
+        tagRelationService.renewCoreTagsRelation();
 
         assertThat(tagRelationService.getRecentRelationTagMap().size()).isEqualTo(tags.size());
     }
@@ -129,7 +129,7 @@ class TagRelationServiceTest {
         tagRepository.saveAll(tags);
         subTagRepository.saveAll(subTags);
 
-        tagRelationService.updateCoreTagsRelation();
+        tagRelationService.renewCoreTagsRelation();
 
         tilService.deleteTil(til.getTilId(), tilUser.getId());
         Map<Tag, List<Tag>> recentRelationTagMap = tagRelationService.getRecentRelationTagMap();
