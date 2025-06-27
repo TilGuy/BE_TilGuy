@@ -3,7 +3,7 @@ package com.tilguys.matilda.til.dto;
 import com.tilguys.matilda.til.domain.Til;
 import java.time.LocalDateTime;
 
-public record CursoredTilResponse(
+public record TilReadAllResponse(
         Long id,
         String title,
         String content,
@@ -13,7 +13,7 @@ public record CursoredTilResponse(
         LocalDateTime createdAt
 ) {
 
-    public CursoredTilResponse(Til til) {
+    public TilReadAllResponse(Til til) {
         this(
                 til.getTilId(),
                 til.getTitle(),

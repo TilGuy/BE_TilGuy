@@ -23,6 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Builder
@@ -68,6 +69,7 @@ public class Til extends BaseEntity {
 
     @Getter
     @OneToMany(mappedBy = "til", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 50)
     @Builder.Default
     private List<Tag> tags = new ArrayList<>();
 
