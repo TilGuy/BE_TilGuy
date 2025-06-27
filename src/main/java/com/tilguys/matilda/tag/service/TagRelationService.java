@@ -28,7 +28,8 @@ public class TagRelationService {
     }
 
     @Transactional
-    public void updateCoreTagsRelation() {
+    public void renewCoreTagsRelation() {
+        tagRelationRepository.deleteAll();
         LocalDateTime startDateTime = LocalDate.now().minusDays(TAG_RELATION_RENEW_PERIOD).atStartOfDay();
         List<Til> recentWroteTil = tilService.getRecentWroteTil(startDateTime);
 
