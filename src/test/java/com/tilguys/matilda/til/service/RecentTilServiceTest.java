@@ -70,7 +70,7 @@ class RecentTilServiceTest {
         }
 
         // when
-        List<TilReadAllResponse> result = recentTilService.getRecentTils();
+        List<TilReadAllResponse> result = recentTilService.getRecentTils(0, 10);
 
         // then
         assertThat(result).hasSize(expectedSize);
@@ -79,7 +79,7 @@ class RecentTilServiceTest {
     @Test
     void 최근_TIL_없으면_빈_리스트를_반환한다() {
         // when
-        List<TilReadAllResponse> result = recentTilService.getRecentTils();
+        List<TilReadAllResponse> result = recentTilService.getRecentTils(0, 10);
 
         // then
         assertThat(result).hasSize(0);
@@ -101,7 +101,7 @@ class RecentTilServiceTest {
         insertTilFixtureWithDateTime(tilId3, dateTime3);
 
         // when
-        List<Long> result = recentTilService.getRecentTils().stream()
+        List<Long> result = recentTilService.getRecentTils(0, 10).stream()
                 .map(TilReadAllResponse::id)
                 .toList();
 
