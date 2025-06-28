@@ -7,19 +7,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Getter;
 
 @Getter
 public class TilTagRelations {
 
-    private final Map<String, List<String>> keywordTagMap = new HashMap<>();
+    private final Map<String, List<String>> keywordTagMap;
     private final Map<String, List<Long>> tagTilIdMap;
     private final Map<String, List<String>> tagRelationMap;
 
     public TilTagRelations(List<Tag> tags, List<SubTag> subTags, Map<Tag, List<Tag>> tagRelationMap) {
-        initiateCoreTag(tags);
+        Map<String, Tag> coreTagFinder = coreTagFinder(tags);
+        this.keywordTagMap = convertToKeywordTagMap(subTags);
+        this.tagRelationMap = convertToStringTagRelation(tagRelationMap, keywordTagMap);
+        this.tagTilIdMap = convertToTagTilId(keywordTagMap, coreTagFinder);
+    }
 
+    private Map<String, Tag> coreTagFinder(List<Tag> tags) {
+        Map<String, Tag> coreTagFinder = new HashMap<>();
+        for (Tag tag : tags) {
+            coreTagFinder.putIfAbsent(tag.getTagString(), tag);
+        }
+        return coreTagFinder;
+    }
+
+    private Map<String, List<String>> convertToKeywordTagMap(List<SubTag> subTags) {
+        Map<String, List<String>> keywordTagMap = new HashMap<>();
         for (SubTag subTag : subTags) {
             if (subTag.getTag() == null) {
                 continue;
@@ -29,16 +42,17 @@ public class TilTagRelations {
             keywordTags.add(subTag.getSubTagContent());
             keywordTagMap.put(coreTagString, keywordTags);
         }
-        this.tagRelationMap = convertToStringTagRelation(tagRelationMap);
-        this.tagTilIdMap = convertToTagTilId(tagRelationMap);
+        return keywordTagMap;
     }
 
-    private Map<String, List<Long>> convertToTagTilId(Map<Tag, List<Tag>> tagRelationMap) {
+    private Map<String, List<Long>> convertToTagTilId(Map<String, List<String>> keywordTagMap,
+                                                      Map<String, Tag> coreTagFinder) {
         Map<String, List<Long>> tagTilIds = new HashMap<>();
-        Set<Tag> allCoreTags = getAllCoreTags(tagRelationMap);
+        Set<String> allCoreTags = keywordTagMap.keySet();
 
-        for (Tag tag : allCoreTags) {
-            List<Long> tilIds = tagTilIds.getOrDefault(tag.getTagString(), new ArrayList<>());
+        for (String tagString : allCoreTags) {
+            List<Long> tilIds = tagTilIds.getOrDefault(tagString, new ArrayList<>());
+            Tag tag = coreTagFinder.get(tagString);
             tilIds.add(tag.getTil().getTilId());
             tagTilIds.put(tag.getTagString(), tilIds);
         }
@@ -46,15 +60,8 @@ public class TilTagRelations {
         return tagTilIds;
     }
 
-    private Set<Tag> getAllCoreTags(Map<Tag, List<Tag>> tagRelationMap) {
-        Set<Tag> allCoreTags = tagRelationMap.values().stream()
-                .flatMap(List::stream)
-                .collect(Collectors.toSet());
-        allCoreTags.addAll(tagRelationMap.keySet());
-        return allCoreTags;
-    }
-
-    private Map<String, List<String>> convertToStringTagRelation(Map<Tag, List<Tag>> tagRelationMap) {
+    private Map<String, List<String>> convertToStringTagRelation(Map<Tag, List<Tag>> tagRelationMap,
+                                                                 Map<String, List<String>> keywordTagMap) {
         Map<String, List<String>> relationTags = new HashMap<>();
 
         for (Entry<Tag, List<Tag>> tags : tagRelationMap.entrySet()) {
@@ -66,12 +73,11 @@ public class TilTagRelations {
             }
             relationTags.put(key.getTagString(), otherStringTags);
         }
-        return relationTags;
-    }
 
-    private void initiateCoreTag(List<Tag> tags) {
-        for (Tag tag : tags) {
-            keywordTagMap.put(tag.getTagString(), new ArrayList<>());
+        for (String coreTag : keywordTagMap.keySet()) {
+            relationTags.putIfAbsent(coreTag, new ArrayList<>());
         }
+
+        return relationTags;
     }
 }
