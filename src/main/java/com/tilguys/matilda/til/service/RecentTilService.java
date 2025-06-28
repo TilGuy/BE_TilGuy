@@ -18,8 +18,8 @@ public class RecentTilService {
     private final TilRepository tilRepository;
 
     @Transactional(readOnly = true)
-    public List<TilReadAllResponse> getRecentTils() {
-        PageRequest pageRequest = PageRequest.of(0, 10, Sort.Direction.DESC, "createdAt");
+    public List<TilReadAllResponse> getRecentTils(int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
         Page<Til> recentTils = tilRepository.findAllByIsPublicTrueAndIsDeletedFalse(pageRequest);
         return convertToRecentTilResponses(recentTils.getContent());
     }
