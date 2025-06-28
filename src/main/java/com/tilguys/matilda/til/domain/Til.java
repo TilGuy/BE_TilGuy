@@ -9,6 +9,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
@@ -22,12 +23,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "til")
+@Table(name = "til", indexes = {
+        @Index(name = "idx_til_deleted_created",
+                columnList = "is_deleted, created_at DESC")
+})
 public class Til extends BaseEntity {
 
     @Id
@@ -64,6 +69,7 @@ public class Til extends BaseEntity {
 
     @Getter
     @OneToMany(mappedBy = "til", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 50)
     @Builder.Default
     private List<Tag> tags = new ArrayList<>();
 

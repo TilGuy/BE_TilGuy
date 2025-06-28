@@ -12,10 +12,10 @@ import com.tilguys.matilda.tag.service.TilTagService;
 import com.tilguys.matilda.til.domain.Reference;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
-import com.tilguys.matilda.til.dto.PagedTilResponse;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
 import com.tilguys.matilda.til.dto.TilDefinitionRequest;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
+import com.tilguys.matilda.til.dto.TilReadAllResponse;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.ProviderInfo;
 import com.tilguys.matilda.user.Role;
@@ -33,11 +33,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@DirtiesContext(classMode = ClassMode.BEFORE_CLASS)
+@Transactional
 class TilServiceTest {
 
     @Autowired
@@ -71,12 +76,6 @@ class TilServiceTest {
         tilUser = userRepository.save(tilUser);
     }
 
-    @AfterEach
-    void tearDown() {
-        tilRepository.deleteAll();
-        userRepository.deleteAll();
-    }
-
     @Nested
     class 공개_TIL_조회_테스트 {
 
@@ -91,31 +90,33 @@ class TilServiceTest {
             tilRepository.saveAll(List.of(publicTil1, publicTil2, publicTil3, privateTil, deletedTil));
 
             // when
-            PagedTilResponse response = tilService.getPublicTils(0, 10);
+            List<TilReadAllResponse> response = tilService.getPublicTils(null, null, 12);
 
             // then
             assertThat(response).isNotNull();
-            assertThat(response.tils()).hasSize(3);
-            assertThat(response.hasNext()).isFalse();
-            assertThat(response.currentPage()).isEqualTo(0);
+            assertThat(response).hasSize(3);
         }
 
         @Test
-        void 페이지네이션이_정상적으로_작동한다() {
+        void 커서_기반_조회가_정상적으로_작동한다() {
             // given
             List<Til> publicTils = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
-                publicTils.add(createTestTilFixture(true, false, LocalDate.now().minusDays(i)));
+                publicTils.add(createTestTilFixture(
+                        true, false, LocalDate.of(2025, 1, 1).plusDays(i)));
             }
-            tilRepository.saveAll(publicTils);
-
+            List<Til> tils = tilRepository.saveAll(publicTils);
             // when
-            PagedTilResponse response = tilService.getPublicTils(0, 2);
+            List<TilReadAllResponse> response1 = tilService.getPublicTils(null, null, 5);
+            List<TilReadAllResponse> response2 = tilService.getPublicTils(tils.get(3).getCreatedAt(),
+                    tils.get(3).getTilId(), 5);
 
             // then
-            assertThat(response.tils()).hasSize(2);
-            assertThat(response.hasNext()).isTrue();
-            assertThat(response.currentPage()).isEqualTo(0);
+            assertThat(response1).isNotNull();
+            assertThat(response1).hasSize(5);
+
+            assertThat(response2).isNotNull();
+            assertThat(response2).hasSize(3);
         }
 
         @Test
@@ -126,11 +127,9 @@ class TilServiceTest {
             tilRepository.saveAll(List.of(privateTil, deletedTil));
 
             // when
-            PagedTilResponse response = tilService.getPublicTils(0, 10);
-
+            List<TilReadAllResponse> response = tilService.getPublicTils(null, null, 2);
             // then
-            assertThat(response.tils()).isEmpty();
-            assertThat(response.hasNext()).isFalse();
+            assertThat(response).isEmpty();
         }
 
         @Test
@@ -142,13 +141,13 @@ class TilServiceTest {
             tilRepository.saveAll(List.of(til1, til2, til3));
 
             // when
-            PagedTilResponse response = tilService.getPublicTils(0, 10);
+            List<TilReadAllResponse> response = tilService.getPublicTils(null, null, 3);
 
             // then
-            assertThat(response.tils()).hasSize(3);
-            assertThat(response.tils().get(0).id()).isEqualTo(til3.getTilId());
-            assertThat(response.tils().get(1).id()).isEqualTo(til2.getTilId());
-            assertThat(response.tils().get(2).id()).isEqualTo(til1.getTilId());
+            assertThat(response).hasSize(3);
+            assertThat(response.get(0).id()).isEqualTo(til3.getTilId());
+            assertThat(response.get(1).id()).isEqualTo(til2.getTilId());
+            assertThat(response.get(2).id()).isEqualTo(til1.getTilId());
         }
     }
 
