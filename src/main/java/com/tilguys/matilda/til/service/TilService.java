@@ -6,11 +6,11 @@ import com.tilguys.matilda.tag.service.TilTagService;
 import com.tilguys.matilda.til.domain.Reference;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
-import com.tilguys.matilda.til.dto.PagedTilResponse;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
 import com.tilguys.matilda.til.dto.TilDefinitionRequest;
 import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
+import com.tilguys.matilda.til.dto.TilReadAllResponse;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.service.TilUserService;
@@ -22,15 +22,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class TilService {
 
@@ -38,12 +35,6 @@ public class TilService {
     private final TilTagService tilTagService;
     private final TilReferenceService tilReferenceService;
     private final TilUserService userService;
-
-    public PagedTilResponse getPublicTils(int pageNumber, int pageSize) {
-        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.Direction.DESC, "date");
-        Page<Til> tilPage = tilRepository.findAllByIsPublicTrueAndIsDeletedFalse(pageRequest);
-        return new PagedTilResponse(tilPage);
-    }
 
     @Transactional
     public Til createTil(final TilDefinitionRequest tilCreateDto, final long userId) {
@@ -76,6 +67,7 @@ public class TilService {
         return til;
     }
 
+    @Transactional(readOnly = true)
     public TilDatesResponse getAllTilDatesByUserId(final Long userId) {
         List<LocalDate> all = tilRepository.findByTilUserId(userId).stream()
                 .filter(Til::isNotDeleted)
@@ -85,6 +77,7 @@ public class TilService {
         return new TilDatesResponse(all);
     }
 
+    @Transactional
     public void updateTil(final Long tilId, final TilDefinitionRequest tilUpdateDto, final long userId) {
         Til til = getTilByTilId(tilId);
         validateDeleted(til);
@@ -101,6 +94,7 @@ public class TilService {
         );
     }
 
+    @Transactional
     public void deleteTil(final Long tilId, final Long userId) {
         if (!tilRepository.existsById(tilId)) {
             throw new IllegalArgumentException();
@@ -109,6 +103,18 @@ public class TilService {
         til.markAsDeletedBy(userId);
     }
 
+    @Transactional(readOnly = true)
+    public List<TilReadAllResponse> getPublicTils(LocalDateTime cursorDate, Long cursorId, int size) {
+        List<Til> tils = tilRepository.findPublicTilsWithAllInfo(
+                cursorDate, cursorId, Pageable.ofSize(size)
+        );
+
+        return tils.stream()
+                .map(TilReadAllResponse::new)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public TilDetailsResponse getTilByDateRange(final Long userId, final LocalDate from, final LocalDate to) {
         List<Til> tils = tilRepository.findAllByTilUserIdAndDateBetweenAndIsDeleted(userId, from, to, false);
 
@@ -119,11 +125,13 @@ public class TilService {
         return new TilDetailsResponse(responseList);
     }
 
+    @Transactional(readOnly = true)
     public Til getTilByTilId(final Long tilId) {
         return tilRepository.findById(tilId)
                 .orElseThrow(IllegalArgumentException::new);
     }
 
+    @Transactional(readOnly = true)
     public List<Til> getTilsByIds(List<Long> tilIds) {
         List<Til> tils = new ArrayList<>();
         for (Long tilId : tilIds) {
