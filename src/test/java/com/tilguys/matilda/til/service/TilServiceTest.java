@@ -98,14 +98,17 @@ class TilServiceTest {
         }
 
         @Test
-        void 커서_기반_조회가_정상적으로_작동한다() {
+        void 커서_기반_조회가_정상적으로_작동한다() throws InterruptedException {
             // given
-            List<Til> publicTils = new ArrayList<>();
+            List<Til> tils = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
-                publicTils.add(createTestTilFixture(
-                        true, false, LocalDate.of(2025, 1, 1).plusDays(i)));
+                Til til = createTestTilFixture(true, false, LocalDate.of(2025, 1, 1).plusDays(i));
+                Til saved = tilRepository.save(til);
+                tils.add(saved);
+
+                Thread.sleep(10);
             }
-            List<Til> tils = tilRepository.saveAll(publicTils);
+
             // when
             List<TilReadAllResponse> response1 = tilService.getPublicTils(null, null, 5);
             List<TilReadAllResponse> response2 = tilService.getPublicTils(tils.get(3).getCreatedAt(),
