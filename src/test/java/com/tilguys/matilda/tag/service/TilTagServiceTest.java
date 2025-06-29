@@ -13,6 +13,7 @@ import com.tilguys.matilda.tag.repository.TagRepository;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.repository.TilRepository;
+import com.tilguys.matilda.til.service.TilService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -90,10 +91,12 @@ class TilTagServiceTest {
     private TagRelationRepository tagRelationRepository;
 
     public TilTagServiceTest(@Autowired TagRepository tagRepository,
-                             @Autowired SubTagRepository subTagRepository) {
+                             @Autowired SubTagRepository subTagRepository,
+                             @Autowired TilService tilService
+    ) {
         OpenAIClient openAIClient = Mockito.mock(OpenAIClient.class);
         when(openAIClient.callOpenAI(any(), any())).thenReturn(tagResponseJson);
-        this.tilTagService = new TilTagService(openAIClient, tagRepository, subTagRepository);
+        this.tilTagService = new TilTagService(openAIClient, tagRepository, subTagRepository, tilService);
     }
 
     @BeforeEach
