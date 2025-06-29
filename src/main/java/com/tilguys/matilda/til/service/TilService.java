@@ -114,6 +114,7 @@ public class TilService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public TilDetailsResponse getTilByDateRange(final Long userId, final LocalDate from, final LocalDate to) {
         List<Til> tils = tilRepository.findAllByTilUserIdAndDateBetweenAndIsDeleted(userId, from, to, false);
 
