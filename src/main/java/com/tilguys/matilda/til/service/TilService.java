@@ -1,9 +1,8 @@
 package com.tilguys.matilda.til.service;
 
-import com.tilguys.matilda.reference.service.TilReferenceService;
+import com.tilguys.matilda.reference.service.event.ReferenceExtractionRequestedEvent;
 import com.tilguys.matilda.tag.domain.TilTags;
 import com.tilguys.matilda.tag.service.TilTagService;
-import com.tilguys.matilda.til.domain.Reference;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
@@ -22,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,8 +33,8 @@ public class TilService {
 
     private final TilRepository tilRepository;
     private final TilTagService tilTagService;
-    private final TilReferenceService tilReferenceService;
     private final TilUserService userService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public Til createTil(final TilDefinitionRequest tilCreateDto, final long userId) {
@@ -59,8 +59,10 @@ public class TilService {
         log.debug("{}=> {} => 추출된 태그 =>{}", til.getContent(), tilResponseJson, tagResults);
 
         til.updateTags(tags);
-        List<Reference> references = tilReferenceService.extractTilReference(til.getContent());
-        til.updateReferences(references);
+
+        eventPublisher.publishEvent(
+                new ReferenceExtractionRequestedEvent(til.getTilId(), til.getContent())
+        );
 
         TilTags tilTags = new TilTags(tags);
         tilTagService.createSubTags(tilResponseJson, tilTags);
