@@ -1,4 +1,4 @@
-package com.tilguys.matilda.reference.contorller;
+package com.tilguys.matilda.reference.controller;
 
 import com.tilguys.matilda.reference.service.ReferenceService;
 import lombok.RequiredArgsConstructor;

@@ -12,8 +12,13 @@ import com.tilguys.matilda.tag.repository.TagRelationRepository;
 import com.tilguys.matilda.tag.repository.TagRepository;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
+import com.tilguys.matilda.til.domain.TilFixture;
+import com.tilguys.matilda.til.event.TilCreatedEvent;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.til.service.TilService;
+import com.tilguys.matilda.user.TilUser;
+import com.tilguys.matilda.user.TilUserFixture;
+import com.tilguys.matilda.user.repository.UserRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,9 +31,11 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @SpringBootTest
+@Transactional
 @ActiveProfiles("test")
 class TilTagServiceTest {
 
@@ -39,6 +46,9 @@ class TilTagServiceTest {
 
     @Autowired
     private TilRepository tilRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private SubTagRepository subTagRepository;
@@ -85,8 +95,7 @@ class TilTagServiceTest {
               "service_tier" : "default",
               "system_fingerprint" : "fp_9fd01826bf"
             }""";
-    @Autowired
-    private TagRelationService tagRelationService;
+
     @Autowired
     private TagRelationRepository tagRelationRepository;
 
@@ -104,6 +113,29 @@ class TilTagServiceTest {
         subTagRepository.deleteAll();
         tagRelationRepository.deleteAll();
         tagRepository.deleteAll();
+        userRepository.deleteAll();
+        tilRepository.deleteAll();
+    }
+
+    @Test
+    @Transactional
+    void TIL_생성_이벤트로_태그들을_자동_생성할_수_있다() {
+        TilUser tilUser = TilUserFixture.createTilUserFixture();
+        userRepository.save(tilUser);
+
+        Til til = TilFixture.createTilFixture(tilUser, true, false);
+        tilRepository.save(til);
+
+        TilCreatedEvent event = new TilCreatedEvent(
+                til.getTilId(),
+                "Spring Boot와 JPA를 사용한 웹 애플리케이션 개발",
+                tilUser.getId());
+
+        tilTagService.createTags(event);
+        assertThat(tagRepository.count()).isGreaterThan(0);
+
+        Til updatedTil = tilRepository.findById(til.getTilId()).orElseThrow();
+        assertThat(updatedTil.getTags().size()).isGreaterThan(0);
     }
 
     @Test
