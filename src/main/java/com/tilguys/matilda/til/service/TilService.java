@@ -1,8 +1,9 @@
 package com.tilguys.matilda.til.service;
 
-import com.tilguys.matilda.reference.service.event.ReferenceExtractionRequestedEvent;
+import com.tilguys.matilda.reference.service.TilReferenceService;
 import com.tilguys.matilda.tag.domain.TilTags;
 import com.tilguys.matilda.tag.service.TilTagService;
+import com.tilguys.matilda.til.domain.Reference;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
