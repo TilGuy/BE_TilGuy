@@ -11,6 +11,7 @@ import com.tilguys.matilda.til.dto.TilWithUserResponse;
 import com.tilguys.matilda.til.service.RecentTilService;
 import com.tilguys.matilda.til.service.TilService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -43,7 +44,9 @@ public class TilController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
             LocalDateTime createdDate,
             @RequestParam(required = false) Long tilId,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10")
+            @Max(value = 100)
+            int size
     ) {
         return ResponseEntity.ok(tilService.getPublicTils(
                 createdDate, tilId, size)
