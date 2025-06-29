@@ -14,7 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @SpringBootTest
-@ActiveProfiles("production")
+@ActiveProfiles("test")
 class SlackServiceTest {
 
     @Autowired
