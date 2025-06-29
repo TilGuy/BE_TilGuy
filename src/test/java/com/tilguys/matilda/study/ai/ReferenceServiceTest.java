@@ -2,7 +2,7 @@ package com.tilguys.matilda.study.ai;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.tilguys.matilda.reference.service.TilReferenceService;
+import com.tilguys.matilda.reference.service.AsyncReferenceService;
 import com.tilguys.matilda.til.domain.Reference;
 import java.util.List;
 import org.junit.jupiter.api.Disabled;
@@ -17,10 +17,10 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @ActiveProfiles("test")
 @Disabled
-class TilReferenceServiceTest {
+class ReferenceServiceTest {
 
     @Autowired
-    private TilReferenceService tilReferenceService;
+    private AsyncReferenceService tilReferenceService;
 
     @Test
     void gpt_출력_결과_테스트() {
