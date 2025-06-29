@@ -13,7 +13,6 @@ import com.tilguys.matilda.til.service.TilService;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -54,9 +53,10 @@ public class TilController {
     public ResponseEntity<?> saveTil(@Valid @RequestBody final TilDefinitionRequest createRequest,
                                      @AuthenticationPrincipal final SimpleUserInfo simpleUserInfo) {
         Til til = tilService.createTil(createRequest, simpleUserInfo.id());
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yy-MM월-dd일");
-        String dateString = dateTimeFormatter.format(til.getDate());
-        slackService.sendTilWriteAlarm(til.getContent(), simpleUserInfo.nickname(), dateString, til.getTags());
+
+//        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yy-MM월-dd일");
+//        String dateString = dateTimeFormatter.format(til.getDate());
+//        slackService.sendTilWriteAlarm(til.getContent(), simpleUserInfo.nickname(), dateString, til.getTags());
 
         return ResponseEntity.ok(TilDetailResponse.fromEntity(til));
     }
