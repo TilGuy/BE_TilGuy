@@ -6,8 +6,7 @@ public record TilDetailResponse(
         Long tilId,
         String title,
         String content,
-        TagsResponse tags,
-        ReferencesResponse references
+        TagsResponse tags
 ) {
 
     public static TilDetailResponse fromEntity(Til til) {
@@ -15,8 +14,7 @@ public record TilDetailResponse(
                 til.getTilId(),
                 til.getTitle(),
                 til.getContent(),
-                new TagsResponse(til.getTags()),
-                new ReferencesResponse(til.getReferences())
+                new TagsResponse(til.getTags())
         );
     }
 }
