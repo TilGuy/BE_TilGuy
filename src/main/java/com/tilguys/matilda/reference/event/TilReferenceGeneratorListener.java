@@ -19,7 +19,7 @@ public class TilReferenceGeneratorListener {
     @Async("tilReferenceTaskExecutor")
     public void handleTilReferenceCreateEvent(ReferenceCreateEvent event) {
         try {
-            log.debug("TIL Reference 추출 ");
+            log.debug("TIL Reference 추출");
             referenceService.createReference(event);
         } catch (Exception e) {
             log.error("TIL Reference 추출 실패: tilId={}, {}", event.tilId(), e.getMessage());

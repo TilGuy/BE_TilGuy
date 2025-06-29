@@ -50,7 +50,6 @@ public class ReferenceService {
             references.forEach(reference -> reference.setTil(til));
 
             referenceRepository.saveAll(references);
-
         } catch (Exception e) {
             throw new RuntimeException("TIL Reference 저장 실패: " + e.getMessage());
         }
