@@ -2,7 +2,7 @@ package com.tilguys.matilda.study.ai;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.tilguys.matilda.reference.service.TilReferenceService;
+import com.tilguys.matilda.reference.service.ReferenceService;
 import com.tilguys.matilda.til.domain.Reference;
 import java.util.List;
 import org.junit.jupiter.api.Disabled;
@@ -17,10 +17,10 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @ActiveProfiles("test")
 @Disabled
-class TilReferenceServiceTest {
+class ReferenceServiceTest {
 
     @Autowired
-    private TilReferenceService tilReferenceService;
+    private ReferenceService ReferenceService;
 
     @Test
     void gpt_출력_결과_테스트() {
@@ -52,7 +52,7 @@ class TilReferenceServiceTest {
                 - 적절한 `Getter` 사용은 옳다.
                     -  상태 타입이 객체냐 자료 구조이냐 다르다.
                 """;
-        List<Reference> actual = tilReferenceService.extractTilReference(tilContent);
+        List<Reference> actual = ReferenceService.extractTilReference(tilContent);
         assertThat(actual).hasSizeGreaterThan(0);
         System.out.println(
                 "GPT가 추출한 단어: " + actual.stream().map(Reference::getWord).toList()

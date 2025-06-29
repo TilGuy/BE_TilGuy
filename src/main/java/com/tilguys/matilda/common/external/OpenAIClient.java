@@ -14,10 +14,9 @@ import org.springframework.web.client.RestTemplate;
 public class OpenAIClient {
 
     private static final String FUNCTION = "function";
-
+    private final RestTemplate restTemplate = new RestTemplate();
     private final String apiUrl;
     private final String apiKey;
-    private final RestTemplate restTemplate = new RestTemplate();
 
     public OpenAIClient(@Value(value = "${openai.api.key}") String apiKey,
                         @Value(value = "${openai.api.url}") String apiUrl) {
