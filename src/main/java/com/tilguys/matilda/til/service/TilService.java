@@ -113,8 +113,14 @@ public class TilService {
     }
 
     @Transactional(readOnly = true)
-    public Til getTilByTilId(final Long tilId) {
-        return tilRepository.findById(tilId)
+    public Til getTilByTilId(final Long id) {
+        return tilRepository.findById(id)
+                .orElseThrow(IllegalArgumentException::new);
+    }
+
+    @Transactional(readOnly = true)
+    public Til getTilByTilIdAndIsDeletedFalse(final Long tilId) {
+        return tilRepository.findByTilIdAndIsDeletedFalse(tilId)
                 .orElseThrow(IllegalArgumentException::new);
     }
 

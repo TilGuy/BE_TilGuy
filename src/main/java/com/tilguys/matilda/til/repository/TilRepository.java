@@ -4,6 +4,7 @@ import com.tilguys.matilda.til.domain.Til;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -36,4 +37,7 @@ public interface TilRepository extends JpaRepository<Til, Long> {
     List<Til> findPublicTilsWithAllInfo(@Param("cursorDate") LocalDateTime cursorDate,
                                         @Param("cursorId") Long cursorId,
                                         Pageable pageable);
+
+
+    Optional<Til> findByTilIdAndIsDeletedFalse(Long tilId);
 }
