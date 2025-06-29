@@ -1,6 +1,6 @@
-package com.tilguys.matilda.reference.contorller;
+package com.tilguys.matilda.reference.controller;
 
-import com.tilguys.matilda.reference.service.TilReferenceService;
+import com.tilguys.matilda.reference.service.ReferenceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ReferenceController {
 
-    private final TilReferenceService tilReferenceService;
+    private final ReferenceService referenceService;
 
     @GetMapping
     public ResponseEntity<?> getReference(@RequestParam Long tilId) {
-        return ResponseEntity.ok(tilReferenceService.getReferencesByTilId(tilId));
+        return ResponseEntity.ok(referenceService.getReferencesByTilId(tilId));
     }
 }

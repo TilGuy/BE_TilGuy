@@ -2,7 +2,6 @@ package com.tilguys.matilda.til.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.tilguys.matilda.tag.repository.SubTagRepository;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilReadAllResponse;
 import com.tilguys.matilda.til.repository.TilRepository;
@@ -13,7 +12,6 @@ import com.tilguys.matilda.user.repository.UserRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,8 +19,10 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
+@Transactional
 class RecentTilServiceTest {
 
     private static TilUser tilUser;
@@ -34,13 +34,25 @@ class RecentTilServiceTest {
     private TilRepository tilRepository;
 
     @Autowired
-    private SubTagRepository subTagRepository;
-
-    @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @BeforeAll
-    static void beforeAll(@Autowired UserRepository userRepository) {
+    @Autowired
+    private UserRepository userRepository;
+
+    @BeforeEach
+    void clearUp() {
+        jdbcTemplate.execute("DELETE FROM sub_tag");
+        jdbcTemplate.execute("DELETE FROM tag_relation");
+        jdbcTemplate.execute("DELETE FROM tag");
+        jdbcTemplate.execute("DELETE FROM til");
+        jdbcTemplate.execute("DELETE FROM til_user");
+
+        // H2 기준 ID 시퀀스 초기화
+        jdbcTemplate.execute("ALTER TABLE til ALTER COLUMN til_id RESTART WITH 1");
+        jdbcTemplate.execute("ALTER TABLE tag ALTER COLUMN id RESTART WITH 1");
+        jdbcTemplate.execute("ALTER TABLE sub_tag ALTER COLUMN id RESTART WITH 1");
+        jdbcTemplate.execute("ALTER TABLE til_user ALTER COLUMN id RESTART WITH 1");
+
         tilUser = TilUser.builder()
                 .providerInfo(ProviderInfo.GITHUB)
                 .role(Role.USER)
@@ -48,12 +60,6 @@ class RecentTilServiceTest {
                 .identifier("test")
                 .build();
         userRepository.save(tilUser);
-    }
-
-    @BeforeEach
-    void tearDown() {
-        subTagRepository.deleteAll();
-        tilRepository.deleteAll();
     }
 
     @ParameterizedTest

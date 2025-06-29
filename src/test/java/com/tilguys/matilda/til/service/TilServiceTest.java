@@ -2,15 +2,10 @@ package com.tilguys.matilda.til.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.given;
 
-import com.tilguys.matilda.reference.service.TilReferenceService;
 import com.tilguys.matilda.tag.repository.SubTagRepository;
 import com.tilguys.matilda.tag.repository.TagRepository;
 import com.tilguys.matilda.tag.service.TilTagService;
-import com.tilguys.matilda.til.domain.Reference;
-import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
 import com.tilguys.matilda.til.dto.TilDefinitionRequest;
@@ -24,7 +19,6 @@ import com.tilguys.matilda.user.repository.UserRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,15 +27,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@DirtiesContext(classMode = ClassMode.BEFORE_CLASS)
 @Transactional
 class TilServiceTest {
 
@@ -59,9 +50,6 @@ class TilServiceTest {
 
     @MockitoBean
     private TilTagService tilTagService;
-
-    @MockitoBean
-    private TilReferenceService tilReferenceService;
 
     private TilUser tilUser;
 
@@ -165,19 +153,6 @@ class TilServiceTest {
                     "Test Title", "Test Content", testDate, true
             );
 
-            List<Tag> mockTags = Arrays.asList(
-                    Tag.builder().tagString("tag1").build(),
-                    Tag.builder().tagString("tag2").build()
-            );
-            List<Reference> mockReferences = Arrays.asList(
-                    Reference.builder().word("ref1").info("Reference 1 info").build(),
-                    Reference.builder().word("ref2").info("Reference 2 info").build()
-            );
-
-            given(tilTagService.requestTilTagResponseJson(anyString())).willReturn("mockJsonResponse");
-            given(tilTagService.saveTilTags(anyString())).willReturn(mockTags);
-            given(tilReferenceService.extractTilReference(anyString())).willReturn(mockReferences);
-
             // when
             Til createdTil = tilService.createTil(request, userId);
 
@@ -187,8 +162,6 @@ class TilServiceTest {
             assertThat(createdTil.getContent()).isEqualTo("Test Content");
             assertThat(createdTil.getDate()).isEqualTo(testDate);
             assertThat(createdTil.isPublic()).isTrue();
-            assertThat(createdTil.getTags()).containsExactlyElementsOf(mockTags);
-            assertThat(createdTil.getReferences()).containsExactlyElementsOf(mockReferences);
         }
 
         @Test
@@ -209,53 +182,6 @@ class TilServiceTest {
                     .hasMessage("같은 날에 작성된 게시물이 존재합니다!");
         }
 
-        @Test
-        void 태그가_추출되고_TIL에_저장된다() {
-            // given
-            long userId = tilUser.getId();
-            LocalDate testDate = LocalDate.of(2024, 6, 1);
-            TilDefinitionRequest request = new TilDefinitionRequest(
-                    "Test Title", "Test Content with Tags", testDate, true
-            );
-
-            List<Tag> mockTags = Arrays.asList(
-                    Tag.builder().tagString("java").build(),
-                    Tag.builder().tagString("spring").build()
-            );
-
-            given(tilTagService.requestTilTagResponseJson(anyString())).willReturn("mockJsonResponse");
-            given(tilTagService.saveTilTags(anyString())).willReturn(mockTags);
-
-            // when
-            Til createdTil = tilService.createTil(request, userId);
-
-            // then
-            assertThat(createdTil.getTags()).hasSize(2);
-            assertThat(createdTil.getTags()).containsExactlyElementsOf(mockTags);
-        }
-
-        @Test
-        void 참조가_추출되고_TIL에_저장된다() {
-            // given
-            long userId = tilUser.getId();
-            LocalDate testDate = LocalDate.of(2024, 6, 1);
-            TilDefinitionRequest request = new TilDefinitionRequest(
-                    "Test Title", "Test Content with References", testDate, true
-            );
-
-            List<Reference> mockReferences = Arrays.asList(
-                    Reference.builder().word("example").info("https://example.com").build(),
-                    Reference.builder().word("test").info("https://test.com").build()
-            );
-            given(tilReferenceService.extractTilReference(anyString())).willReturn(mockReferences);
-
-            // when
-            Til createdTil = tilService.createTil(request, userId);
-
-            // then
-            assertThat(createdTil.getReferences()).hasSize(2);
-            assertThat(createdTil.getReferences()).containsExactlyElementsOf(mockReferences);
-        }
     }
 
     @Nested
