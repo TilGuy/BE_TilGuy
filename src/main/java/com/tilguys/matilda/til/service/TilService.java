@@ -1,16 +1,13 @@
 package com.tilguys.matilda.til.service;
 
-import com.tilguys.matilda.reference.service.TilReferenceService;
-import com.tilguys.matilda.tag.domain.TilTags;
-import com.tilguys.matilda.tag.service.TilTagService;
-import com.tilguys.matilda.til.domain.Reference;
-import com.tilguys.matilda.til.domain.Tag;
+import com.tilguys.matilda.reference.event.ReferenceCreateEvent;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
 import com.tilguys.matilda.til.dto.TilDefinitionRequest;
 import com.tilguys.matilda.til.dto.TilDetailResponse;
 import com.tilguys.matilda.til.dto.TilDetailsResponse;
 import com.tilguys.matilda.til.dto.TilReadAllResponse;
+import com.tilguys.matilda.til.event.TilCreatedEvent;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.service.TilUserService;
@@ -19,9 +16,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,9 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class TilService {
 
     private final TilRepository tilRepository;
-    private final TilTagService tilTagService;
-    private final TilReferenceService tilReferenceService;
     private final TilUserService userService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public Til createTil(final TilDefinitionRequest tilCreateDto, final long userId) {
@@ -47,23 +43,14 @@ public class TilService {
         Til newTil = tilCreateDto.toEntity(user);
         Til til = tilRepository.save(newTil);
 
-        String tilResponseJson = tilTagService.requestTilTagResponseJson(til.getContent());
+        eventPublisher.publishEvent(
+                new TilCreatedEvent(til.getTilId(), til.getContent(), user.getId())
+        );
 
-        List<Tag> tags = tilTagService.saveTilTags(tilResponseJson)
-                .stream()
-                .toList();
+        eventPublisher.publishEvent(
+                new ReferenceCreateEvent(til.getTilId(), til.getContent())
+        );
 
-        String tagResults = tags.stream()
-                .map(Tag::getTagString)
-                .collect(Collectors.joining(","));
-        log.debug("{}=> {} => 추출된 태그 =>{}", til.getContent(), tilResponseJson, tagResults);
-
-        til.updateTags(tags);
-        List<Reference> references = tilReferenceService.extractTilReference(til.getContent());
-        til.updateReferences(references);
-
-        TilTags tilTags = new TilTags(tags);
-        tilTagService.createSubTags(tilResponseJson, tilTags);
         return til;
     }
 
