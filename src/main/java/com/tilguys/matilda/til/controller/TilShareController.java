@@ -37,7 +37,7 @@ public class TilShareController {
         String userAgent = request.getHeader("User-Agent");
 
         if (isSocialMediaBot(userAgent)) {
-            Til til = tilService.getTilByTilId(id);
+            Til til = tilService.getTilByTilIdAndIsDeletedFalse(id);
             TilWithUserResponse response = new TilWithUserResponse(til);
 
             model.addAttribute("til", response);
