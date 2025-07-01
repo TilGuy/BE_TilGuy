@@ -36,7 +36,7 @@
 - 외부에 TIL 공유 기능(슬랙, 연동 등)
 
 # changelog
-
+[CHANGELOG](https://github.com/TilGuy/BE_TilGuy/blob/main/Changelog.md)
 # collaborators
 
 - 투다
