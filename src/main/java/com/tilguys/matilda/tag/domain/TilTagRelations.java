@@ -17,16 +17,18 @@ public class TilTagRelations {
     private final Map<String, List<String>> tagRelationMap;
 
     public TilTagRelations(List<Tag> tags, List<SubTag> subTags, Map<Tag, List<Tag>> tagRelationMap) {
-        Map<String, Tag> coreTagFinder = coreTagFinder(tags);
+        Map<String, List<Tag>> coreTagFinder = coreTagFinder(tags);
         this.keywordTagMap = convertToKeywordTagMap(subTags);
         this.tagRelationMap = convertToStringTagRelation(tagRelationMap, keywordTagMap);
         this.tagTilIdMap = convertToTagTilId(keywordTagMap, coreTagFinder);
     }
 
-    private Map<String, Tag> coreTagFinder(List<Tag> tags) {
-        Map<String, Tag> coreTagFinder = new HashMap<>();
+    private Map<String, List<Tag>> coreTagFinder(List<Tag> tags) {
+        Map<String, List<Tag>> coreTagFinder = new HashMap<>();
         for (Tag tag : tags) {
-            coreTagFinder.putIfAbsent(tag.getTagString(), tag);
+            List<Tag> savedTags = coreTagFinder.getOrDefault(tag.getTagString(), new ArrayList<>());
+            savedTags.add(tag);
+            coreTagFinder.putIfAbsent(tag.getTagString(), savedTags);
         }
         return coreTagFinder;
     }
@@ -46,15 +48,17 @@ public class TilTagRelations {
     }
 
     private Map<String, List<Long>> convertToTagTilId(Map<String, List<String>> keywordTagMap,
-                                                      Map<String, Tag> coreTagFinder) {
+                                                      Map<String, List<Tag>> coreTagFinder) {
         Map<String, List<Long>> tagTilIds = new HashMap<>();
         Set<String> allCoreTags = keywordTagMap.keySet();
 
         for (String tagString : allCoreTags) {
             List<Long> tilIds = tagTilIds.getOrDefault(tagString, new ArrayList<>());
-            Tag tag = coreTagFinder.get(tagString);
-            tilIds.add(tag.getTil().getTilId());
-            tagTilIds.put(tag.getTagString(), tilIds);
+            List<Tag> tags = coreTagFinder.get(tagString);
+            for (Tag tag : tags) {
+                tilIds.add(tag.getTil().getTilId());
+            }
+            tagTilIds.putIfAbsent(tagString, tilIds);
         }
 
         return tagTilIds;
