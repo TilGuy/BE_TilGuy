@@ -9,9 +9,11 @@
 
 # 인프라
 
+![infra.png](docs/infra.png)
+
 ## cicd
 
-![cicd.png](cicd.png)
+![cicd.png](docs/cicd.png)
 
 - 모니터링(prometheus + grafana)
 - 무중단배포(nginx)
@@ -36,9 +38,11 @@
 - 외부에 TIL 공유 기능(슬랙, 연동 등)
 
 # changelog
+
 [CHANGELOG](https://github.com/TilGuy/BE_TilGuy/blob/main/Changelog.md)
+
 # collaborators
 
-- 투다
-- 비타
-- 몽이
+| <img src="https://avatars.githubusercontent.com/u/60121346?v=4.png" width="100" height="100"> | <img src="https://avatars.githubusercontent.com/u/118153233?v=4.png" width="100" height="100"> | <img src="https://avatars.githubusercontent.com/u/62841992?v=4.png" width="100" height="100"> | 
+|:---------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------:|
+|                              [투다](https://github.com/praisebak)                               |                               [비타](https://github.com/taek2222)                                |                              [몽이](https://github.com/wodnd0131)                               | 
