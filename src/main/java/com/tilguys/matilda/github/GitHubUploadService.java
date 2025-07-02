@@ -13,6 +13,14 @@ public class GitHubUploadService {
 
     public void uploadTilToGitHub(Til til) {
         GitHubCredential gitHubCredential = gitHubCredentialRepository.findByTilUserId(til.getTilUser().getId());
+        if (isValidGitHubCredential(gitHubCredential)) {
+            return;
+        }
+
         gitHubClient.uploadTilContent(new GitHubUpload(gitHubCredential, til));
+    }
+
+    private boolean isValidGitHubCredential(GitHubCredential gitHubCredential) {
+        return gitHubCredential != null && gitHubCredential.isActivated();
     }
 }
