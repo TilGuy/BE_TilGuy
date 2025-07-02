@@ -1,5 +1,6 @@
 package com.tilguys.matilda.github;
 
+import com.tilguys.matilda.til.domain.Til;
 import java.time.LocalDate;
 import lombok.Getter;
 
@@ -30,13 +31,12 @@ public class GitHubUpload {
     @Getter
     private final String commitMessage;
 
-    public GitHubUpload(String accessToken, Long tilId, String identifier, String repositoryName, String title,
-                        LocalDate date,
-                        String contents) {
-        this.accessToken = accessToken;
-        this.uploadsUrl = generateUploadUrl(identifier, repositoryName, date);
-        this.contents = generateContents(tilId, title, contents);
-        this.commitMessage = COMMIT_MESSAGE_PREFIX + title;
+    public GitHubUpload(GitHubCredential gitHubCredential, Til til) {
+        this.accessToken = gitHubCredential.getAccessToken();
+        this.uploadsUrl = generateUploadUrl(til.getTilUser().getIdentifier(), gitHubCredential.getRepositoryName(),
+                til.getDate());
+        this.contents = generateContents(til.getTilId(), til.getTitle(), til.getContent());
+        this.commitMessage = COMMIT_MESSAGE_PREFIX + til.getTitle();
     }
 
     public String generateUploadUrl(String identifier, String repositoryName, LocalDate date) {
