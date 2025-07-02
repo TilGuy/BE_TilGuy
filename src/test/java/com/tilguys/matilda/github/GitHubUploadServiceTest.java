@@ -6,6 +6,11 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import com.tilguys.matilda.github.client.GitHubClient;
+import com.tilguys.matilda.github.domain.GitHubCredential;
+import com.tilguys.matilda.github.domain.GitHubUpload;
+import com.tilguys.matilda.github.repository.GitHubCredentialRepository;
+import com.tilguys.matilda.github.service.GitHubUploadService;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.ProviderInfo;

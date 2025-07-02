@@ -1,4 +1,4 @@
-package com.tilguys.matilda.github;
+package com.tilguys.matilda.github.client;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;

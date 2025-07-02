@@ -1,5 +1,9 @@
-package com.tilguys.matilda.github;
+package com.tilguys.matilda.github.service;
 
+import com.tilguys.matilda.github.client.GitHubClient;
+import com.tilguys.matilda.github.domain.GitHubCredential;
+import com.tilguys.matilda.github.domain.GitHubUpload;
+import com.tilguys.matilda.github.repository.GitHubCredentialRepository;
 import com.tilguys.matilda.til.domain.Til;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

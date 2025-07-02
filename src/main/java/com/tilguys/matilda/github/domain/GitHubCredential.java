@@ -1,4 +1,4 @@
-package com.tilguys.matilda.github;
+package com.tilguys.matilda.github.domain;
 
 import com.tilguys.matilda.user.TilUser;
 import jakarta.persistence.Entity;

@@ -1,6 +1,6 @@
 package com.tilguys.matilda.til.service;
 
-import com.tilguys.matilda.github.GitHubUploadService;
+import com.tilguys.matilda.github.service.GitHubUploadService;
 import com.tilguys.matilda.reference.event.ReferenceCreateEvent;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilDatesResponse;

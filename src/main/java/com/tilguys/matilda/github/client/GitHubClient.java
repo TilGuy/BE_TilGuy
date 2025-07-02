@@ -1,5 +1,6 @@
-package com.tilguys.matilda.github;
+package com.tilguys.matilda.github.client;
 
+import com.tilguys.matilda.github.domain.GitHubUpload;
 import java.util.Base64;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
