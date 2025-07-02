@@ -33,4 +33,7 @@ public class GitHubCredential {
 
     @Getter
     private String repositoryName;
+
+    @Getter
+    private boolean isActivated;
 }
