@@ -1,6 +1,6 @@
 package com.tilguys.matilda.til.service;
 
-import com.tilguys.matilda.github.service.GitHubUploadService;
+import com.tilguys.matilda.github.service.GitHubService;
 import com.tilguys.matilda.reference.event.ReferenceCreateEvent;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
@@ -31,7 +31,7 @@ public class TilService {
 
     private final TilRepository tilRepository;
     private final TilUserService userService;
-    private final GitHubUploadService gitHubUploadService;
+    private final GitHubService gitHubUploadService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional

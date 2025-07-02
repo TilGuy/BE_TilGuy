@@ -10,7 +10,7 @@ import com.tilguys.matilda.github.client.GitHubClient;
 import com.tilguys.matilda.github.domain.GitHubCredential;
 import com.tilguys.matilda.github.domain.GitHubUpload;
 import com.tilguys.matilda.github.repository.GitHubCredentialRepository;
-import com.tilguys.matilda.github.service.GitHubUploadService;
+import com.tilguys.matilda.github.service.GitHubService;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.ProviderInfo;
@@ -29,13 +29,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @SpringBootTest
 @ActiveProfiles("test")
-class GitHubUploadServiceTest {
+class GitHubServiceTest {
 
     @MockitoBean
     private GitHubClient gitHubClient;
 
     @Autowired
-    private GitHubUploadService gitHubService;
+    private GitHubService gitHubService;
 
     @Autowired
     private GitHubCredentialRepository gitHubCredentialRepository;

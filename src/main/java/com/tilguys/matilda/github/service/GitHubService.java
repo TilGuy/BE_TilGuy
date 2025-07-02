@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class GitHubUploadService {
+public class GitHubService {
 
     private final GitHubClient gitHubClient;
     private final GitHubCredentialRepository gitHubCredentialRepository;
@@ -25,6 +25,6 @@ public class GitHubUploadService {
     }
 
     private boolean isValidGitHubCredential(GitHubCredential gitHubCredential) {
-        return gitHubCredential != null && gitHubCredential.isActivated();
+        return gitHubCredential == null || !gitHubCredential.isActivated();
     }
 }
