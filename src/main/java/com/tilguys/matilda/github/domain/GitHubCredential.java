@@ -36,4 +36,9 @@ public class GitHubCredential {
 
     @Getter
     private boolean isActivated;
+
+    public void updateAccessTokenAndRepositoryName(String accessToken, String repositoryName) {
+        this.accessToken = accessToken;
+        this.repositoryName = repositoryName;
+    }
 }
