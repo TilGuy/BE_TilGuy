@@ -8,7 +8,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @RequiredArgsConstructor
-public class GitHubClientConfig {
+public class GitHubRepositoryClientConfig {
 
     private final GitHubHeaderRequestInterceptor requestInterceptor;
 

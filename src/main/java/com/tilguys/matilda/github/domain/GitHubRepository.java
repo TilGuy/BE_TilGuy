@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GitHubCredential {
+public class GitHubRepository {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,16 +29,16 @@ public class GitHubCredential {
     private TilUser tilUser;
 
     @Getter
-    private String accessToken;
+    private String name;
 
     @Getter
-    private String repositoryName;
+    private String accessToken;
 
     @Getter
     private boolean isActivated;
 
-    public void updateAccessTokenAndRepositoryName(String accessToken, String repositoryName) {
+    public void updateAccessTokenAndRepositoryName(String accessToken, String name) {
         this.accessToken = accessToken;
-        this.repositoryName = repositoryName;
+        this.name = name;
     }
 }

@@ -18,11 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class GitHubService {
 
     private final UserService userService;
-    private final GitHubClient gitHubClient;
+    private final GitHubRepositoryClient gitHubClient;
     private final GitHubCredentialRepository gitHubCredentialRepository;
 
     public void uploadTilToGitHub(Til til) {
-        Optional<GitHubCredential> gitHubCredential = gitHubCredentialRepository.findByTilUserId(
+        Optional<GitHubRepository> gitHubCredential = gitHubCredentialRepository.findByTilUserId(
                 til.getTilUser().getId());
         if (isValidGitHubCredential(gitHubCredential)) {
             return;
@@ -33,7 +33,7 @@ public class GitHubService {
 
     @Transactional
     public void saveCredentials(long userId, GitHubCredentialRequest request) {
-        Optional<GitHubCredential> optionalCredential = gitHubCredentialRepository.findByTilUserId(userId);
+        Optional<GitHubRepository> optionalCredential = gitHubCredentialRepository.findByTilUserId(userId);
 
         if (optionalCredential.isPresent()) {
             updateCredential(optionalCredential.get(), request);
@@ -45,20 +45,20 @@ public class GitHubService {
 
     private void createCredential(long userId, GitHubCredentialRequest request) {
         TilUser user = userService.getById(userId);
-        GitHubCredential credential = GitHubCredential.builder()
+        GitHubRepository credential = GitHubRepository.builder()
                 .tilUser(user)
                 .accessToken(request.accessToken())
-                .repositoryName(request.repositoryName())
+                .name(request.repositoryName())
                 .isActivated(true)
                 .build();
         gitHubCredentialRepository.save(credential);
     }
 
-    private void updateCredential(GitHubCredential credential, GitHubCredentialRequest request) {
+    private void updateCredential(GitHubRepository credential, GitHubCredentialRequest request) {
         credential.updateAccessTokenAndRepositoryName(request.accessToken(), request.repositoryName());
     }
 
-    private boolean isValidGitHubCredential(Optional<GitHubCredential> gitHubCredential) {
+    private boolean isValidGitHubCredential(Optional<GitHubRepository> gitHubCredential) {
         return gitHubCredential.isEmpty() || !gitHubCredential.get().isActivated();
     }
 }

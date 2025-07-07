@@ -6,9 +6,9 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import com.tilguys.matilda.github.client.GitHubClient;
-import com.tilguys.matilda.github.domain.GitHubCredential;
-import com.tilguys.matilda.github.domain.GitHubUpload;
+import com.tilguys.matilda.github.client.GitHubRepositoryClient;
+import com.tilguys.matilda.github.domain.GitHubCommitPayload;
+import com.tilguys.matilda.github.domain.GitHubRepository;
 import com.tilguys.matilda.github.repository.GitHubCredentialRepository;
 import com.tilguys.matilda.github.service.GitHubService;
 import com.tilguys.matilda.til.domain.Til;
@@ -32,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 class GitHubServiceTest {
 
     @MockitoBean
-    private GitHubClient gitHubClient;
+    private GitHubRepositoryClient gitHubClient;
 
     @Autowired
     private GitHubService gitHubService;
@@ -57,7 +57,7 @@ class GitHubServiceTest {
         // given
         Til til = createTil(tilUser);
 
-        GitHubCredential gitHubCredential = createGitHubCredential(tilUser, true);
+        GitHubRepository gitHubCredential = createGitHubCredential(tilUser, true);
         gitHubCredentialRepository.save(gitHubCredential);
 
         doNothing().when(gitHubClient).uploadTilContent(any(GitHubUpload.class));
