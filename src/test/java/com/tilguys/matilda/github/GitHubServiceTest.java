@@ -60,14 +60,14 @@ class GitHubServiceTest {
         GitHubRepository gitHubCredential = createGitHubCredential(tilUser, true);
         gitHubCredentialRepository.save(gitHubCredential);
 
-        doNothing().when(gitHubClient).uploadTilContent(any(GitHubUpload.class));
+        doNothing().when(gitHubClient).uploadTilContent(any(GitHubCommitPayload.class));
 
         // when && then
         assertThatNoException()
                 .isThrownBy(() -> gitHubService.uploadTilToGitHub(til));
 
         // verify
-        verify(gitHubClient).uploadTilContent(any(GitHubUpload.class));
+        verify(gitHubClient).uploadTilContent(any(GitHubCommitPayload.class));
     }
 
     @Test
@@ -77,7 +77,7 @@ class GitHubServiceTest {
 
         Til til = createTil(tilUser);
 
-        GitHubCredential inactiveCredential = createGitHubCredential(tilUser, false);
+        GitHubRepository inactiveCredential = createGitHubCredential(tilUser, false);
         gitHubCredentialRepository.save(inactiveCredential);
 
         // when && then
@@ -85,7 +85,7 @@ class GitHubServiceTest {
                 .isThrownBy(() -> gitHubService.uploadTilToGitHub(til));
 
         // verify
-        verify(gitHubClient, never()).uploadTilContent(any(GitHubUpload.class));
+        verify(gitHubClient, never()).uploadTilContent(any(GitHubCommitPayload.class));
     }
 
     @Test
@@ -99,7 +99,7 @@ class GitHubServiceTest {
                 .isThrownBy(() -> gitHubService.uploadTilToGitHub(til));
 
         // verify
-        verify(gitHubClient, never()).uploadTilContent(any(GitHubUpload.class));
+        verify(gitHubClient, never()).uploadTilContent(any(GitHubCommitPayload.class));
     }
 
     private TilUser createTilUser() {
@@ -123,11 +123,11 @@ class GitHubServiceTest {
                 .build();
     }
 
-    private GitHubCredential createGitHubCredential(TilUser tilUser, boolean isActivated) {
-        return GitHubCredential.builder()
+    private GitHubRepository createGitHubCredential(TilUser tilUser, boolean isActivated) {
+        return GitHubRepository.builder()
                 .tilUser(tilUser)
                 .accessToken("accessToken")
-                .repositoryName("repositoryName")
+                .name("repositoryName")
                 .isActivated(isActivated)
                 .build();
     }

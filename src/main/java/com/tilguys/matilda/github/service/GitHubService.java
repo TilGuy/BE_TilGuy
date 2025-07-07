@@ -1,10 +1,10 @@
 package com.tilguys.matilda.github.service;
 
 import com.tilguys.matilda.common.auth.service.UserService;
-import com.tilguys.matilda.github.client.GitHubClient;
+import com.tilguys.matilda.github.client.GitHubRepositoryClient;
 import com.tilguys.matilda.github.controller.GitHubCredentialRequest;
-import com.tilguys.matilda.github.domain.GitHubCredential;
-import com.tilguys.matilda.github.domain.GitHubUpload;
+import com.tilguys.matilda.github.domain.GitHubCommitPayload;
+import com.tilguys.matilda.github.domain.GitHubRepository;
 import com.tilguys.matilda.github.repository.GitHubCredentialRepository;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.user.TilUser;
@@ -28,7 +28,7 @@ public class GitHubService {
             return;
         }
 
-        gitHubClient.uploadTilContent(new GitHubUpload(gitHubCredential.get(), til));
+        gitHubClient.uploadTilContent(new GitHubCommitPayload(gitHubCredential.get(), til));
     }
 
     @Transactional
