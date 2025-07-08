@@ -1,12 +1,9 @@
 package com.tilguys.matilda.github.service;
 
 import com.tilguys.matilda.common.auth.service.UserService;
-import com.tilguys.matilda.github.client.GitHubStorageClient;
 import com.tilguys.matilda.github.controller.GitHubStorageRequest;
-import com.tilguys.matilda.github.domain.GitHubCommitPayload;
 import com.tilguys.matilda.github.domain.GitHubStorage;
 import com.tilguys.matilda.github.repository.GitHubStorageRepository;
-import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.user.TilUser;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -15,21 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class GitHubService {
+public class GitHubStorageService {
 
     private final UserService userService;
-    private final GitHubStorageClient gitHubStorageClient;
     private final GitHubStorageRepository gitHubStorageRepository;
-
-    public void uploadTilToGitHub(Til til) {
-        Optional<GitHubStorage> optionalStorage = gitHubStorageRepository.findByTilUserId(
-                til.getTilUser().getId());
-        if (isValidGitHubStorage(optionalStorage)) {
-            return;
-        }
-
-        gitHubStorageClient.uploadTilContent(new GitHubCommitPayload(optionalStorage.get(), til));
-    }
 
     @Transactional
     public void saveStorage(long userId, GitHubStorageRequest request) {
@@ -55,9 +41,5 @@ public class GitHubService {
 
     private void updateStorage(GitHubStorage storage, GitHubStorageRequest request) {
         storage.updateAccessTokenAndRepositoryName(request.accessToken(), request.repositoryName());
-    }
-
-    private boolean isValidGitHubStorage(Optional<GitHubStorage> storage) {
-        return storage.isEmpty() || !storage.get().isActivated();
     }
 }

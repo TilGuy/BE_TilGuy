@@ -1,7 +1,8 @@
 package com.tilguys.matilda.github.controller;
 
 import com.tilguys.matilda.common.auth.SimpleUserInfo;
-import com.tilguys.matilda.github.service.GitHubService;
+import com.tilguys.matilda.github.service.GitHubStorageService;
+import com.tilguys.matilda.github.service.GitHubWorkflowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,14 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class GitHubController {
 
-    private final GitHubService gitHubService;
+    private final GitHubWorkflowService gitHubWorkflowService;
+    private final GitHubStorageService gitHubStorageService;
 
     @PutMapping("/storage")
     public ResponseEntity<Void> saveGitHubStorage(
             @RequestBody GitHubStorageRequest request,
             @AuthenticationPrincipal final SimpleUserInfo simpleUserInfo) {
 
-        gitHubService.saveStorage(simpleUserInfo.id(), request);
+        gitHubStorageService.saveStorage(simpleUserInfo.id(), request);
         return ResponseEntity.ok().build();
     }
 }

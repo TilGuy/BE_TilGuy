@@ -10,7 +10,7 @@ import com.tilguys.matilda.github.client.GitHubStorageClient;
 import com.tilguys.matilda.github.domain.GitHubCommitPayload;
 import com.tilguys.matilda.github.domain.GitHubStorage;
 import com.tilguys.matilda.github.repository.GitHubStorageRepository;
-import com.tilguys.matilda.github.service.GitHubService;
+import com.tilguys.matilda.github.service.GitHubWorkflowService;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.repository.TilRepository;
 import com.tilguys.matilda.user.ProviderInfo;
@@ -29,13 +29,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @SpringBootTest
 @ActiveProfiles("test")
-class GitHubServiceTest {
+class GitHubWorkflowServiceTest {
 
     @MockitoBean
     private GitHubStorageClient gitHubClient;
 
     @Autowired
-    private GitHubService gitHubService;
+    private GitHubWorkflowService gitHubWorkflowService;
 
     @Autowired
     private GitHubStorageRepository gitHubStorageRepository;
@@ -64,7 +64,7 @@ class GitHubServiceTest {
 
         // when && then
         assertThatNoException()
-                .isThrownBy(() -> gitHubService.uploadTilToGitHub(til));
+                .isThrownBy(() -> gitHubWorkflowService.uploadTilToGitHub(til));
 
         // verify
         verify(gitHubClient).uploadTilContent(any(GitHubCommitPayload.class));
@@ -82,7 +82,7 @@ class GitHubServiceTest {
 
         // when && then
         assertThatNoException()
-                .isThrownBy(() -> gitHubService.uploadTilToGitHub(til));
+                .isThrownBy(() -> gitHubWorkflowService.uploadTilToGitHub(til));
 
         // verify
         verify(gitHubClient, never()).uploadTilContent(any(GitHubCommitPayload.class));
@@ -96,7 +96,7 @@ class GitHubServiceTest {
 
         // when && then
         assertThatNoException()
-                .isThrownBy(() -> gitHubService.uploadTilToGitHub(til));
+                .isThrownBy(() -> gitHubWorkflowService.uploadTilToGitHub(til));
 
         // verify
         verify(gitHubClient, never()).uploadTilContent(any(GitHubCommitPayload.class));
