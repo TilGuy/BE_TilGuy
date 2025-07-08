@@ -17,12 +17,12 @@ public class GitHubController {
 
     private final GitHubService gitHubService;
 
-    @PutMapping("/credentials")
-    public ResponseEntity<Void> saveGitHubCredentials(
-            @RequestBody GitHubCredentialRequest request,
+    @PutMapping("/storage")
+    public ResponseEntity<Void> saveGitHubStorage(
+            @RequestBody GitHubStorageRequest request,
             @AuthenticationPrincipal final SimpleUserInfo simpleUserInfo) {
 
-        gitHubService.saveCredentials(simpleUserInfo.id(), request);
+        gitHubService.saveStorage(simpleUserInfo.id(), request);
         return ResponseEntity.ok().build();
     }
 }

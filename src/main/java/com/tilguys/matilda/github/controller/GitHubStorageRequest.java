@@ -1,8 +1,8 @@
 package com.tilguys.matilda.github.controller;
 
-public record GitHubCredentialRequest(
+public record GitHubStorageRequest(
         String accessToken,
         String repositoryName
 ) {
-    
+
 }

@@ -1,11 +1,11 @@
 package com.tilguys.matilda.github.service;
 
 import com.tilguys.matilda.common.auth.service.UserService;
-import com.tilguys.matilda.github.client.GitHubRepositoryClient;
-import com.tilguys.matilda.github.controller.GitHubCredentialRequest;
+import com.tilguys.matilda.github.client.GitHubStorageClient;
+import com.tilguys.matilda.github.controller.GitHubStorageRequest;
 import com.tilguys.matilda.github.domain.GitHubCommitPayload;
-import com.tilguys.matilda.github.domain.GitHubRepository;
-import com.tilguys.matilda.github.repository.GitHubCredentialRepository;
+import com.tilguys.matilda.github.domain.GitHubStorage;
+import com.tilguys.matilda.github.repository.GitHubStorageRepository;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.user.TilUser;
 import java.util.Optional;
@@ -18,47 +18,46 @@ import org.springframework.transaction.annotation.Transactional;
 public class GitHubService {
 
     private final UserService userService;
-    private final GitHubRepositoryClient gitHubClient;
-    private final GitHubCredentialRepository gitHubCredentialRepository;
+    private final GitHubStorageClient gitHubStorageClient;
+    private final GitHubStorageRepository gitHubStorageRepository;
 
     public void uploadTilToGitHub(Til til) {
-        Optional<GitHubRepository> gitHubCredential = gitHubCredentialRepository.findByTilUserId(
+        Optional<GitHubStorage> optionalStorage = gitHubStorageRepository.findByTilUserId(
                 til.getTilUser().getId());
-        if (isValidGitHubCredential(gitHubCredential)) {
+        if (isValidGitHubStorage(optionalStorage)) {
             return;
         }
 
-        gitHubClient.uploadTilContent(new GitHubCommitPayload(gitHubCredential.get(), til));
+        gitHubStorageClient.uploadTilContent(new GitHubCommitPayload(optionalStorage.get(), til));
     }
 
     @Transactional
-    public void saveCredentials(long userId, GitHubCredentialRequest request) {
-        Optional<GitHubRepository> optionalCredential = gitHubCredentialRepository.findByTilUserId(userId);
+    public void saveStorage(long userId, GitHubStorageRequest request) {
+        Optional<GitHubStorage> optionalStorage = gitHubStorageRepository.findByTilUserId(userId);
 
-        if (optionalCredential.isPresent()) {
-            updateCredential(optionalCredential.get(), request);
+        if (optionalStorage.isPresent()) {
+            updateStorage(optionalStorage.get(), request);
             return;
         }
-
-        createCredential(userId, request);
+        createStorage(userId, request);
     }
 
-    private void createCredential(long userId, GitHubCredentialRequest request) {
+    private void createStorage(long userId, GitHubStorageRequest request) {
         TilUser user = userService.getById(userId);
-        GitHubRepository credential = GitHubRepository.builder()
+        GitHubStorage newStorage = GitHubStorage.builder()
                 .tilUser(user)
                 .accessToken(request.accessToken())
-                .name(request.repositoryName())
+                .repositoryName(request.repositoryName())
                 .isActivated(true)
                 .build();
-        gitHubCredentialRepository.save(credential);
+        gitHubStorageRepository.save(newStorage);
     }
 
-    private void updateCredential(GitHubRepository credential, GitHubCredentialRequest request) {
-        credential.updateAccessTokenAndRepositoryName(request.accessToken(), request.repositoryName());
+    private void updateStorage(GitHubStorage storage, GitHubStorageRequest request) {
+        storage.updateAccessTokenAndRepositoryName(request.accessToken(), request.repositoryName());
     }
 
-    private boolean isValidGitHubCredential(Optional<GitHubRepository> gitHubCredential) {
-        return gitHubCredential.isEmpty() || !gitHubCredential.get().isActivated();
+    private boolean isValidGitHubStorage(Optional<GitHubStorage> storage) {
+        return storage.isEmpty() || !storage.get().isActivated();
     }
 }

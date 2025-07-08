@@ -6,10 +6,10 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import com.tilguys.matilda.github.client.GitHubRepositoryClient;
+import com.tilguys.matilda.github.client.GitHubStorageClient;
 import com.tilguys.matilda.github.domain.GitHubCommitPayload;
-import com.tilguys.matilda.github.domain.GitHubRepository;
-import com.tilguys.matilda.github.repository.GitHubCredentialRepository;
+import com.tilguys.matilda.github.domain.GitHubStorage;
+import com.tilguys.matilda.github.repository.GitHubStorageRepository;
 import com.tilguys.matilda.github.service.GitHubService;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.repository.TilRepository;
@@ -32,13 +32,13 @@ import org.springframework.transaction.annotation.Transactional;
 class GitHubServiceTest {
 
     @MockitoBean
-    private GitHubRepositoryClient gitHubClient;
+    private GitHubStorageClient gitHubClient;
 
     @Autowired
     private GitHubService gitHubService;
 
     @Autowired
-    private GitHubCredentialRepository gitHubCredentialRepository;
+    private GitHubStorageRepository gitHubStorageRepository;
 
     private TilUser tilUser;
 
@@ -53,12 +53,12 @@ class GitHubServiceTest {
     }
 
     @Test
-    void 티일을_깃허브에_업로드한다() {
+    void TIL을_깃허브에_업로드한다() {
         // given
         Til til = createTil(tilUser);
 
-        GitHubRepository gitHubCredential = createGitHubCredential(tilUser, true);
-        gitHubCredentialRepository.save(gitHubCredential);
+        GitHubStorage gitHubStorage = createGitHubStorage(tilUser, true);
+        gitHubStorageRepository.save(gitHubStorage);
 
         doNothing().when(gitHubClient).uploadTilContent(any(GitHubCommitPayload.class));
 
@@ -71,14 +71,14 @@ class GitHubServiceTest {
     }
 
     @Test
-    void 깃허브_크리덴셜이_비활성화된_경우_업로드하지_않는다() {
+    void 깃허브_저장소가_비활성화된_경우_업로드하지_않는다() {
         // given
-        gitHubCredentialRepository.deleteAll();
+        gitHubStorageRepository.deleteAll();
 
         Til til = createTil(tilUser);
 
-        GitHubRepository inactiveCredential = createGitHubCredential(tilUser, false);
-        gitHubCredentialRepository.save(inactiveCredential);
+        GitHubStorage inactiveStorage = createGitHubStorage(tilUser, false);
+        gitHubStorageRepository.save(inactiveStorage);
 
         // when && then
         assertThatNoException()
@@ -89,10 +89,10 @@ class GitHubServiceTest {
     }
 
     @Test
-    void 깃허브_크리덴셜_데이터가_없는_경우_업로드하지_않는다() {
+    void 깃허브_저장소_데이터가_없는_경우_업로드하지_않는다() {
         // given
         Til til = createTil(tilUser);
-        gitHubCredentialRepository.deleteAll();
+        gitHubStorageRepository.deleteAll();
 
         // when && then
         assertThatNoException()
@@ -123,11 +123,11 @@ class GitHubServiceTest {
                 .build();
     }
 
-    private GitHubRepository createGitHubCredential(TilUser tilUser, boolean isActivated) {
-        return GitHubRepository.builder()
+    private GitHubStorage createGitHubStorage(TilUser tilUser, boolean isActivated) {
+        return GitHubStorage.builder()
                 .tilUser(tilUser)
                 .accessToken("accessToken")
-                .name("repositoryName")
+                .repositoryName("repositoryName")
                 .isActivated(isActivated)
                 .build();
     }

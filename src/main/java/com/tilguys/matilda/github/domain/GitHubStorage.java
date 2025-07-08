@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GitHubRepository {
+public class GitHubStorage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +29,7 @@ public class GitHubRepository {
     private TilUser tilUser;
 
     @Getter
-    private String name;
+    private String repositoryName;
 
     @Getter
     private String accessToken;
@@ -37,8 +37,8 @@ public class GitHubRepository {
     @Getter
     private boolean isActivated;
 
-    public void updateAccessTokenAndRepositoryName(String accessToken, String name) {
+    public void updateAccessTokenAndRepositoryName(String accessToken, String repositoryName) {
         this.accessToken = accessToken;
-        this.name = name;
+        this.repositoryName = repositoryName;
     }
 }
