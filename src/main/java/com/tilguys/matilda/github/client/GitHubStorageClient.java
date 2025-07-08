@@ -1,6 +1,6 @@
 package com.tilguys.matilda.github.client;
 
-import com.tilguys.matilda.github.domain.GitHubCommitPayload;
+import com.tilguys.matilda.github.domain.GitHubUploadPayload;
 import java.util.Base64;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -18,17 +18,17 @@ public class GitHubStorageClient {
 
     private final RestTemplate restTemplate;
 
-    public void uploadTilContent(GitHubCommitPayload gitHubUpload) {
-        String encodedContent = encodeContent(gitHubUpload.getContents());
-        HttpEntity<Map<String, String>> requestEntity = createRequestEntity(gitHubUpload, encodedContent);
-        restTemplate.put(gitHubUpload.getUploadsUrl(), requestEntity);
+    public void uploadTilContent(GitHubUploadPayload uploadPayload) {
+        String encodedContent = encodeContent(uploadPayload.getContents());
+        HttpEntity<Map<String, String>> requestEntity = createRequestEntity(uploadPayload, encodedContent);
+        restTemplate.put(uploadPayload.getUploadsUrl(), requestEntity);
     }
 
     private String encodeContent(String content) {
         return Base64.getEncoder().encodeToString(content.getBytes());
     }
 
-    private HttpEntity<Map<String, String>> createRequestEntity(GitHubCommitPayload gitHubUpload,
+    private HttpEntity<Map<String, String>> createRequestEntity(GitHubUploadPayload gitHubUpload,
                                                                 String encodedContent) {
         return new HttpEntity<>(
                 createRequestBody(gitHubUpload.getCommitMessage(), encodedContent),

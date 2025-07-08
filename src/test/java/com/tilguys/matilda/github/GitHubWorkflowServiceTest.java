@@ -7,8 +7,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.tilguys.matilda.github.client.GitHubStorageClient;
-import com.tilguys.matilda.github.domain.GitHubCommitPayload;
 import com.tilguys.matilda.github.domain.GitHubStorage;
+import com.tilguys.matilda.github.domain.GitHubUploadPayload;
 import com.tilguys.matilda.github.repository.GitHubStorageRepository;
 import com.tilguys.matilda.github.service.GitHubWorkflowService;
 import com.tilguys.matilda.til.domain.Til;
@@ -60,18 +60,18 @@ class GitHubWorkflowServiceTest {
         GitHubStorage gitHubStorage = createGitHubStorage(tilUser, true);
         gitHubStorageRepository.save(gitHubStorage);
 
-        doNothing().when(gitHubClient).uploadTilContent(any(GitHubCommitPayload.class));
+        doNothing().when(gitHubClient).uploadTilContent(any(GitHubUploadPayload.class));
 
         // when && then
         assertThatNoException()
                 .isThrownBy(() -> gitHubWorkflowService.uploadTilToGitHub(til));
 
         // verify
-        verify(gitHubClient).uploadTilContent(any(GitHubCommitPayload.class));
+        verify(gitHubClient).uploadTilContent(any(GitHubUploadPayload.class));
     }
 
     @Test
-    void 깃허브_저장소가_비활성화된_경우_업로드하지_않는다() {
+    void 깃허브_저장소_업로드가_비활성화된_경우_업로드하지_않는다() {
         // given
         gitHubStorageRepository.deleteAll();
 
@@ -85,7 +85,7 @@ class GitHubWorkflowServiceTest {
                 .isThrownBy(() -> gitHubWorkflowService.uploadTilToGitHub(til));
 
         // verify
-        verify(gitHubClient, never()).uploadTilContent(any(GitHubCommitPayload.class));
+        verify(gitHubClient, never()).uploadTilContent(any(GitHubUploadPayload.class));
     }
 
     @Test
@@ -99,7 +99,7 @@ class GitHubWorkflowServiceTest {
                 .isThrownBy(() -> gitHubWorkflowService.uploadTilToGitHub(til));
 
         // verify
-        verify(gitHubClient, never()).uploadTilContent(any(GitHubCommitPayload.class));
+        verify(gitHubClient, never()).uploadTilContent(any(GitHubUploadPayload.class));
     }
 
     private TilUser createTilUser() {

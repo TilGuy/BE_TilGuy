@@ -1,8 +1,8 @@
 package com.tilguys.matilda.github.service;
 
 import com.tilguys.matilda.github.client.GitHubStorageClient;
-import com.tilguys.matilda.github.domain.GitHubCommitPayload;
 import com.tilguys.matilda.github.domain.GitHubStorage;
+import com.tilguys.matilda.github.domain.GitHubUploadPayload;
 import com.tilguys.matilda.github.repository.GitHubStorageRepository;
 import com.tilguys.matilda.til.domain.Til;
 import java.util.Optional;
@@ -23,7 +23,7 @@ public class GitHubWorkflowService {
             return;
         }
 
-        gitHubStorageClient.uploadTilContent(new GitHubCommitPayload(optionalStorage.get(), til));
+        gitHubStorageClient.uploadTilContent(new GitHubUploadPayload(optionalStorage.get(), til));
     }
 
     private boolean isValidGitHubStorage(Optional<GitHubStorage> storage) {
