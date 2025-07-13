@@ -6,9 +6,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import com.tilguys.matilda.github.client.GitHubStorageClient;
 import com.tilguys.matilda.github.domain.GitHubStorage;
-import com.tilguys.matilda.github.domain.GitHubUploadPayload;
 import com.tilguys.matilda.github.repository.GitHubStorageRepository;
 import com.tilguys.matilda.github.service.GitHubWorkflowService;
 import com.tilguys.matilda.til.domain.Til;
@@ -22,9 +20,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 @Transactional
 @SpringBootTest
@@ -32,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 class GitHubWorkflowServiceTest {
 
     @MockitoBean
-    private GitHubStorageClient gitHubClient;
+    private RestTemplate restTemplate;
 
     @Autowired
     private GitHubWorkflowService gitHubWorkflowService;
@@ -60,14 +60,17 @@ class GitHubWorkflowServiceTest {
         GitHubStorage gitHubStorage = createGitHubStorage(tilUser, true);
         gitHubStorageRepository.save(gitHubStorage);
 
-        doNothing().when(gitHubClient).uploadTilContent(any(GitHubUploadPayload.class));
+        doNothing().when(restTemplate).put(
+                any(String.class),
+                any(HttpEntity.class)
+        );
 
         // when && then
         assertThatNoException()
                 .isThrownBy(() -> gitHubWorkflowService.uploadTilToGitHub(til));
 
         // verify
-        verify(gitHubClient).uploadTilContent(any(GitHubUploadPayload.class));
+        verify(restTemplate).put(any(String.class), any(HttpEntity.class));
     }
 
     @Test
@@ -85,7 +88,7 @@ class GitHubWorkflowServiceTest {
                 .isThrownBy(() -> gitHubWorkflowService.uploadTilToGitHub(til));
 
         // verify
-        verify(gitHubClient, never()).uploadTilContent(any(GitHubUploadPayload.class));
+        verify(restTemplate, never()).put(any(String.class), any(HttpEntity.class));
     }
 
     @Test
@@ -99,7 +102,7 @@ class GitHubWorkflowServiceTest {
                 .isThrownBy(() -> gitHubWorkflowService.uploadTilToGitHub(til));
 
         // verify
-        verify(gitHubClient, never()).uploadTilContent(any(GitHubUploadPayload.class));
+        verify(restTemplate, never()).put(any(String.class), any(HttpEntity.class));
     }
 
     private TilUser createTilUser() {
