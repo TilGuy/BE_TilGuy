@@ -93,6 +93,8 @@ public class TilService {
         }
         Til til = getTilByTilId(tilId);
         til.markAsDeletedBy(userId);
+
+        gitHubWorkflowService.deleteTilToGitHub(til);
     }
 
     @Transactional(readOnly = true)

@@ -2,6 +2,7 @@ package com.tilguys.matilda.github.service;
 
 import com.tilguys.matilda.common.auth.exception.MatildaException;
 import com.tilguys.matilda.github.client.GitHubWorkflowClient;
+import com.tilguys.matilda.github.domain.GitHubContentDeletePayload;
 import com.tilguys.matilda.github.domain.GitHubContentGetPayload;
 import com.tilguys.matilda.github.domain.GitHubContentUpdatePayload;
 import com.tilguys.matilda.github.domain.GitHubContentUploadPayload;
@@ -40,10 +41,25 @@ public class GitHubWorkflowService {
         }
 
         GitHubContentGetPayload contentGetPayload = new GitHubContentGetPayload(optionalStorage.get(), til);
-        Map<String, Object> content = gitHubWorkflowClient.getContents(contentGetPayload);
+        Map<String, Object> content = gitHubWorkflowClient.getContent(contentGetPayload);
         String sha = String.valueOf(content.get("sha"));
 
         gitHubWorkflowClient.updateContent(new GitHubContentUpdatePayload(optionalStorage.get(), til, sha));
+    }
+
+    public void deleteTilToGitHub(Til til) {
+        Optional<GitHubStorage> optionalStorage = gitHubStorageRepository.findByTilUserId(
+                til.getTilUser().getId());
+
+        if (isValidGitHubStorage(optionalStorage)) {
+            return;
+        }
+
+        GitHubContentGetPayload contentGetPayload = new GitHubContentGetPayload(optionalStorage.get(), til);
+        Map<String, Object> content = gitHubWorkflowClient.getContent(contentGetPayload);
+        String sha = String.valueOf(content.get("sha"));
+
+        gitHubWorkflowClient.deleteContent(new GitHubContentDeletePayload(optionalStorage.get(), til, sha));
     }
 
     public void validateRepository(GitHubStorage gitHubStorage) {

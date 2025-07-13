@@ -1,5 +1,6 @@
 package com.tilguys.matilda.github.client;
 
+import com.tilguys.matilda.github.domain.GitHubContentDeletePayload;
 import com.tilguys.matilda.github.domain.GitHubContentGetPayload;
 import com.tilguys.matilda.github.domain.GitHubContentUpdatePayload;
 import com.tilguys.matilda.github.domain.GitHubContentUploadPayload;
@@ -35,7 +36,7 @@ public class GitHubWorkflowClient {
         );
     }
 
-    public Map<String, Object> getContents(GitHubContentGetPayload contentGetPayload) {
+    public Map<String, Object> getContent(GitHubContentGetPayload contentGetPayload) {
         HttpHeaders headers = createAuthorizationHeaders(contentGetPayload.getAccessToken());
         HttpEntity<Object> entity = new HttpEntity<>(headers);
         ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
@@ -59,6 +60,16 @@ public class GitHubWorkflowClient {
         String encodedContent = encodeContent(contentUpdatePayload.getContents());
         HttpEntity<Map<String, String>> requestEntity = createUpdateRequestEntity(contentUpdatePayload, encodedContent);
         restTemplate.put(contentUpdatePayload.getUpdateUrl(), requestEntity);
+    }
+
+    public void deleteContent(GitHubContentDeletePayload contentDeletePayload) {
+        HttpEntity<Map<String, String>> requestEntity = createDeleteRequestEntity(contentDeletePayload);
+        restTemplate.exchange(
+                contentDeletePayload.getDeleteUrl(),
+                HttpMethod.DELETE,
+                requestEntity,
+                Void.class
+        );
     }
 
     private String encodeContent(String content) {
@@ -93,6 +104,20 @@ public class GitHubWorkflowClient {
         return Map.of(
                 "message", commitMessage,
                 "content", encodedContent,
+                "sha", sha
+        );
+    }
+
+    private HttpEntity<Map<String, String>> createDeleteRequestEntity(GitHubContentDeletePayload contentDeletePayload) {
+        return new HttpEntity<>(
+                createDeleteRequestBody(contentDeletePayload.getCommitMessage(), contentDeletePayload.getSha()),
+                createAuthorizationHeaders(contentDeletePayload.getAccessToken())
+        );
+    }
+
+    private Map<String, String> createDeleteRequestBody(String commitMessage, String sha) {
+        return Map.of(
+                "message", commitMessage,
                 "sha", sha
         );
     }
