@@ -6,7 +6,7 @@ import lombok.Getter;
 
 public class GitHubContentUpdatePayload {
 
-    private static final String COMMIT_MESSAGE_PREFIX = "[TIL]: ";
+    private static final String COMMIT_MESSAGE = "[TIL]: %s - Update";
     private static final String STORAGE_API_URL_FORMAT = "https://api.github.com/repos/%s/%s/contents/til/%s.md";
     private static final String CONTENT_TEMPLATE = """
             ### 🔗 [원본 URL](https://matilda.woowacourse.com/api/til/share/%d)
@@ -39,7 +39,7 @@ public class GitHubContentUpdatePayload {
         this.updateUrl = generateUpdateUrl(til.getTilUser().getIdentifier(), gitHubStorage.getRepositoryName(),
                 til.getDate());
         this.contents = generateContents(til.getTilId(), til.getTitle(), til.getContent());
-        this.commitMessage = COMMIT_MESSAGE_PREFIX + til.getTitle();
+        this.commitMessage = String.format(COMMIT_MESSAGE, til.getTitle());
         this.sha = sha;
     }
 
