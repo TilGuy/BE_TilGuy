@@ -22,7 +22,7 @@ public class GitHubController {
             @RequestBody GitHubStorageRequest request,
             @AuthenticationPrincipal final SimpleUserInfo simpleUserInfo) {
 
-        gitHubStorageService.saveStorage(simpleUserInfo.id(), request);
+        gitHubStorageService.saveOrUpdateSettings(simpleUserInfo.id(), request);
         return ResponseEntity.ok().build();
     }
 }

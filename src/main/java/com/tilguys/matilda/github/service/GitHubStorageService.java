@@ -19,22 +19,22 @@ public class GitHubStorageService {
     private final GitHubStorageRepository gitHubStorageRepository;
 
     @Transactional
-    public void saveStorage(long userId, GitHubStorageRequest request) {
+    public void saveOrUpdateSettings(long userId, GitHubStorageRequest request) {
         Optional<GitHubStorage> optionalStorage = gitHubStorageRepository.findByTilUserId(userId);
-        GitHubStorage gitHubStorage = creatOrUpdate(userId, request, optionalStorage);
+        GitHubStorage gitHubStorage = saveOrUpdateStorage(userId, request, optionalStorage);
         gitHubWorkflowService.validateRepository(gitHubStorage);
     }
 
-    private GitHubStorage creatOrUpdate(long userId, GitHubStorageRequest request,
-                                        Optional<GitHubStorage> optionalStorage) {
+    private GitHubStorage saveOrUpdateStorage(long userId, GitHubStorageRequest request,
+                                              Optional<GitHubStorage> optionalStorage) {
         if (optionalStorage.isPresent()) {
             updateStorage(optionalStorage.get(), request);
             return optionalStorage.get();
         }
-        return createStorage(userId, request);
+        return createNewStorage(userId, request);
     }
 
-    private GitHubStorage createStorage(long userId, GitHubStorageRequest request) {
+    private GitHubStorage createNewStorage(long userId, GitHubStorageRequest request) {
         TilUser user = userService.getById(userId);
         GitHubStorage newStorage = GitHubStorage.builder()
                 .tilUser(user)
