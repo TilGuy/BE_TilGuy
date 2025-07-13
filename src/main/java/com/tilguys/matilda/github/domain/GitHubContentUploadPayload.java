@@ -4,7 +4,7 @@ import com.tilguys.matilda.til.domain.Til;
 import java.time.LocalDate;
 import lombok.Getter;
 
-public class GitHubUploadPayload {
+public class GitHubContentUploadPayload {
 
     private static final String COMMIT_MESSAGE_PREFIX = "[TIL]: ";
     private static final String STORAGE_API_URL_FORMAT = "https://api.github.com/repos/%s/%s/contents/til/%s.md";
@@ -23,7 +23,7 @@ public class GitHubUploadPayload {
     private final String accessToken;
 
     @Getter
-    private final String uploadsUrl;
+    private final String uploadUrl;
 
     @Getter
     private final String contents;
@@ -31,9 +31,9 @@ public class GitHubUploadPayload {
     @Getter
     private final String commitMessage;
 
-    public GitHubUploadPayload(GitHubStorage gitHubStorage, Til til) {
+    public GitHubContentUploadPayload(GitHubStorage gitHubStorage, Til til) {
         this.accessToken = gitHubStorage.getAccessToken();
-        this.uploadsUrl = generateUploadUrl(til.getTilUser().getIdentifier(), gitHubStorage.getRepositoryName(),
+        this.uploadUrl = generateUploadUrl(til.getTilUser().getIdentifier(), gitHubStorage.getRepositoryName(),
                 til.getDate());
         this.contents = generateContents(til.getTilId(), til.getTitle(), til.getContent());
         this.commitMessage = COMMIT_MESSAGE_PREFIX + til.getTitle();

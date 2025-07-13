@@ -1,7 +1,7 @@
 package com.tilguys.matilda.github.client;
 
+import com.tilguys.matilda.github.domain.GitHubContentUploadPayload;
 import com.tilguys.matilda.github.domain.GitHubGetPayload;
-import com.tilguys.matilda.github.domain.GitHubUploadPayload;
 import java.util.Base64;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -13,17 +13,17 @@ import org.springframework.web.client.RestTemplate;
 
 @Component
 @RequiredArgsConstructor
-public class GitHubStorageClient {
+public class GitHubWorkflowClient {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final RestTemplate restTemplate;
 
-    public void uploadTilContent(GitHubUploadPayload uploadPayload) {
-        String encodedContent = encodeContent(uploadPayload.getContents());
-        HttpEntity<Map<String, String>> requestEntity = createRequestEntity(uploadPayload, encodedContent);
-        restTemplate.put(uploadPayload.getUploadsUrl(), requestEntity);
+    public void uploadContent(GitHubContentUploadPayload contentUploadPayload) {
+        String encodedContent = encodeContent(contentUploadPayload.getContents());
+        HttpEntity<Map<String, String>> requestEntity = createRequestEntity(contentUploadPayload, encodedContent);
+        restTemplate.put(contentUploadPayload.getUploadUrl(), requestEntity);
     }
 
     public void getRepository(GitHubGetPayload getPayload) {
@@ -41,7 +41,7 @@ public class GitHubStorageClient {
         return Base64.getEncoder().encodeToString(content.getBytes());
     }
 
-    private HttpEntity<Map<String, String>> createRequestEntity(GitHubUploadPayload gitHubUpload,
+    private HttpEntity<Map<String, String>> createRequestEntity(GitHubContentUploadPayload gitHubUpload,
                                                                 String encodedContent) {
         return new HttpEntity<>(
                 createRequestBody(gitHubUpload.getCommitMessage(), encodedContent),
