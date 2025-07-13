@@ -1,5 +1,6 @@
 package com.tilguys.matilda.til.service;
 
+import com.tilguys.matilda.github.service.GitHubWorkflowService;
 import com.tilguys.matilda.reference.event.ReferenceCreateEvent;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
@@ -30,6 +31,7 @@ public class TilService {
 
     private final TilRepository tilRepository;
     private final TilUserService userService;
+    private final GitHubWorkflowService gitHubWorkflowService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
@@ -51,6 +53,7 @@ public class TilService {
                 new ReferenceCreateEvent(til.getTilId(), til.getContent())
         );
 
+        gitHubWorkflowService.uploadTilToGitHub(til);
         return til;
     }
 
