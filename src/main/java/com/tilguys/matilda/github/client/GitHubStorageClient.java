@@ -1,11 +1,13 @@
 package com.tilguys.matilda.github.client;
 
+import com.tilguys.matilda.github.domain.GitHubGetPayload;
 import com.tilguys.matilda.github.domain.GitHubUploadPayload;
 import java.util.Base64;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -24,6 +26,17 @@ public class GitHubStorageClient {
         restTemplate.put(uploadPayload.getUploadsUrl(), requestEntity);
     }
 
+    public void getRepository(GitHubGetPayload getPayload) {
+        HttpHeaders headers = createAuthorizationHeaders(getPayload.getAccessToken());
+        HttpEntity<Object> entity = new HttpEntity<>(headers);
+        restTemplate.exchange(
+                getPayload.getGetUrl(),
+                HttpMethod.GET,
+                entity,
+                String.class
+        );
+    }
+
     private String encodeContent(String content) {
         return Base64.getEncoder().encodeToString(content.getBytes());
     }
@@ -32,7 +45,7 @@ public class GitHubStorageClient {
                                                                 String encodedContent) {
         return new HttpEntity<>(
                 createRequestBody(gitHubUpload.getCommitMessage(), encodedContent),
-                createHeaders(gitHubUpload.getAccessToken())
+                createAuthorizationHeaders(gitHubUpload.getAccessToken())
         );
     }
 
@@ -43,7 +56,7 @@ public class GitHubStorageClient {
         );
     }
 
-    private HttpHeaders createHeaders(String accessToken) {
+    private HttpHeaders createAuthorizationHeaders(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(AUTHORIZATION_HEADER, BEARER_PREFIX + accessToken);
         return headers;

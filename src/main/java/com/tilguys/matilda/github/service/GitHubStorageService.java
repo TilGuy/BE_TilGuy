@@ -15,20 +15,26 @@ import org.springframework.transaction.annotation.Transactional;
 public class GitHubStorageService {
 
     private final UserService userService;
+    private final GitHubWorkflowService gitHubWorkflowService;
     private final GitHubStorageRepository gitHubStorageRepository;
 
     @Transactional
     public void saveStorage(long userId, GitHubStorageRequest request) {
         Optional<GitHubStorage> optionalStorage = gitHubStorageRepository.findByTilUserId(userId);
-
-        if (optionalStorage.isPresent()) {
-            updateStorage(optionalStorage.get(), request);
-            return;
-        }
-        createStorage(userId, request);
+        GitHubStorage gitHubStorage = creatOrUpdate(userId, request, optionalStorage);
+        gitHubWorkflowService.validateRepository(gitHubStorage);
     }
 
-    private void createStorage(long userId, GitHubStorageRequest request) {
+    private GitHubStorage creatOrUpdate(long userId, GitHubStorageRequest request,
+                                        Optional<GitHubStorage> optionalStorage) {
+        if (optionalStorage.isPresent()) {
+            updateStorage(optionalStorage.get(), request);
+            return optionalStorage.get();
+        }
+        return createStorage(userId, request);
+    }
+
+    private GitHubStorage createStorage(long userId, GitHubStorageRequest request) {
         TilUser user = userService.getById(userId);
         GitHubStorage newStorage = GitHubStorage.builder()
                 .tilUser(user)
@@ -36,7 +42,7 @@ public class GitHubStorageService {
                 .repositoryName(request.repositoryName())
                 .isActivated(true)
                 .build();
-        gitHubStorageRepository.save(newStorage);
+        return gitHubStorageRepository.save(newStorage);
     }
 
     private void updateStorage(GitHubStorage storage, GitHubStorageRequest request) {
