@@ -2,11 +2,14 @@ package com.tilguys.matilda.github.service;
 
 import com.tilguys.matilda.common.auth.exception.MatildaException;
 import com.tilguys.matilda.github.client.GitHubWorkflowClient;
+import com.tilguys.matilda.github.domain.GitHubContentGetPayload;
+import com.tilguys.matilda.github.domain.GitHubContentUpdatePayload;
 import com.tilguys.matilda.github.domain.GitHubContentUploadPayload;
 import com.tilguys.matilda.github.domain.GitHubGetPayload;
 import com.tilguys.matilda.github.domain.GitHubStorage;
 import com.tilguys.matilda.github.repository.GitHubStorageRepository;
 import com.tilguys.matilda.til.domain.Til;
+import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,21 @@ public class GitHubWorkflowService {
             return;
         }
         gitHubWorkflowClient.uploadContent(new GitHubContentUploadPayload(optionalStorage.get(), til));
+    }
+
+    public void updateTilToGitHub(Til til) {
+        Optional<GitHubStorage> optionalStorage = gitHubStorageRepository.findByTilUserId(
+                til.getTilUser().getId());
+
+        if (isValidGitHubStorage(optionalStorage)) {
+            return;
+        }
+
+        GitHubContentGetPayload contentGetPayload = new GitHubContentGetPayload(optionalStorage.get(), til);
+        Map<String, Object> content = gitHubWorkflowClient.getContents(contentGetPayload);
+        String sha = String.valueOf(content.get("sha"));
+
+        gitHubWorkflowClient.updateContent(new GitHubContentUpdatePayload(optionalStorage.get(), til, sha));
     }
 
     public void validateRepository(GitHubStorage gitHubStorage) {

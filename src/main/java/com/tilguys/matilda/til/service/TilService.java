@@ -82,6 +82,8 @@ public class TilService {
                 targetDate,
                 tilUpdateDto.title()
         );
+
+        gitHubWorkflowService.updateTilToGitHub(til);
     }
 
     @Transactional
