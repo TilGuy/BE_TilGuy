@@ -1,10 +1,12 @@
 package com.tilguys.matilda.github;
 
 import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.tilguys.matilda.github.domain.GitHubStorage;
 import com.tilguys.matilda.github.repository.GitHubStorageRepository;
@@ -16,11 +18,17 @@ import com.tilguys.matilda.user.Role;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.repository.UserRepository;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
@@ -103,6 +111,72 @@ class GitHubWorkflowServiceTest {
 
         // verify
         verify(restTemplate, never()).put(any(String.class), any(HttpEntity.class));
+    }
+
+    @Test
+    void TIL을_깃허브에서_수정한다() {
+        // given
+        Til til = createTil(tilUser);
+        GitHubStorage gitHubStorage = createGitHubStorage(tilUser, true);
+        gitHubStorageRepository.save(gitHubStorage);
+
+        Map<String, Object> contentResponse = new HashMap<>();
+        contentResponse.put("sha", "test_sha");
+        ResponseEntity<Map<String, Object>> responseEntity = new ResponseEntity<>(contentResponse, HttpStatus.OK);
+
+        when(restTemplate.exchange(
+                any(String.class),
+                eq(HttpMethod.GET),
+                any(HttpEntity.class),
+                any(ParameterizedTypeReference.class)
+        )).thenReturn(responseEntity);
+
+        doNothing().when(restTemplate).put(
+                any(String.class),
+                any(HttpEntity.class)
+        );
+
+        // when && then
+        assertThatNoException()
+                .isThrownBy(() -> gitHubWorkflowService.updateTilToGitHub(til));
+
+        // verify
+        verify(restTemplate).exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), any(ParameterizedTypeReference.class));
+        verify(restTemplate).put(any(String.class), any(HttpEntity.class));
+    }
+
+    @Test
+    void TIL을_깃허브에서_삭제한다() {
+        // given
+        Til til = createTil(tilUser);
+        GitHubStorage gitHubStorage = createGitHubStorage(tilUser, true);
+        gitHubStorageRepository.save(gitHubStorage);
+
+        Map<String, Object> contentResponse = new HashMap<>();
+        contentResponse.put("sha", "test_sha");
+        ResponseEntity<Map<String, Object>> responseEntity = new ResponseEntity<>(contentResponse, HttpStatus.OK);
+
+        when(restTemplate.exchange(
+                any(String.class),
+                eq(HttpMethod.GET),
+                any(HttpEntity.class),
+                any(ParameterizedTypeReference.class)
+        )).thenReturn(responseEntity);
+
+        when(restTemplate.exchange(
+                any(String.class),
+                eq(HttpMethod.DELETE),
+                any(HttpEntity.class),
+                eq(Void.class)
+        )).thenReturn(new ResponseEntity<>(HttpStatus.OK));
+
+        // when && then
+        assertThatNoException()
+                .isThrownBy(() -> gitHubWorkflowService.deleteTilToGitHub(til));
+
+        // verify
+        verify(restTemplate).exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), any(ParameterizedTypeReference.class));
+        verify(restTemplate).exchange(any(String.class), eq(HttpMethod.DELETE), any(HttpEntity.class), eq(Void.class));
     }
 
     private TilUser createTilUser() {
