@@ -41,4 +41,8 @@ public class GitHubStorage {
         this.accessToken = accessToken;
         this.repositoryName = repositoryName;
     }
+
+    public void toggleActivation() {
+        this.isActivated = !this.isActivated;
+    }
 }

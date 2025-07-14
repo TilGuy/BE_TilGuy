@@ -25,6 +25,16 @@ public class GitHubStorageService {
         gitHubWorkflowService.validateRepository(gitHubStorage);
     }
 
+    public Optional<GitHubStorage> getGitHubStorage(Long userId) {
+        return gitHubStorageRepository.findByTilUserId(userId);
+    }
+
+    public void updateGitHubStorageActive(Long userId) {
+        GitHubStorage storage = gitHubStorageRepository.findByTilUserId(userId)
+                .orElseThrow(RuntimeException::new);
+        storage.toggleActivation();
+    }
+
     private GitHubStorage saveOrUpdateStorage(long userId, GitHubStorageRequest request,
                                               Optional<GitHubStorage> optionalStorage) {
         if (optionalStorage.isPresent()) {
