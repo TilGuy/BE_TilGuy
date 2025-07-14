@@ -11,8 +11,8 @@ import com.tilguys.matilda.github.domain.GitHubStorage;
 import com.tilguys.matilda.github.repository.GitHubStorageRepository;
 import com.tilguys.matilda.til.domain.Til;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,24 +24,22 @@ public class GitHubWorkflowService {
     private final GitHubStorageRepository gitHubStorageRepository;
 
     public void uploadTilToGitHub(Til til) {
-        GitHubStorage gitHubStorage = getGitHubStorageIfValid(til);
-        gitHubWorkflowClient.uploadContent(new GitHubContentUploadPayload(Objects.requireNonNull(gitHubStorage), til));
+        processGitHubOperation(til, (storage) ->
+                gitHubWorkflowClient.uploadContent(new GitHubContentUploadPayload(storage, til)));
     }
 
     public void updateTilToGitHub(Til til) {
-        GitHubStorage gitHubStorage = getGitHubStorageIfValid(til);
-        String sha = getSha(til, gitHubStorage);
-
-        gitHubWorkflowClient.updateContent(
-                new GitHubContentUpdatePayload(Objects.requireNonNull(gitHubStorage), til, sha));
+        processGitHubOperation(til, (storage) -> {
+            String sha = getSha(til, storage);
+            gitHubWorkflowClient.updateContent(new GitHubContentUpdatePayload(storage, til, sha));
+        });
     }
 
     public void deleteTilToGitHub(Til til) {
-        GitHubStorage gitHubStorage = getGitHubStorageIfValid(til);
-        String sha = getSha(til, gitHubStorage);
-
-        gitHubWorkflowClient.deleteContent(
-                new GitHubContentDeletePayload(Objects.requireNonNull(gitHubStorage), til, sha));
+        processGitHubOperation(til, (storage) -> {
+            String sha = getSha(til, storage);
+            gitHubWorkflowClient.deleteContent(new GitHubContentDeletePayload(storage, til, sha));
+        });
     }
 
     public void validateRepository(GitHubStorage gitHubStorage) {
@@ -52,6 +50,14 @@ public class GitHubWorkflowService {
         } catch (Exception e) {
             throw new MatildaException("GitHub 저장소가 존재하지 않거나 활성화되지 않았습니다. \nToken 및 저장소 이름을 확인해주세요.");
         }
+    }
+
+    private void processGitHubOperation(Til til, Consumer<GitHubStorage> operation) {
+        GitHubStorage gitHubStorage = getGitHubStorageIfValid(til);
+        if (gitHubStorage == null) {
+            return;
+        }
+        operation.accept(gitHubStorage);
     }
 
     private String getSha(Til til, GitHubStorage gitHubStorage) {
