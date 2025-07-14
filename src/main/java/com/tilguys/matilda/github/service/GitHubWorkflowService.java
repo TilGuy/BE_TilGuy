@@ -11,6 +11,7 @@ import com.tilguys.matilda.github.domain.GitHubStorage;
 import com.tilguys.matilda.github.repository.GitHubStorageRepository;
 import com.tilguys.matilda.til.domain.Til;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,43 +24,24 @@ public class GitHubWorkflowService {
     private final GitHubStorageRepository gitHubStorageRepository;
 
     public void uploadTilToGitHub(Til til) {
-        Optional<GitHubStorage> optionalStorage = gitHubStorageRepository.findByTilUserId(
-                til.getTilUser().getId());
-
-        if (isValidGitHubStorage(optionalStorage)) {
-            return;
-        }
-        gitHubWorkflowClient.uploadContent(new GitHubContentUploadPayload(optionalStorage.get(), til));
+        GitHubStorage gitHubStorage = getGitHubStorageIfValid(til);
+        gitHubWorkflowClient.uploadContent(new GitHubContentUploadPayload(Objects.requireNonNull(gitHubStorage), til));
     }
 
     public void updateTilToGitHub(Til til) {
-        Optional<GitHubStorage> optionalStorage = gitHubStorageRepository.findByTilUserId(
-                til.getTilUser().getId());
+        GitHubStorage gitHubStorage = getGitHubStorageIfValid(til);
+        String sha = getSha(til, gitHubStorage);
 
-        if (isValidGitHubStorage(optionalStorage)) {
-            return;
-        }
-
-        GitHubContentGetPayload contentGetPayload = new GitHubContentGetPayload(optionalStorage.get(), til);
-        Map<String, Object> content = gitHubWorkflowClient.getContent(contentGetPayload);
-        String sha = String.valueOf(content.get("sha"));
-
-        gitHubWorkflowClient.updateContent(new GitHubContentUpdatePayload(optionalStorage.get(), til, sha));
+        gitHubWorkflowClient.updateContent(
+                new GitHubContentUpdatePayload(Objects.requireNonNull(gitHubStorage), til, sha));
     }
 
     public void deleteTilToGitHub(Til til) {
-        Optional<GitHubStorage> optionalStorage = gitHubStorageRepository.findByTilUserId(
-                til.getTilUser().getId());
+        GitHubStorage gitHubStorage = getGitHubStorageIfValid(til);
+        String sha = getSha(til, gitHubStorage);
 
-        if (isValidGitHubStorage(optionalStorage)) {
-            return;
-        }
-
-        GitHubContentGetPayload contentGetPayload = new GitHubContentGetPayload(optionalStorage.get(), til);
-        Map<String, Object> content = gitHubWorkflowClient.getContent(contentGetPayload);
-        String sha = String.valueOf(content.get("sha"));
-
-        gitHubWorkflowClient.deleteContent(new GitHubContentDeletePayload(optionalStorage.get(), til, sha));
+        gitHubWorkflowClient.deleteContent(
+                new GitHubContentDeletePayload(Objects.requireNonNull(gitHubStorage), til, sha));
     }
 
     public void validateRepository(GitHubStorage gitHubStorage) {
@@ -72,7 +54,18 @@ public class GitHubWorkflowService {
         }
     }
 
-    private boolean isValidGitHubStorage(Optional<GitHubStorage> storage) {
-        return storage.isEmpty() || !storage.get().isActivated();
+    private String getSha(Til til, GitHubStorage gitHubStorage) {
+        GitHubContentGetPayload contentGetPayload = new GitHubContentGetPayload(gitHubStorage, til);
+        Map<String, Object> content = gitHubWorkflowClient.getContent(contentGetPayload);
+        return String.valueOf(content.get("sha"));
+    }
+
+    private GitHubStorage getGitHubStorageIfValid(Til til) {
+        Optional<GitHubStorage> optionalStorage = gitHubStorageRepository.findByTilUserId(til.getTilUser().getId());
+
+        if (optionalStorage.isEmpty() || !optionalStorage.get().isActivated()) {
+            return null;
+        }
+        return optionalStorage.get();
     }
 }
