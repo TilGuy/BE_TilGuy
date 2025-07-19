@@ -1,0 +1,45 @@
+services:
+  mysql:
+    image: mysql:8.2.0
+    environment:
+      MYSQL_DATABASE: matilda
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - '3309:3306'
+    volumes:
+      - ./matilda-data:/var/lib/mysql
+
+  matilda-prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+    container_name: "matilda-prometheus"
+    networks:
+      - monitoring
+
+  matilda-grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+    container_name: "matilda-grafana"
+    networks:
+      - monitoring
+    depends_on:
+      - matilda-prometheus
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+networks:
+  monitoring:
+    name: monitoring
+    driver: bridge
+volumes:
+  grafana-data:
+  prometheus-data:
