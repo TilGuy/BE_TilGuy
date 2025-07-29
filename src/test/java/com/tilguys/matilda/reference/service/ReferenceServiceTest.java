@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tilguys.matilda.common.external.OpenAIClient;
+import com.tilguys.matilda.common.external.FailoverAIServiceManager;
 import com.tilguys.matilda.reference.event.ReferenceCreateEvent;
 import com.tilguys.matilda.reference.repository.ReferenceRepository;
 import com.tilguys.matilda.til.domain.Reference;
@@ -50,11 +51,11 @@ class ReferenceServiceTest {
                                 @Autowired ObjectMapper objectMapper) {
         String mockOpenAIResponse = createRealisticOpenAIResponse();
 
-        OpenAIClient mockOpenAIClient = Mockito.mock(OpenAIClient.class);
-        when(mockOpenAIClient.callOpenAI(any(), any())).thenReturn(mockOpenAIResponse);
+        FailoverAIServiceManager mockFailoverManager = Mockito.mock(FailoverAIServiceManager.class);
+        when(mockFailoverManager.callAIWithSimpleFallback(any(), any())).thenReturn(mockOpenAIResponse);
 
         this.service = new ReferenceService(
-                mockOpenAIClient,
+                mockFailoverManager,
                 referenceRepository,
                 objectMapper,
                 tilRepository
