@@ -12,6 +12,8 @@ import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.event.TilCreatedEvent;
 import com.tilguys.matilda.til.service.TilService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +52,13 @@ public class TilTagService {
         );
     }
 
+    @Retryable(
+            retryFor = {Exception.class},
+            maxAttempts = 2,
+            backoff = @Backoff(
+                    delay = 1000
+            )
+    )
     @Transactional
     public void createTags(TilCreatedEvent tilCreatedEvent) {
         try {
@@ -65,7 +74,7 @@ public class TilTagService {
             TilTags tilTags = new TilTags(tags);
             createSubTags(tilResponseJson, tilTags);
         } catch (Exception e) {
-            
+
             throw new RuntimeException("태그 생성 실패:" + e.getMessage());
         }
     }
