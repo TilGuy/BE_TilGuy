@@ -1,7 +1,5 @@
 package com.tilguys.matilda.common.external;
 
-import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -10,6 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+import java.util.Map;
+
 @Component
 public class ClaudeClient implements AIClient {
 
@@ -17,8 +18,10 @@ public class ClaudeClient implements AIClient {
     private final String apiUrl;
     private final String apiKey;
 
-    public ClaudeClient(@Value(value = "${claude.api.key:}") String apiKey,
-                        @Value(value = "${claude.api.url:https://api.anthropic.com/v1/messages}") String apiUrl) {
+    public ClaudeClient(
+            @Value(value = "${claude.api.key:}") String apiKey,
+            @Value(value = "${claude.api.url:https://api.anthropic.com/v1/messages}") String apiUrl
+    ) {
         this.apiUrl = apiUrl;
         this.apiKey = apiKey;
     }
@@ -48,17 +51,6 @@ public class ClaudeClient implements AIClient {
         return response.getBody();
     }
 
-    @Override
-    public String getClientName() {
-        return "Claude";
-    }
-
-    @Override
-    public boolean isAvailable() {
-        return apiKey != null && !apiKey.trim().isEmpty() && 
-               apiUrl != null && !apiUrl.trim().isEmpty();
-    }
-
     private List<Map<String, Object>> transformMessages(List<Map<String, Object>> messages) {
         // OpenAI 형식을 Claude 형식으로 변환
         return messages.stream()
@@ -68,4 +60,17 @@ public class ClaudeClient implements AIClient {
                 ))
                 .toList();
     }
-} 
+
+    @Override
+    public String getClientName() {
+        return "Claude";
+    }
+
+    @Override
+    public boolean isAvailable() {
+        return apiKey != null && !apiKey.trim()
+                .isEmpty() &&
+                apiUrl != null && !apiUrl.trim()
+                .isEmpty();
+    }
+}

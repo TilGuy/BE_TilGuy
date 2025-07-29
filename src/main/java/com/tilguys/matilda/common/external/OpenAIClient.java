@@ -1,7 +1,5 @@
 package com.tilguys.matilda.common.external;
 
-import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -9,6 +7,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class OpenAIClient implements AIClient {
@@ -18,8 +19,10 @@ public class OpenAIClient implements AIClient {
     private final String apiUrl;
     private final String apiKey;
 
-    public OpenAIClient(@Value(value = "${openai.api.key}") String apiKey,
-                        @Value(value = "${openai.api.url}") String apiUrl) {
+    public OpenAIClient(
+            @Value(value = "${openai.api.key}") String apiKey,
+            @Value(value = "${openai.api.url}") String apiUrl
+    ) {
         this.apiUrl = apiUrl;
         this.apiKey = apiKey;
     }
@@ -55,17 +58,11 @@ public class OpenAIClient implements AIClient {
 
     @Override
     public String getClientName() {
-        return "OpenAI";
+        return "openai";
     }
 
     @Override
     public boolean isAvailable() {
-        return apiKey != null && !apiKey.trim().isEmpty() && 
-               apiUrl != null && !apiUrl.trim().isEmpty();
-    }
-
-    // Backward compatibility method
-    public String callOpenAI(List<Map<String, Object>> messages, Map<String, Object> functionDefinition) {
-        return callAI(messages, functionDefinition);
+        return false;
     }
 }
