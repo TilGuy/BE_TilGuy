@@ -1,6 +1,6 @@
 package com.tilguys.matilda.tag.service;
 
-import com.tilguys.matilda.common.external.OpenAIClient;
+import com.tilguys.matilda.common.external.FailoverAIServiceManager;
 import com.tilguys.matilda.tag.domain.SubTag;
 import com.tilguys.matilda.tag.domain.TilTagGenerator;
 import com.tilguys.matilda.tag.domain.TilTagParser;
@@ -11,38 +11,40 @@ import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.event.TilCreatedEvent;
 import com.tilguys.matilda.til.service.TilService;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+
 @Service
 public class TilTagService {
 
-    private final OpenAIClient openAIClient;
+    private final FailoverAIServiceManager failoverAIServiceManager;
     private final TilTagGenerator tagGenerator;
     private final TilTagParser tagParser;
     private final TagRepository tagRepository;
     private final SubTagRepository subTagRepository;
     private final TilService tilService;
 
-    public TilTagService(@Autowired OpenAIClient openAIClient,
-                         TagRepository tagRepository,
-                         SubTagRepository subTagRepository,
-                         TilService tilService
+    public TilTagService(
+            @Autowired FailoverAIServiceManager failoverAIServiceManager,
+            TagRepository tagRepository,
+            SubTagRepository subTagRepository,
+            TilService tilService
     ) {
         this.tagRepository = tagRepository;
         this.subTagRepository = subTagRepository;
         this.tagGenerator = new TilTagGenerator();
         this.tagParser = new TilTagParser();
-        this.openAIClient = openAIClient;
+        this.failoverAIServiceManager = failoverAIServiceManager;
         this.tilService = tilService;
     }
 
     public String requestTilTagResponseJson(String tilContent) {
-        return openAIClient.callOpenAI(
+        return failoverAIServiceManager.callAIWithSimpleFallback(
                 tagGenerator.createPrompt(tilContent),
                 tagGenerator.createFunctionDefinition()
         );
@@ -63,6 +65,7 @@ public class TilTagService {
             TilTags tilTags = new TilTags(tags);
             createSubTags(tilResponseJson, tilTags);
         } catch (Exception e) {
+            
             throw new RuntimeException("태그 생성 실패:" + e.getMessage());
         }
     }
