@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.tilguys.matilda.common.external.OpenAIClient;
+import com.tilguys.matilda.common.external.FailoverAIServiceManager;
 import com.tilguys.matilda.tag.domain.SubTag;
 import com.tilguys.matilda.tag.domain.TilTags;
 import com.tilguys.matilda.tag.repository.SubTagRepository;
@@ -103,9 +104,9 @@ class TilTagServiceTest {
                              @Autowired SubTagRepository subTagRepository,
                              @Autowired TilService tilService
     ) {
-        OpenAIClient openAIClient = Mockito.mock(OpenAIClient.class);
-        when(openAIClient.callOpenAI(any(), any())).thenReturn(tagResponseJson);
-        this.tilTagService = new TilTagService(openAIClient, tagRepository, subTagRepository, tilService);
+        FailoverAIServiceManager mockFailoverManager = Mockito.mock(FailoverAIServiceManager.class);
+        when(mockFailoverManager.callAIWithSimpleFallback(any(), any())).thenReturn(tagResponseJson);
+        this.tilTagService = new TilTagService(mockFailoverManager, tagRepository, subTagRepository, tilService);
     }
 
     @BeforeEach
