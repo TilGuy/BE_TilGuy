@@ -56,6 +56,11 @@ public class OpenAIClient implements AIClient {
         return response.getBody();
     }
 
+    // Backward compatibility method for existing tests
+    public String callOpenAI(List<Map<String, Object>> messages, Map<String, Object> functionDefinition) {
+        return callAI(messages, functionDefinition);
+    }
+
     @Override
     public String getClientName() {
         return "openai";
@@ -63,6 +68,9 @@ public class OpenAIClient implements AIClient {
 
     @Override
     public boolean isAvailable() {
-        return false;
+        return apiKey != null && !apiKey.trim()
+                .isEmpty() &&
+                apiUrl != null && !apiUrl.trim()
+                .isEmpty();
     }
 }
