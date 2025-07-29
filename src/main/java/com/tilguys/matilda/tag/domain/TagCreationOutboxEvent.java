@@ -34,6 +34,9 @@ public class TagCreationOutboxEvent extends BaseEntity {
     @Column(name = "til_content", columnDefinition = "TEXT", nullable = false)
     private String tilContent;
 
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private OutboxEventStatus status;
