@@ -9,9 +9,13 @@
 
 # 인프라
 
+## 아키텍처
+
+![infra.png](docs/infra.png)
+
 ## cicd
 
-![cicd.png](cicd.png)
+![cicd.png](docs/cicd.png)
 
 - 모니터링(prometheus + grafana)
 - 무중단배포(nginx)
@@ -36,7 +40,7 @@
 - 외부에 TIL 공유 기능(슬랙, 연동 등)
 
 # changelog
-[CHANGELOG](https://github.com/TilGuy/BE_TilGuy/blob/main/Changelog.md)
+[CHANGELOG](https://github.com/TilGuy/BE_TilGuy/blob/main/docs/Changelog.md)
 # collaborators
 
 - 투다
