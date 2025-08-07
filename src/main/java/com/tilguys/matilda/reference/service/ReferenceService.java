@@ -1,7 +1,7 @@
 package com.tilguys.matilda.reference.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tilguys.matilda.common.external.OpenAIClient;
+import com.tilguys.matilda.common.external.FailoverAIServiceManager;
 import com.tilguys.matilda.reference.domain.TilReferenceGenerator;
 import com.tilguys.matilda.reference.domain.TilReferenceParser;
 import com.tilguys.matilda.reference.event.ReferenceCreateEvent;
@@ -10,24 +10,27 @@ import com.tilguys.matilda.til.domain.Reference;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.ReferencesResponse;
 import com.tilguys.matilda.til.repository.TilRepository;
-import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class ReferenceService {
 
-    private final OpenAIClient openAIClient;
+    private final FailoverAIServiceManager failoverAIServiceManager;
     private final TilReferenceGenerator tilReferenceGenerator;
     private final TilReferenceParser tilReferenceParser;
     private final ReferenceRepository referenceRepository;
     private final TilRepository tilRepository;
 
-    public ReferenceService(OpenAIClient openAIClient,
-                            ReferenceRepository referenceRepository,
-                            ObjectMapper objectMapper,
-                            TilRepository tilRepository) {
-        this.openAIClient = openAIClient;
+    public ReferenceService(
+            FailoverAIServiceManager failoverAIServiceManager,
+            ReferenceRepository referenceRepository,
+            ObjectMapper objectMapper,
+            TilRepository tilRepository
+    ) {
+        this.failoverAIServiceManager = failoverAIServiceManager;
         this.tilReferenceGenerator = new TilReferenceGenerator();
         this.tilReferenceParser = new TilReferenceParser(objectMapper);
         this.referenceRepository = referenceRepository;
@@ -56,7 +59,7 @@ public class ReferenceService {
     }
 
     public List<Reference> extractTilReference(String tilContent) {
-        String responseJson = openAIClient.callOpenAI(
+        String responseJson = failoverAIServiceManager.callAIWithSimpleFallback(
                 tilReferenceGenerator.createPrompt(tilContent),
                 tilReferenceGenerator.createFunctionDefinition()
         );
