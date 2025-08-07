@@ -5,19 +5,20 @@ import com.tilguys.matilda.tag.repository.TagRelationRepository;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.service.TilService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TagRelationService {
 
-    private static final Long TAG_RELATION_RENEW_PERIOD = 3L;
+    private static final Long TAG_RELATION_RENEW_PERIOD = 90L;
 
     private final TagRelationRepository tagRelationRepository;
     private final TilService tilService;
@@ -30,7 +31,9 @@ public class TagRelationService {
     @Transactional
     public void renewCoreTagsRelation() {
         tagRelationRepository.deleteAll();
-        LocalDateTime startDateTime = LocalDate.now().minusDays(TAG_RELATION_RENEW_PERIOD).atStartOfDay();
+        LocalDateTime startDateTime = LocalDate.now()
+                .minusDays(TAG_RELATION_RENEW_PERIOD)
+                .atStartOfDay();
         List<Til> recentWroteTil = tilService.getRecentWroteTil(startDateTime);
 
         for (Til til : recentWroteTil) {
@@ -51,12 +54,16 @@ public class TagRelationService {
     }
 
     public Map<Tag, List<Tag>> getRecentRelationTagMap() {
-        LocalDateTime startDateTime = LocalDate.now().minusDays(TAG_RELATION_RENEW_PERIOD).atStartOfDay();
+        LocalDateTime startDateTime = LocalDate.now()
+                .minusDays(TAG_RELATION_RENEW_PERIOD)
+                .atStartOfDay();
         List<TagRelation> tagRelations = tagRelationRepository.findByCreatedAtGreaterThanEqual(startDateTime);
 
         Map<Tag, List<Tag>> tagMap = new HashMap<>();
         for (TagRelation tagRelation : tagRelations) {
-            if (!tagRelation.getTag().getTil().isNotDeleted()) {
+            if (!tagRelation.getTag()
+                    .getTil()
+                    .isNotDeleted()) {
                 continue;
             }
 

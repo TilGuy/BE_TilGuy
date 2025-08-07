@@ -12,16 +12,15 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class OpenAIClient implements AIClient {
+public class ClaudeClient implements AIClient {
 
-    private static final String FUNCTION = "function";
     private final RestTemplate restTemplate = new RestTemplate();
     private final String apiUrl;
     private final String apiKey;
 
-    public OpenAIClient(
-            @Value(value = "${openai.api.key}") String apiKey,
-            @Value(value = "${openai.api.url}") String apiUrl
+    public ClaudeClient(
+            @Value(value = "${claude.api.key:}") String apiKey,
+            @Value(value = "${claude.api.url:https://api.anthropic.com/v1/messages}") String apiUrl
     ) {
         this.apiUrl = apiUrl;
         this.apiKey = apiKey;
@@ -29,26 +28,22 @@ public class OpenAIClient implements AIClient {
 
     @Override
     public String callAI(List<Map<String, Object>> messages, Map<String, Object> functionDefinition) {
-        Map<String, Object> tool = Map.of(
-                "type", FUNCTION,
-                FUNCTION, functionDefinition
-        );
-
+        // Claude API 형식에 맞게 변환
         Map<String, Object> body = Map.of(
-                "model", "gpt-4o-2024-05-13",
-                "messages", messages,
-                "tools", List.of(tool),
-                "tool_choice", Map.of(
-                        "type", FUNCTION,
-                        FUNCTION, Map.of(
-                                "name", functionDefinition.get("name")
-                        )
-                )
+                "model", "claude-3-haiku-20240307",
+                "max_tokens", 1000,
+                "messages", transformMessages(messages),
+                "tools", List.of(Map.of(
+                        "name", functionDefinition.get("name"),
+                        "description", functionDefinition.get("description"),
+                        "input_schema", functionDefinition.get("parameters")
+                ))
         );
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(apiKey);
+        headers.set("x-api-key", apiKey);
+        headers.set("anthropic-version", "2023-06-01");
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         ResponseEntity<String> response = restTemplate.postForEntity(apiUrl, requestEntity, String.class);
@@ -56,14 +51,19 @@ public class OpenAIClient implements AIClient {
         return response.getBody();
     }
 
-    // Backward compatibility method for existing tests
-    public String callOpenAI(List<Map<String, Object>> messages, Map<String, Object> functionDefinition) {
-        return callAI(messages, functionDefinition);
+    private List<Map<String, Object>> transformMessages(List<Map<String, Object>> messages) {
+        // OpenAI 형식을 Claude 형식으로 변환
+        return messages.stream()
+                .map(message -> Map.of(
+                        "role", message.get("role"),
+                        "content", message.get("content")
+                ))
+                .toList();
     }
 
     @Override
     public String getClientName() {
-        return "openai";
+        return "Claude";
     }
 
     @Override

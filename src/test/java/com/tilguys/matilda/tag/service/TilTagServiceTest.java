@@ -1,10 +1,6 @@
 package com.tilguys.matilda.tag.service;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
-import com.tilguys.matilda.common.external.OpenAIClient;
+import com.tilguys.matilda.common.external.FailoverAIServiceManager;
 import com.tilguys.matilda.tag.domain.SubTag;
 import com.tilguys.matilda.tag.domain.TilTags;
 import com.tilguys.matilda.tag.repository.SubTagRepository;
@@ -19,10 +15,6 @@ import com.tilguys.matilda.til.service.TilService;
 import com.tilguys.matilda.user.TilUser;
 import com.tilguys.matilda.user.TilUserFixture;
 import com.tilguys.matilda.user.repository.UserRepository;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -32,6 +24,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @SpringBootTest
@@ -99,13 +100,16 @@ class TilTagServiceTest {
     @Autowired
     private TagRelationRepository tagRelationRepository;
 
-    public TilTagServiceTest(@Autowired TagRepository tagRepository,
-                             @Autowired SubTagRepository subTagRepository,
-                             @Autowired TilService tilService
+    public TilTagServiceTest(
+            @Autowired TagRepository tagRepository,
+            @Autowired SubTagRepository subTagRepository,
+            @Autowired TilService tilService
     ) {
-        OpenAIClient openAIClient = Mockito.mock(OpenAIClient.class);
-        when(openAIClient.callOpenAI(any(), any())).thenReturn(tagResponseJson);
-        this.tilTagService = new TilTagService(openAIClient, tagRepository, subTagRepository, tilService);
+        FailoverAIServiceManager mockFailoverManager = Mockito.mock(FailoverAIServiceManager.class);
+        when(mockFailoverManager.callAIWithSimpleFallback(any(), any())).thenReturn(tagResponseJson);
+        TagCreationOutboxService mockOutboxService = Mockito.mock(TagCreationOutboxService.class);
+        this.tilTagService =
+                new TilTagService(mockFailoverManager, tagRepository, subTagRepository, tilService, mockOutboxService);
     }
 
     @BeforeEach
@@ -119,7 +123,7 @@ class TilTagServiceTest {
 
     @Test
     @Transactional
-    void TIL_생성_이벤트로_태그들을_자동_생성할_수_있다() {
+    void TIL_생성_이벤트로_태그들을_자동_생성할_수_있다() throws InterruptedException {
         TilUser tilUser = TilUserFixture.createTilUserFixture();
         userRepository.save(tilUser);
 
@@ -129,13 +133,18 @@ class TilTagServiceTest {
         TilCreatedEvent event = new TilCreatedEvent(
                 til.getTilId(),
                 "Spring Boot와 JPA를 사용한 웹 애플리케이션 개발",
-                tilUser.getId());
+                tilUser.getId()
+        );
 
-        tilTagService.createTags(event);
+        // 동기 처리 방식으로 직접 테스트 (기존 테스트 의도 유지)
+        tilTagService.createTagsDirect(event);
+
         assertThat(tagRepository.count()).isGreaterThan(0);
 
-        Til updatedTil = tilRepository.findById(til.getTilId()).orElseThrow();
-        assertThat(updatedTil.getTags().size()).isGreaterThan(0);
+        Til updatedTil = tilRepository.findById(til.getTilId())
+                .orElseThrow();
+        assertThat(updatedTil.getTags()
+                .size()).isGreaterThan(0);
     }
 
     @Test
@@ -154,10 +163,13 @@ class TilTagServiceTest {
         til.updateTags(List.of(tag));
         tilRepository.save(til);
 
-        assertThat(tagRepository.findAll().size()).isEqualTo(1L);
-        LocalDate startDay = LocalDate.now().minusDays(7L);
+        assertThat(tagRepository.findAll()
+                .size()).isEqualTo(1L);
+        LocalDate startDay = LocalDate.now()
+                .minusDays(7L);
 
-        assertThat(tilTagService.getRecentWroteTags(startDay).size()).isEqualTo(1L);
+        assertThat(tilTagService.getRecentWroteTags(startDay)
+                .size()).isEqualTo(1L);
     }
 
     @Test
@@ -191,7 +203,8 @@ class TilTagServiceTest {
 
         List<SubTag> subTags = tilTagService.createSubTags(tagResponseJson, tilTags);
 
-        List<SubTag> recentSubTags = tilTagService.getRecentSubTags(LocalDate.from(LocalDateTime.now().minusDays(2L)));
+        List<SubTag> recentSubTags = tilTagService.getRecentSubTags(LocalDate.from(LocalDateTime.now()
+                .minusDays(2L)));
 
         assertThat(recentSubTags.size()).isEqualTo(subTags.size());
     }
