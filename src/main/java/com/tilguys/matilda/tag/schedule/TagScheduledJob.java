@@ -34,7 +34,7 @@ public class TagScheduledJob {
         this.recentTilTagsCache = recentTilTagsCache;
     }
 
-    @Scheduled(cron = "0 */5 * * * *")
+    @Scheduled(cron = "0 */30 * * * *")
     public void updateRecentTagRelations() {
         tagRelationService.renewCoreTagsRelation();
         TilTagRelations recentTagRelations = createRecentTagRelations();
