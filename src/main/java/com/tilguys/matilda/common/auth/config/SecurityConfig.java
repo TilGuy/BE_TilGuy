@@ -1,7 +1,5 @@
 package com.tilguys.matilda.common.auth.config;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 import com.tilguys.matilda.common.auth.Jwt;
 import com.tilguys.matilda.common.auth.service.AuthService;
 import com.tilguys.matilda.common.auth.service.UserRefreshTokenService;
@@ -10,7 +8,6 @@ import com.tilguys.matilda.common.auth.strategy.AccessJwtTokenCookieCreateStrate
 import com.tilguys.matilda.common.auth.strategy.JwtCookieCreateStrategy;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import java.security.Key;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +22,10 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.security.Key;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -70,15 +71,19 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .formLogin(FormLoginConfigurer::disable)
                 .addFilterBefore(prevLoginFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers(HttpMethod.GET, "/api/til/range").hasAnyAuthority(PERMITTED_ROLES)
-                        .requestMatchers(HttpMethod.GET, "/api/til/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/til/range")
+                        .hasAnyAuthority(PERMITTED_ROLES)
+                        .requestMatchers(HttpMethod.GET, "/api/til/**")
+                        .permitAll()
                         .requestMatchers(
                                 "/api/oauth/login",
                                 "/api/oauth/logout",
+                                "/api/tags/recent",
                                 "/api/user/profileUrl/**",
                                 "/actuator/**",
                                 "/error"
-                        ).permitAll()
+                        )
+                        .permitAll()
                         .anyRequest()
                         .hasAnyAuthority(PERMITTED_ROLES));
         return http.build();
