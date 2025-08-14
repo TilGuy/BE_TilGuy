@@ -18,7 +18,7 @@ import java.util.Map;
 @Service
 public class TagRelationService {
 
-    private static final Long TAG_RELATION_RENEW_PERIOD = 90L;
+    private static final Long TAG_RELATION_RENEW_PERIOD = 500L;
 
     private final TagRelationRepository tagRelationRepository;
     private final TilService tilService;
