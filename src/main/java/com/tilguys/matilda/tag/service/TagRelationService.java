@@ -43,14 +43,18 @@ public class TagRelationService {
     }
 
     private void createTagsRelation(List<Tag> recentWroteTags) {
+        List<TagRelation> tagRelations = new ArrayList<TagRelation>();
+
         for (int i = 0; i < recentWroteTags.size(); i++) {
             for (int j = 0; j < recentWroteTags.size(); j++) {
                 if (i == j) {
                     continue;
                 }
-                tagRelationRepository.save(new TagRelation(null, recentWroteTags.get(i), recentWroteTags.get(j)));
+                tagRelations.add(new TagRelation(null, recentWroteTags.get(i), recentWroteTags.get(j)));
             }
         }
+
+        tagRelationRepository.saveAll(tagRelations);
     }
 
     public Map<Tag, List<Tag>> getRecentRelationTagMap() {

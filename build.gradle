@@ -65,14 +65,14 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'io.micrometer:micrometer-registry-prometheus'
-    
-    // Circuit Breaker
-    implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.1.0'
-    implementation 'io.github.resilience4j:resilience4j-circuitbreaker:2.1.0'
-    
-    // Retry Pattern
+
     implementation 'org.springframework.retry:spring-retry:2.0.5'
     implementation 'org.springframework:spring-aspects:6.1.4'
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+    implementation 'org.apache.commons:commons-pool2'
 }
 
 tasks.named('test') {
