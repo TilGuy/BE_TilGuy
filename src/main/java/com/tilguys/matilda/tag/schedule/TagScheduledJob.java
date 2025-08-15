@@ -19,7 +19,7 @@ import java.util.Map;
 @Slf4j
 public class TagScheduledJob {
 
-    private static final int TAG_GET_START_DAY = 90;
+    private static final int TAG_GET_START_DAY = 500;
 
     private final TagRelationService tagRelationService;
     private final TilTagService tilTagService;
