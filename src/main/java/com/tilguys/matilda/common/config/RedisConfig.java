@@ -1,5 +1,6 @@
 package com.tilguys.matilda.common.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -19,13 +20,23 @@ import java.time.Duration;
 @EnableCaching
 public class RedisConfig {
 
+    @Value("${spring.redis.host:localhost}")
+    private String redisHost;
+
+    @Value("${spring.redis.port:6379}")
+    private int redisPort;
+
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory();
+        LettuceConnectionFactory factory = new LettuceConnectionFactory(redisHost, redisPort);
+        factory.afterPropertiesSet();
+        return factory;
     }
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
+        System.out.println("Redis Host: " + ((LettuceConnectionFactory) connectionFactory).getHostName());
+
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
 
@@ -48,14 +59,9 @@ public class RedisConfig {
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(config)
-                .withCacheConfiguration("tilTags",
-                        config.entryTtl(Duration.ofMinutes(10)))
-                .withCacheConfiguration("userInfo",
-                        config.entryTtl(Duration.ofHours(1)))
-                .withCacheConfiguration("references",
-                        config.entryTtl(Duration.ofMinutes(20)))
+                .withCacheConfiguration("tilTags", config.entryTtl(Duration.ofMinutes(10)))
+                .withCacheConfiguration("userInfo", config.entryTtl(Duration.ofHours(1)))
+                .withCacheConfiguration("references", config.entryTtl(Duration.ofMinutes(20)))
                 .build();
     }
 }
-
-

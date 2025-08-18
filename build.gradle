@@ -75,6 +75,15 @@ dependencies {
     implementation 'org.apache.commons:commons-pool2'
 }
 
+configurations.all {
+    resolutionStrategy {
+        force 'com.fasterxml.jackson.core:jackson-core:2.18.2'
+        force 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
+        force 'com.fasterxml.jackson.core:jackson-annotations:2.18.2'
+    }
+}
+
+
 tasks.named('test') {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
