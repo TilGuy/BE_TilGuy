@@ -1,10 +1,6 @@
 package com.tilguys.matilda.til.repository;
 
 import com.tilguys.matilda.til.domain.Til;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -12,6 +8,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TilRepository extends JpaRepository<Til, Long> {
@@ -21,12 +22,16 @@ public interface TilRepository extends JpaRepository<Til, Long> {
 
     List<Til> findByTilUserId(final Long userId);
 
-    List<Til> findAllByTilUserIdAndDateBetweenAndIsDeleted(Long tilUserId, LocalDate dateAfter, LocalDate dateBefore,
-                                                           boolean deleted);
+    List<Til> findAllByTilUserIdAndDateBetweenAndIsDeleted(
+            Long tilUserId, LocalDate dateAfter, LocalDate dateBefore,
+            boolean deleted
+    );
 
     boolean existsByDateAndTilUserIdAndIsDeletedFalse(LocalDate date, Long userId);
 
-    List<Til> findByCreatedAtGreaterThanEqual(LocalDateTime recent);
+
+    @Query("SELECT DISTINCT t FROM Til t LEFT JOIN FETCH t.tags WHERE t.createdAt >= :recent")
+    List<Til> findByCreatedAtGreaterThanEqual(@Param("recent") LocalDateTime recent);
 
     @EntityGraph(attributePaths = {"tilUser"})
     @Query("SELECT t FROM Til t " +
@@ -34,9 +39,11 @@ public interface TilRepository extends JpaRepository<Til, Long> {
             "AND (:cursorDate IS NULL OR t.createdAt < :cursorDate " +
             "    OR (t.createdAt = :cursorDate AND t.tilId < :cursorId)) " +
             "ORDER BY t.createdAt DESC, t.tilId DESC")
-    List<Til> findPublicTilsWithAllInfo(@Param("cursorDate") LocalDateTime cursorDate,
-                                        @Param("cursorId") Long cursorId,
-                                        Pageable pageable);
+    List<Til> findPublicTilsWithAllInfo(
+            @Param("cursorDate") LocalDateTime cursorDate,
+            @Param("cursorId") Long cursorId,
+            Pageable pageable
+    );
 
 
     Optional<Til> findByTilIdAndIsDeletedFalse(Long tilId);

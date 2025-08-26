@@ -10,8 +10,8 @@
 # 인프라
 
 ## 아키텍처
-<img width="2009" height="1525" alt="image" src="https://github.com/user-attachments/assets/22ed35c2-b88d-4816-a92e-32f64afe5859" />
 
+![infra.png](docs/infra.png)
 
 ## cicd
 

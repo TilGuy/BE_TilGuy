@@ -8,6 +8,7 @@ import com.tilguys.matilda.tag.service.TagRelationService;
 import com.tilguys.matilda.tag.service.TilTagService;
 import com.tilguys.matilda.til.domain.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -17,9 +18,14 @@ import java.util.Map;
 
 @Component
 @Slf4j
+@ConditionalOnProperty(
+        name = "matilda.cache.tag.enabled",
+        havingValue = "true",
+        matchIfMissing = false
+)
 public class TagScheduledJob {
 
-    private static final int TAG_GET_START_DAY = 90;
+    private static final int TAG_GET_START_DAY = 500;
 
     private final TagRelationService tagRelationService;
     private final TilTagService tilTagService;
@@ -34,11 +40,13 @@ public class TagScheduledJob {
         this.recentTilTagsCache = recentTilTagsCache;
     }
 
-    @Scheduled(cron = "0 */5 * * * *")
+    @Scheduled(cron = "0 */30 * * * *")
     public void updateRecentTagRelations() {
+        log.info("recent tag 관계 캐싱 시작!");
         tagRelationService.renewCoreTagsRelation();
         TilTagRelations recentTagRelations = createRecentTagRelations();
         recentTilTagsCache.updateRecentTagRelations(recentTagRelations);
+        log.info("recent tag 관계 캐싱 완료");
     }
 
     private TilTagRelations createRecentTagRelations() {

@@ -5,6 +5,7 @@ import com.tilguys.matilda.tag.repository.TagRelationRepository;
 import com.tilguys.matilda.til.domain.Tag;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.service.TilService;
+import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,41 +19,69 @@ import java.util.Map;
 @Service
 public class TagRelationService {
 
-    private static final Long TAG_RELATION_RENEW_PERIOD = 90L;
+    private static final Long TAG_RELATION_RENEW_PERIOD = 500L;
+    private static final int BATCH_SAVE_SIZE = 1000;
 
     private final TagRelationRepository tagRelationRepository;
     private final TilService tilService;
+    private final EntityManager entityManager;
 
-    public TagRelationService(TagRelationRepository tagRelationRepository, TilService tilService) {
+    public TagRelationService(
+            TagRelationRepository tagRelationRepository,
+            TilService tilService,
+            EntityManager entityManager
+    ) {
         this.tagRelationRepository = tagRelationRepository;
         this.tilService = tilService;
+        this.entityManager = entityManager;
     }
 
     @Transactional
     public void renewCoreTagsRelation() {
-        tagRelationRepository.deleteAll();
+        tagRelationRepository.deleteAllInBatch();
+
         LocalDateTime startDateTime = LocalDate.now()
                 .minusDays(TAG_RELATION_RENEW_PERIOD)
                 .atStartOfDay();
+
         List<Til> recentWroteTil = tilService.getRecentWroteTil(startDateTime);
+
+        List<TagRelation> tilRelations = new ArrayList<>();
 
         for (Til til : recentWroteTil) {
             List<Tag> tags = til.getTags();
-            createTagsRelation(tags);
+
+            tilRelations.addAll(createRelatedTag(tags));
+
+            if (tilRelations.size() >= BATCH_SAVE_SIZE) {
+                tagRelationRepository.saveAll(tilRelations);
+                tilRelations.clear();
+                entityManager.flush();
+                entityManager.clear();
+            }
+        }
+
+        if (!tilRelations.isEmpty()) {
+            tagRelationRepository.saveAll(tilRelations);
+            entityManager.flush();
+            entityManager.clear();
         }
     }
 
-    private void createTagsRelation(List<Tag> recentWroteTags) {
-        for (int i = 0; i < recentWroteTags.size(); i++) {
-            for (int j = 0; j < recentWroteTags.size(); j++) {
+    private List<TagRelation> createRelatedTag(List<Tag> tags) {
+        List<TagRelation> tagRelations = new ArrayList<>();
+        for (int i = 0; i < tags.size(); i++) {
+            for (int j = 0; j < tags.size(); j++) {
                 if (i == j) {
                     continue;
                 }
-                tagRelationRepository.save(new TagRelation(null, recentWroteTags.get(i), recentWroteTags.get(j)));
+                tagRelations.add(new TagRelation(null, tags.get(i), tags.get(j)));
             }
         }
+        return tagRelations;
     }
 
+    @Transactional(readOnly = true)
     public Map<Tag, List<Tag>> getRecentRelationTagMap() {
         LocalDateTime startDateTime = LocalDate.now()
                 .minusDays(TAG_RELATION_RENEW_PERIOD)

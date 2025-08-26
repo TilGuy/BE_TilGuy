@@ -89,7 +89,6 @@ public class TilTagService {
     }
 
     /**
-     * Retry 로직이 포함된 태그 생성 (테스트용)
      * maxAttempts = 2, delay = 1000ms
      */
     @Transactional
@@ -101,7 +100,7 @@ public class TilTagService {
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
                 log.info("Tag creation attempt {} for TIL {}", attempt, tilCreatedEvent.getTilId());
-                
+
                 Til til = tilService.getTilByTilId(tilCreatedEvent.getTilId());
                 String tilResponseJson = requestTilTagResponseJson(tilCreatedEvent.getTilContent());
 
@@ -113,21 +112,24 @@ public class TilTagService {
 
                 TilTags tilTags = new TilTags(tags);
                 createSubTags(tilResponseJson, tilTags);
-                
+
                 log.info("Tag creation succeeded on attempt {} for TIL {}", attempt, tilCreatedEvent.getTilId());
                 return; // 성공 시 즉시 리턴
 
             } catch (Exception e) {
                 lastException = e;
-                log.warn("Tag creation attempt {} failed for TIL {}: {}", 
-                        attempt, tilCreatedEvent.getTilId(), e.getMessage());
+                log.warn(
+                        "Tag creation attempt {} failed for TIL {}: {}",
+                        attempt, tilCreatedEvent.getTilId(), e.getMessage()
+                );
 
                 if (attempt < maxAttempts) {
                     try {
                         log.info("Waiting {}ms before retry...", delayMs);
                         Thread.sleep(delayMs);
                     } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
+                        Thread.currentThread()
+                                .interrupt();
                         throw new RuntimeException("Interrupted during retry delay", ie);
                     }
                 }
