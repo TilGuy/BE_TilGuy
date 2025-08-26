@@ -30,7 +30,7 @@ public interface TilRepository extends JpaRepository<Til, Long> {
     boolean existsByDateAndTilUserIdAndIsDeletedFalse(LocalDate date, Long userId);
 
 
-    @Query("SELECT t FROM Til t JOIN FETCH t.tags WHERE t.createdAt >= :recent")
+    @Query("SELECT DISTINCT t FROM Til t LEFT JOIN FETCH t.tags WHERE t.createdAt >= :recent")
     List<Til> findByCreatedAtGreaterThanEqual(@Param("recent") LocalDateTime recent);
 
     @EntityGraph(attributePaths = {"tilUser"})
