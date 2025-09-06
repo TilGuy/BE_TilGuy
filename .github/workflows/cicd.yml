@@ -30,7 +30,7 @@ jobs:
           EOF
 
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew bootJar
 
       - name: Create zip file
         run: |
