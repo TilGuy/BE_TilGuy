@@ -1,5 +1,6 @@
 package com.tilguys.matilda.til.service;
 
+import com.tilguys.matilda.til.lock.TilCreationLockService;
 import com.tilguys.matilda.reference.event.ReferenceCreateEvent;
 import com.tilguys.matilda.til.domain.Til;
 import com.tilguys.matilda.til.dto.TilDatesResponse;
@@ -31,27 +32,39 @@ public class TilService {
     private final TilRepository tilRepository;
     private final TilUserService userService;
     private final ApplicationEventPublisher eventPublisher;
+    private final TilCreationLockService lockService;
 
     @Transactional
     public Til createTil(final TilDefinitionRequest tilCreateDto, final long userId) {
-        boolean exists = tilRepository.existsByDateAndTilUserIdAndIsDeletedFalse(tilCreateDto.date(), userId);
-        if (exists) {
-            throw new IllegalArgumentException("같은 날에 작성된 게시물이 존재합니다!");
+        LocalDate targetDate = tilCreateDto.date();
+        
+        boolean lockAcquired = lockService.acquireLock(userId, targetDate);
+        if (!lockAcquired) {
+            throw new IllegalStateException("같은 날짜에 TIL을 생성하는 다른 요청이 진행 중입니다. 잠시 후 다시 시도해주세요.");
         }
 
-        TilUser user = userService.findById(userId);
-        Til newTil = tilCreateDto.toEntity(user);
-        Til til = tilRepository.save(newTil);
+        try {
+            boolean exists = tilRepository.existsByDateAndTilUserIdAndIsDeletedFalse(targetDate, userId);
+            if (exists) {
+                throw new IllegalArgumentException("같은 날에 작성된 게시물이 존재합니다!");
+            }
 
-        eventPublisher.publishEvent(
-                new TilCreatedEvent(til.getTilId(), til.getContent(), user.getId())
-        );
+            TilUser user = userService.findById(userId);
+            Til newTil = tilCreateDto.toEntity(user);
+            Til til = tilRepository.save(newTil);
 
-        eventPublisher.publishEvent(
-                new ReferenceCreateEvent(til.getTilId(), til.getContent())
-        );
+            eventPublisher.publishEvent(
+                    new TilCreatedEvent(til.getTilId(), til.getContent(), user.getId())
+            );
 
-        return til;
+            eventPublisher.publishEvent(
+                    new ReferenceCreateEvent(til.getTilId(), til.getContent())
+            );
+
+            return til;
+        } finally {
+            lockService.releaseLock(userId, targetDate);
+        }
     }
 
     @Transactional(readOnly = true)
